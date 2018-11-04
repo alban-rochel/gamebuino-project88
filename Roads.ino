@@ -236,4 +236,13 @@ void loop()
 
   GraphicsManager::EndFrame();
   ++offset;
+
+  if (gb.buttons.repeat(BUTTON_LEFT, 0))
+  {
+    ++screen_x;
+  }
+  else if (gb.buttons.repeat(BUTTON_RIGHT, 0))
+  {
+    --screen_x;
+  }
 }
