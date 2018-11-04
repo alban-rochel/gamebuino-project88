@@ -32,7 +32,19 @@ uint16_t colors_track[2*COLOR_TRACK_SIZE];
 #define Y_E_METERS (5.f)
 #define Y_E_PIXELS (80)
 
-uint16_t zMap[SCREEN_HEIGHT];
+struct DepthInfo
+{
+  uint16_t z = 0;
+  int16_t leftBumperIndex = 0;
+  int16_t leftRoadIndex = 0;
+  int16_t leftLineIndex = 0;
+  int16_t rightRoadIndex = 0;
+  int16_t rightBumperIndex = 0;
+  int16_t rightGrassIndex = 0;
+};
+
+/*uint16_t zMap[SCREEN_HEIGHT];*/
+DepthInfo zMap[SCREEN_HEIGHT];
 #define SKY_Z (0xFFFF)
 
 uint16_t offset;
@@ -54,18 +66,50 @@ void setup()
   colors_track[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); colors_track[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX + 1] = COLOR_565(186, 186, 186);
   colors_track[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); colors_track[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX + 1] = colors_track[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX + 1];
 
+//  float zMin(0), zMax(0);
+#define BUMPER_WIDTH (6)
+#define LANE_WIDTH (50)
+#define LINE_WIDTH (4)
+
   for(unsigned int row_index = 0; row_index < SCREEN_HEIGHT; ++row_index)
   {
     if(row_index >= Y_E_PIXELS)
     {
-      zMap[SCREEN_HEIGHT - 1 - row_index] = SKY_Z;
+      zMap[SCREEN_HEIGHT - 1 - row_index].z = SKY_Z;
     }
     else
     {
       float y = row_index * Y_E_METERS / Y_E_PIXELS;
-      zMap[SCREEN_HEIGHT - 1 - row_index] = (uint16_t)((-Z_E) / (Y_E_METERS - y) * Y_E_METERS + Z_E + 0.5f);
+      zMap[SCREEN_HEIGHT - 1 - row_index].z = (uint16_t)((-Z_E) / (Y_E_METERS - y) * Y_E_METERS + Z_E + 0.5f);
+
+    //We consider that at the horizon, the road is 10 times narrower than at the bottom of the viewport
+      float scaleFactor = 1.f - (0.9f * (row_index)) / Y_E_PIXELS;
+
+      zMap[SCREEN_HEIGHT - 1 - row_index].leftBumperIndex = (SCREEN_WIDTH >> 1) - (uint16_t)(scaleFactor*((LINE_WIDTH >> 1) + LANE_WIDTH + BUMPER_WIDTH + 0.5f));
+      zMap[SCREEN_HEIGHT - 1 - row_index].leftRoadIndex = (SCREEN_WIDTH >> 1) - (uint16_t)(scaleFactor*((LINE_WIDTH >> 1) + LANE_WIDTH + 0.5f));
+      zMap[SCREEN_HEIGHT - 1 - row_index].leftLineIndex = (SCREEN_WIDTH >> 1) - (uint16_t)(scaleFactor*((LINE_WIDTH >> 1) + 0.5f));
+      zMap[SCREEN_HEIGHT - 1 - row_index].rightRoadIndex = (SCREEN_WIDTH >> 1) + (uint16_t)(scaleFactor*((LINE_WIDTH >> 1) + 0.5f));
+      zMap[SCREEN_HEIGHT - 1 - row_index].rightBumperIndex = (SCREEN_WIDTH >> 1) + (uint16_t)(scaleFactor*((LINE_WIDTH >> 1) + LANE_WIDTH + 0.5f));
+      zMap[SCREEN_HEIGHT - 1 - row_index].rightGrassIndex = (SCREEN_WIDTH >> 1) + (uint16_t)(scaleFactor*((LINE_WIDTH >> 1) + LANE_WIDTH + BUMPER_WIDTH + 0.5f));
+  
+      if(zMap[SCREEN_HEIGHT - 1 - row_index].leftBumperIndex == zMap[SCREEN_HEIGHT - 1 - row_index].leftRoadIndex)
+      {
+        ++zMap[SCREEN_HEIGHT - 1 - row_index].leftRoadIndex;
+      }
+
+      if(zMap[SCREEN_HEIGHT - 1 - row_index].leftLineIndex == zMap[SCREEN_HEIGHT - 1 - row_index].rightRoadIndex)
+      {
+        ++zMap[SCREEN_HEIGHT - 1 - row_index].rightRoadIndex;
+      }
+
+      if(zMap[SCREEN_HEIGHT - 1 - row_index].rightBumperIndex == zMap[SCREEN_HEIGHT - 1 - row_index].rightGrassIndex)
+      {
+        ++zMap[SCREEN_HEIGHT - 1 - row_index].rightGrassIndex;
+      }
     }
   }
+
+
 
   offset = 1;
 }
@@ -79,10 +123,10 @@ void loop()
   {
     SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
     SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
-    SerialUSB.printf("WHITE: %x\n", COLOR_565(255, 255, 255));
-    SerialUSB.printf("RED: %x\n", COLOR_565(255, 0, 0));
-    SerialUSB.printf("GREEN: %x\n", COLOR_565(0, 255, 0));
-    SerialUSB.printf("BLUE: %x\n", COLOR_565(0, 0, 255));
+//    SerialUSB.printf("WHITE: %x\n", COLOR_565(255, 255, 255));
+//    SerialUSB.printf("RED: %x\n", COLOR_565(255, 0, 0));
+//    SerialUSB.printf("GREEN: %x\n", COLOR_565(0, 255, 0));
+//    SerialUSB.printf("BLUE: %x\n", COLOR_565(0, 0, 255));
   }
   uint16_t* strip = GraphicsManager::StartFrame();
   uint16_t* stripCursor = strip;
@@ -104,7 +148,7 @@ void loop()
 #endif
 
   unsigned int yStrip = 1;
-  uint16_t * currentZ = zMap;
+  DepthInfo * currentZ = zMap;
   int16_t bumperIndex1 = 50;
   int16_t roadIndex1 = 55;
   int16_t lineIndex = 78;
@@ -114,7 +158,7 @@ void loop()
   for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip, ++currentZ)
   {
     //SerialUSB.printf("%i %i\n", y, *currentZ);
-    if(*currentZ == SKY_Z)
+    if(currentZ->z == SKY_Z)
     {
       // draw sky
       for(uint16_t ii = 0; ii < SCREEN_WIDTH; ++ii)
@@ -124,30 +168,30 @@ void loop()
     }
     else
     {
-      int altColor = (((*currentZ + offset/2) >> 1) & 0x1);
+      int altColor = (((currentZ->z + offset/2) >> 1) & 0x1);
       uint16_t* track_palette = colors_track + (COLOR_TRACK_SIZE+1) * altColor;
       int16_t col = 0;
-      for(; col < bumperIndex1; ++col)
+      for(; col < currentZ->leftBumperIndex; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_GRASS_INDEX];
       }
-      for(; col < roadIndex1; ++col)
+      for(; col < currentZ->leftRoadIndex; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_BUMPER_INDEX];
       }
-      for(; col < lineIndex; ++col)
+      for(; col < currentZ->leftLineIndex; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_ROAD_INDEX];
       }
-      for(; col < roadIndex2; ++col)
+      for(; col < currentZ->rightRoadIndex; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_LINE_INDEX];
       }
-      for(; col < bumperIndex2; ++col)
+      for(; col < currentZ->rightBumperIndex; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_ROAD_INDEX];
       }
-      for(; col < grassIndex; ++col)
+      for(; col < currentZ->rightGrassIndex; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_BUMPER_INDEX];
       }
@@ -165,16 +209,7 @@ void loop()
     }
   }
 
-/*
-  for (int sliceIndex = 0; sliceIndex < SCREEN_HEIGHT / STRIP_HEIGHT; sliceIndex++)
-  {
-    for(uint16_t ii = 0; ii < STRIP_SIZE_PIX; ++ii)
-    {
-      strip[ii] = colors[sliceIndex];
-    }
 
-    strip = GraphicsManager::CommitStrip();
-  }*/
   GraphicsManager::EndFrame();
   ++offset;
 }
