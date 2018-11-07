@@ -28,33 +28,87 @@ uint16_t colors_track[2*COLOR_TRACK_SIZE];
  * -> z = (-ze) / (ye - y) * ye + ze
  */
 
-#define Z_E (-1.f)
+#define Z_E (-5.f)
 #define Y_E_METERS (5.f)
 #define Y_E_PIXELS (80)
 
 struct DepthInfo
 {
   uint16_t z = 0;
-  float zf = 0.f;
-  float scaleFactor = 0;
-  int16_t leftBumperIndex = 0;
-  int16_t leftRoadIndex = 0;
-  int16_t leftLineIndex = 0;
-  int16_t rightRoadIndex = 0;
-  int16_t rightBumperIndex = 0;
-  int16_t rightGrassIndex = 0;
+  float zf = 0.f;               // TODO 8.8
+  float scaleFactor = 0;        // TODO 8.8
+  int16_t leftBumperIndex = 0;  // TODO int8_t
+  int16_t leftRoadIndex = 0;    // TODO int8_t
+  int16_t leftLineIndex = 0;    // TODO int8_t
+  int16_t rightRoadIndex = 0;   // TODO int8_t
+  int16_t rightBumperIndex = 0; // TODO int8_t
+  int16_t rightGrassIndex = 0;  // TODO int8_t
 };
+DepthInfo depthLevels[Y_E_PIXELS];
 
-/*uint16_t zMap[SCREEN_HEIGHT];*/
-DepthInfo zMap[SCREEN_HEIGHT];
-#define SKY_Z (0xFFFF)
+#define SKY_Z (0xFF)
+uint8_t yToDepth[SCREEN_HEIGHT];
 
 uint16_t offset;
-int16_t screen_x;
 float curvature;
-int16_t xMap[SCREEN_HEIGHT];
+float zCurv;
+int16_t xAtDepth[Y_E_PIXELS];
+
 
 bool growing;
+bool zGrowing;
+
+struct LevelConfig
+{
+  uint8_t bumperWidth;
+  uint8_t roadWidth;
+  uint8_t lineWidth;
+};
+
+struct CarInfo
+{
+  int16_t posX; // 0 is the center of the road
+  float posZ;
+  float speed;
+};
+
+CarInfo carInfo;
+
+void resetDepthInfo(const LevelConfig& config)
+{
+  for(unsigned int rowIndex = 0; rowIndex < Y_E_PIXELS; ++rowIndex)
+  {
+      float y = rowIndex * Y_E_METERS / Y_E_PIXELS;
+      DepthInfo& depthInfo = depthLevels[rowIndex];
+      depthInfo.zf = ((-Z_E) / (Y_E_METERS - y) * Y_E_METERS + Z_E);
+      depthInfo.z = (uint16_t)(depthInfo.zf + 0.5f);
+
+    //We consider that at the horizon, the road is 10 times narrower than at the bottom of the viewport
+      depthInfo.scaleFactor = 1.f - (0.9f * (rowIndex)) / Y_E_PIXELS;
+
+      depthInfo.leftBumperIndex = - (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + (config.roadWidth >> 1) + config.bumperWidth + 0.5f));
+      depthInfo.leftRoadIndex =   - (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + (config.roadWidth >> 1) + 0.5f));
+      depthInfo.leftLineIndex =   - (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + 0.5f));
+      depthInfo.rightRoadIndex =    (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + 0.5f));
+      depthInfo.rightBumperIndex =  (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + (config.roadWidth >> 1) + 0.5f));
+      depthInfo.rightGrassIndex =   (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + (config.roadWidth >> 1) + config.bumperWidth + 0.5f));
+  
+      if(depthInfo.leftBumperIndex == depthInfo.leftRoadIndex)
+      {
+        ++depthInfo.leftRoadIndex;
+      }
+
+      if(depthInfo.leftLineIndex == depthInfo.rightRoadIndex)
+      {
+        ++depthInfo.rightRoadIndex;
+      }
+
+      if(depthInfo.rightBumperIndex == depthInfo.rightGrassIndex)
+      {
+        ++depthInfo.rightGrassIndex;
+      }
+  }
+}
 
 void setup()
 {
@@ -74,115 +128,98 @@ void setup()
   colors_track[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); colors_track[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX + 1] = colors_track[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX + 1];
 
 //  float zMin(0), zMax(0);
-#define BUMPER_WIDTH (6)
-#define LANE_WIDTH (70)
-#define LINE_WIDTH (4)
 
-  for(unsigned int row_index = 0; row_index < SCREEN_HEIGHT; ++row_index)
+  LevelConfig config;
+  config.bumperWidth  = 6;
+  config.roadWidth    = 140;
+  config.lineWidth    = 4;
+
+  resetDepthInfo(config);
+
+  for(unsigned int rowIndex = 0; rowIndex < SCREEN_HEIGHT; ++rowIndex)
   {
-    if(row_index >= Y_E_PIXELS)
+    if(rowIndex >= Y_E_PIXELS)
     {
-      zMap[SCREEN_HEIGHT - 1 - row_index].z = SKY_Z;
+      yToDepth[SCREEN_HEIGHT - 1 - rowIndex] = SKY_Z;
     }
     else
     {
-      float y = row_index * Y_E_METERS / Y_E_PIXELS;
-      DepthInfo& depthInfo = zMap[SCREEN_HEIGHT - 1 - row_index];
-      //depthInfo.z = (uint16_t)((-Z_E) / (Y_E_METERS - y) * Y_E_METERS + Z_E + 0.5f);
-      depthInfo.zf = ((-Z_E) / (Y_E_METERS - y) * Y_E_METERS + Z_E);
-      depthInfo.z = (uint16_t)(depthInfo.zf + 0.5f);
-
-    //We consider that at the horizon, the road is 10 times narrower than at the bottom of the viewport
-      depthInfo.scaleFactor = 1.f - (0.9f * (row_index)) / Y_E_PIXELS;
-
-      depthInfo.leftBumperIndex = - (int16_t)(depthInfo.scaleFactor*((LINE_WIDTH >> 1) + LANE_WIDTH + BUMPER_WIDTH + 0.5f));
-      depthInfo.leftRoadIndex =   - (int16_t)(depthInfo.scaleFactor*((LINE_WIDTH >> 1) + LANE_WIDTH + 0.5f));
-      depthInfo.leftLineIndex =   - (int16_t)(depthInfo.scaleFactor*((LINE_WIDTH >> 1) + 0.5f));
-      depthInfo.rightRoadIndex =    (int16_t)(depthInfo.scaleFactor*((LINE_WIDTH >> 1) + 0.5f));
-      depthInfo.rightBumperIndex =  (int16_t)(depthInfo.scaleFactor*((LINE_WIDTH >> 1) + LANE_WIDTH + 0.5f));
-      depthInfo.rightGrassIndex =   (int16_t)(depthInfo.scaleFactor*((LINE_WIDTH >> 1) + LANE_WIDTH + BUMPER_WIDTH + 0.5f));
-  
-      if(depthInfo.leftBumperIndex == depthInfo.leftRoadIndex)
-      {
-        ++depthInfo.leftRoadIndex;
-      }
-
-      if(depthInfo.leftLineIndex == depthInfo.rightRoadIndex)
-      {
-        ++depthInfo.rightRoadIndex;
-      }
-
-      if(depthInfo.rightBumperIndex == depthInfo.rightGrassIndex)
-      {
-        ++depthInfo.rightGrassIndex;
-      }
+      yToDepth[SCREEN_HEIGHT - 1 - rowIndex] = rowIndex;
     }
   }
 
-
-
-  offset = 1;
-  screen_x = SCREEN_WIDTH / 2;
+  carInfo.posX = SCREEN_WIDTH / 2;
+  carInfo.posZ = 0;
+  carInfo.speed = 0.f;
 
   curvature = -1.f;
+  zCurv = 0.f;
 
   growing = true;
+  zGrowing = true;
 }
 
 void loop()
 {
   while (!gb.update());
 
-  if(growing)
-  {
-    curvature += 0.1f;
-    if(curvature > 15.f)
-      growing = false;
-  }
-  else
-  {
-    curvature -= 0.1f;
-    if(curvature < -15.f)
-      growing = true;
-  }
+  curvature = 15.f * sin(carInfo.posZ / 50.);
+  zCurv = 0.3f + sin(carInfo.posZ / 80.)/2.f;
 
   // Use the serial monitor to observe the CPU utilization.
-  if (gb.frameCount % 100 == 0)
+/*  if (gb.frameCount % 100 == 0)
   {
     SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
     SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
-//    SerialUSB.printf("WHITE: %x\n", COLOR_565(255, 255, 255));
-//    SerialUSB.printf("RED: %x\n", COLOR_565(255, 0, 0));
-//    SerialUSB.printf("GREEN: %x\n", COLOR_565(0, 255, 0));
-//    SerialUSB.printf("BLUE: %x\n", COLOR_565(0, 0, 255));
-  }
+  }*/
 
 // Update curvature map
-  xMap[SCREEN_HEIGHT - 1] = screen_x;
-  float x = xMap[SCREEN_HEIGHT - 1];
-  float prevZ = zMap[SCREEN_HEIGHT - 1].zf;
-  for(int16_t y = SCREEN_HEIGHT - 2; y >= 0; --y)
+
+  xAtDepth[0] = carInfo.posX;
+  float x = xAtDepth[0];
+  float prevZ = depthLevels[0].zf;
+  for(int16_t depthLevel = 1; depthLevel < Y_E_PIXELS; ++depthLevel)
   {
-    float currZ = zMap[y].zf;
-    if(currZ != SKY_Z)
+    float currZ = depthLevels[depthLevel].zf;
+    x = x + (curvature * (currZ - prevZ) * depthLevels[depthLevel].scaleFactor);
+    xAtDepth[depthLevel] = x;
+    prevZ = currZ;
+  }
+
+  {
+    float currentZ = 0.f;
+    int16_t prevZInt = 0;
+    int16_t zInt = 0;
+    int16_t y=0;
+  
+    while(zInt < Y_E_PIXELS && y < SCREEN_HEIGHT && zInt >= prevZInt)
     {
-      /*xMap[y]*/x = /*xMap[y+1]*/x + (curvature * (currZ - prevZ) * zMap[y].scaleFactor);
-      xMap[y] = x;
-      prevZ = currZ;
+      yToDepth[SCREEN_HEIGHT - 1 - y] = zInt;
+      currentZ += 1.f + zCurv;
+      prevZInt = zInt;
+     zInt = (currentZ + 0.5f);
+      ++y;
+    }
+    while(y < SCREEN_HEIGHT)
+    {
+      yToDepth[SCREEN_HEIGHT - 1 - y] = SKY_Z;
+      ++y;
     }
   }
+
 
   
   uint16_t* strip = GraphicsManager::StartFrame();
   uint16_t* stripCursor = strip;
 
   unsigned int yStrip = 1;
-  DepthInfo * currentZ = zMap;
+  //DepthInfo * currentZ = zMap;
 
-  for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip, ++currentZ)
+  for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip)
   {
+    uint8_t depthLevel = yToDepth[y];
     //SerialUSB.printf("%i %i\n", y, *currentZ);
-    if(currentZ->z == SKY_Z)
+    if(depthLevel == SKY_Z)
     {
       // draw sky
       for(uint16_t ii = 0; ii < SCREEN_WIDTH; ++ii)
@@ -192,30 +229,33 @@ void loop()
     }
     else
     {
-      int altColor = (((currentZ->z + offset/2) >> 1) & 0x1);
+      DepthInfo& di = depthLevels[depthLevel];
+      int16_t x = xAtDepth[depthLevel];
+      
+      int altColor = (((uint16_t)(di.z + carInfo.posZ) >> 1) & 0x1);
       uint16_t* track_palette = colors_track + (COLOR_TRACK_SIZE+1) * altColor;
       int16_t col = 0;
-      for(; col < xMap[y] + currentZ->leftBumperIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x + di.leftBumperIndex && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_GRASS_INDEX];
       }
-      for(; col < xMap[y] + currentZ->leftRoadIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x + di.leftRoadIndex && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_BUMPER_INDEX];
       }
-      for(; col < xMap[y] + currentZ->leftLineIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x + di.leftLineIndex && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_ROAD_INDEX];
       }
-      for(; col < xMap[y] + currentZ->rightRoadIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x + di.rightRoadIndex && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_LINE_INDEX];
       }
-      for(; col < xMap[y] + currentZ->rightBumperIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x + di.rightBumperIndex && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_ROAD_INDEX];
       }
-      for(; col < xMap[y] + currentZ->rightGrassIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x + di.rightGrassIndex && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = track_palette[COLOR_TRACK_BUMPER_INDEX];
       }
@@ -235,14 +275,48 @@ void loop()
 
 
   GraphicsManager::EndFrame();
-  ++offset;
 
   if (gb.buttons.repeat(BUTTON_LEFT, 0))
   {
-    ++screen_x;
+    ++carInfo.posX;
   }
   else if (gb.buttons.repeat(BUTTON_RIGHT, 0))
   {
-    --screen_x;
+    --carInfo.posX;
   }
+
+  if (gb.buttons.repeat(BUTTON_A, 0))
+  {
+    carInfo.speed += 0.005;
+  }
+  else if(gb.buttons.repeat(BUTTON_B, 0))
+  {
+    carInfo.speed -= 0.02;
+  }
+  else
+  {
+    carInfo.speed -= 0.001;
+  }
+
+  if(carInfo.speed <= 0)
+  {
+    carInfo.speed = 0;
+  }
+  else if(carInfo.speed > 1.)
+  {
+    carInfo.speed = 1.;
+  }
+  
+
+    carInfo.posZ += carInfo.speed;
+
+    if(gb.buttons.repeat(BUTTON_MENU, 0))
+    {
+      SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
+    SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
+    for(unsigned int ii = 0; ii < Y_E_PIXELS; ++ii)
+    {
+      SerialUSB.printf("depth: %i %i\n", ii, depthLevels[ii].z);
+    }
+    }
 }
