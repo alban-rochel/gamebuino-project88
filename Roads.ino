@@ -46,17 +46,27 @@ struct DepthInfo
 };
 DepthInfo depthLevels[Y_E_PIXELS];
 
+struct RoadSegment
+{
+  float xCurvature;
+  float zCurvature;
+  uint16_t segmentStartZ;
+};
+
+RoadSegment segments[3];
+
 #define SKY_Z (0xFF)
 uint8_t yToDepth[SCREEN_HEIGHT];
 
 uint16_t offset;
-float curvature;
+/*float curvature;
+float nextCurvature;
+float nextCurvatureZ;*/
 float zCurv;
 int16_t xAtDepth[Y_E_PIXELS];
+uint16_t minSegmentSize;
+uint16_t maxSegmentSize;
 
-
-bool growing;
-bool zGrowing;
 
 struct LevelConfig
 {
@@ -108,6 +118,9 @@ void resetDepthInfo(const LevelConfig& config)
         ++depthInfo.rightGrassIndex;
       }
   }
+
+  minSegmentSize = (depthLevels[Y_E_PIXELS-1].z >> 1) + 1;
+  maxSegmentSize = minSegmentSize + (minSegmentSize >> 1);
 }
 
 void setup()
@@ -152,19 +165,33 @@ void setup()
   carInfo.posZ = 0;
   carInfo.speed = 0.f;
 
-  curvature = -1.f;
+  /*curvature = -0.05f;
+  nextCurvature = 0.f;
+  nextCurvatureZ = 400.f;*/
   zCurv = 0.f;
 
-  growing = true;
-  zGrowing = true;
+  segments[0].xCurvature = random(-5, 5)/100.;
+  segments[0].zCurvature = 0.f;
+  segments[0].segmentStartZ = 0;
+
+  segments[1].xCurvature = random(-5, 5)/100.;
+  segments[1].zCurvature = 0.f;
+  segments[1].segmentStartZ = segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
+
+  segments[2].xCurvature = random(-5, 5)/100.;
+  segments[2].zCurvature = 0.f;
+  segments[2].segmentStartZ = segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
+
+  /*growing = true;
+  zGrowing = true;*/
 }
 
 void loop()
 {
   while (!gb.update());
 
-  curvature = 15.f * sin(carInfo.posZ / 50.);
-  zCurv = 0.3f + sin(carInfo.posZ / 80.)/2.f;
+  //curvature = 15.f * sin(carInfo.posZ / 50.);
+  //zCurv = 0.3f + sin(carInfo.posZ / 80.)/2.f;
 
   // Use the serial monitor to observe the CPU utilization.
 /*  if (gb.frameCount % 100 == 0)
@@ -178,10 +205,26 @@ void loop()
   xAtDepth[0] = carInfo.posX;
   float x = xAtDepth[0];
   float prevZ = depthLevels[0].zf;
+ float currCurvature = 0;
   for(int16_t depthLevel = 1; depthLevel < Y_E_PIXELS; ++depthLevel)
   {
     float currZ = depthLevels[depthLevel].zf;
-    x = x + (curvature * (currZ - prevZ) * depthLevels[depthLevel].scaleFactor);
+    if(currZ + carInfo.posZ < segments[1].segmentStartZ)
+    {
+      currCurvature += segments[0].xCurvature;
+    }
+    else
+    {
+      if(currZ + carInfo.posZ < segments[2].segmentStartZ)
+      {
+        currCurvature += segments[1].xCurvature;
+      }
+      else
+      {
+        currCurvature += segments[2].xCurvature;
+      }
+    }
+          x = x + (currCurvature * (currZ - prevZ) * depthLevels[depthLevel].scaleFactor);
     xAtDepth[depthLevel] = x;
     prevZ = currZ;
   }
@@ -232,7 +275,7 @@ void loop()
       DepthInfo& di = depthLevels[depthLevel];
       int16_t x = xAtDepth[depthLevel];
       
-      int altColor = (((uint16_t)(di.z + carInfo.posZ) >> 1) & 0x1);
+      int altColor = (((uint16_t)(di.z + carInfo.posZ) >> 2) & 0x1);
       uint16_t* track_palette = colors_track + (COLOR_TRACK_SIZE+1) * altColor;
       int16_t col = 0;
       for(; col < x + di.leftBumperIndex && col < SCREEN_WIDTH; ++col)
@@ -310,13 +353,22 @@ void loop()
 
     carInfo.posZ += carInfo.speed;
 
+    if(carInfo.posZ > segments[1].segmentStartZ)
+    {
+      segments[0] = segments[1];
+      segments[1] = segments[2];
+      segments[2].xCurvature = random(-5, 5)/100.;
+      segments[2].zCurvature = 0.f;
+      segments[2].segmentStartZ = segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
+    }
+
     if(gb.buttons.repeat(BUTTON_MENU, 0))
     {
       SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
     SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
-    for(unsigned int ii = 0; ii < Y_E_PIXELS; ++ii)
-    {
-      SerialUSB.printf("depth: %i %i\n", ii, depthLevels[ii].z);
-    }
+//    for(unsigned int ii = 0; ii < Y_E_PIXELS; ++ii)
+//    {
+//      SerialUSB.printf("depth: %i %i\n", ii, depthLevels[ii].z);
+//    }
     }
 }
