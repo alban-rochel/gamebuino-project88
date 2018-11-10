@@ -6,6 +6,27 @@ using namespace roads;
 uint8_t memory[MEMORY_SEGMENT_SIZE];
 void* nextAvailableSegment;
 
+/*void printDirectory(File dir, int numTabs) {
+  if(!dir)
+    return;
+  while (true)
+  {
+
+    File entry =  dir.openNextFile();
+    if (! entry) {
+      // no more files
+      return;
+    }
+    for (uint8_t i = 0; i < numTabs; i++) {
+      SerialUSB.printf("\t");
+    }
+    char name[20];
+    entry.getName(name, 20);
+    SerialUSB.printf("%s\n", name);
+    entry.close();
+  }
+}*/
+
 inline void* mphAlloc(uint16_t size)
 {
   if(nextAvailableSegment + size >= memory + MEMORY_SEGMENT_SIZE)
@@ -84,7 +105,7 @@ LevelConfig levelSelectionMenu() noexcept
   config.roadWidth    = 140;
   config.lineWidth    = 4;
 
-  displayFile("/Roads/brown.mph");
+  /*displayFile("/Roads/brown.mph");
 
   while(true)
   {
@@ -110,7 +131,7 @@ LevelConfig levelSelectionMenu() noexcept
     {
       return config;
     }
-  }
+  }*/
 
   return config;
 }
@@ -188,7 +209,7 @@ void gameLoop(const LevelConfig& config) noexcept
   uint16_t maxSegmentSize;
 
   CarInfo carInfo;
-  carInfo.posX = SCREEN_WIDTH / 2;
+  carInfo.posX = 0; //SCREEN_WIDTH / 2;
   carInfo.posZ = 0;
   carInfo.speed = 0.f;
 
@@ -222,29 +243,31 @@ void gameLoop(const LevelConfig& config) noexcept
     while (!gb.update());
 // Update curvature map
 
-  xAtDepth[0] = carInfo.posX;
+  xAtDepth[0] = SCREEN_WIDTH / 2 + carInfo.posX;
   float x = xAtDepth[0];
   float prevZ = depthLevels[0].zf;
- float currCurvature = 0;
+  //centering = SCREEN_WIDTH / 2 + (carInfo.posX);
+ float totalOffset = 0;
   for(int16_t depthLevel = 1; depthLevel < Y_E_PIXELS; ++depthLevel)
   {
     float currZ = depthLevels[depthLevel].zf;
     if(currZ + carInfo.posZ < segments[1].segmentStartZ)
     {
-      currCurvature += segments[0].xCurvature;
+      totalOffset += segments[0].xCurvature * (currZ - prevZ)*100;
     }
     else
     {
       if(currZ + carInfo.posZ < segments[2].segmentStartZ)
       {
-        currCurvature += segments[1].xCurvature;
+        totalOffset += segments[1].xCurvature * (currZ - prevZ)*100;
       }
       else
       {
-        currCurvature += segments[2].xCurvature;
+        totalOffset += segments[2].xCurvature * (currZ - prevZ)*100;
       }
     }
-          x = x + (currCurvature * (currZ - prevZ) * depthLevels[depthLevel].scaleFactor);
+          //x = x + (currCurvature * (currZ - prevZ) * depthLevels[depthLevel].scaleFactor);
+          x = SCREEN_WIDTH / 2 + (carInfo.posX + totalOffset) * depthLevels[depthLevel].scaleFactor;
     xAtDepth[depthLevel] = x;
     prevZ = currZ;
   }
@@ -391,6 +414,11 @@ void gameLoop(const LevelConfig& config) noexcept
 //    {
 //      SerialUSB.printf("depth: %i %i\n", ii, depthLevels[ii].z);
 //    }
+
+/*File root;
+root = SD.open("/Roads");
+
+  printDirectory(root, 0);*/
     }
   }
   
