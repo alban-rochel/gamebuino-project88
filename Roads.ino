@@ -2,29 +2,87 @@
 
 using namespace roads;
 
+//extern SdFat SD;
+
+/*void displayFile(const char* filename)
+{
+  bool exists = SD.exists(filename);
+  
+  if(!exists)
+  {
+    SerialUSB.printf("Cannot find file %s\n", filename);
+    return;
+  }
+
+  File f = SD.open(filename, FILE_READ);
+  if(!f)
+  {
+        SerialUSB.printf("Failed opening file %s\n", filename);
+    return;
+  }
+
+  f.rewind();
+  
+  uint16_t* strip = GraphicsManager::StartFrame();
+  uint16_t* stripCursor = strip;
+
+  for(unsigned int y = 0; y < SCREEN_HEIGHT/8; ++y)
+  {
+    for(unsigned int line = 0; line < 8; ++line)
+    {
+      int size = f.read(stripCursor, 160);
+      SerialUSB.printf("size1: %i\n", size);
+      f.flush();
+      stripCursor+=160;
+      size = f.read(stripCursor, 160);
+      SerialUSB.printf("size2: %i\n", size);
+      f.flush();
+      stripCursor+=160;
+    }
+    strip = GraphicsManager::CommitStrip();
+    stripCursor = strip;
+
+  }
+
+   GraphicsManager::EndFrame();
+  f.close();
+}*/
+
 LevelConfig levelSelectionMenu() noexcept
 {
   LevelConfig config;
   config.bumperWidth  = 6;
   config.roadWidth    = 140;
   config.lineWidth    = 4;
+/*
+  displayFile("/Roads/brown.mph");
 
   while(true)
   {
     while (!gb.update());
-  
-    if (gb.buttons.repeat(BUTTON_MENU, 0))
+
+
+    if (gb.buttons.repeat(BUTTON_LEFT, 10))
+    {
+      displayFile("/Roads/brown.mph");
+    }
+    if (gb.buttons.repeat(BUTTON_RIGHT, 10))
+    {
+      displayFile("/Roads/brown2.mph");
+    }
+
+    if (gb.buttons.pressed(BUTTON_MENU))
     {
       SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
       SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
     }
     
-    if(gb.buttons.repeat(BUTTON_A, 0))
+    if(gb.buttons.pressed(BUTTON_A))
     {
       return config;
     }
   }
-
+*/
   return config;
 }
 
