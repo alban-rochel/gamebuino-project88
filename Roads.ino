@@ -2,10 +2,41 @@
 
 using namespace roads;
 
-//extern SdFat SD;
+#define MEMORY_SEGMENT_SIZE 8192
+uint8_t memory[MEMORY_SEGMENT_SIZE];
+void* nextAvailableSegment;
 
-/*void displayFile(const char* filename)
+inline void* mphAlloc(uint16_t size)
 {
+  if(nextAvailableSegment + size >= memory + MEMORY_SEGMENT_SIZE)
+  {
+    return NULL;
+  }
+
+  void* res = nextAvailableSegment;
+  nextAvailableSegment += size;
+  return res;
+}
+
+void resetAlloc()
+{
+  nextAvailableSegment = memory;
+}
+
+int32_t allocFreeRam()
+{
+  return memory + MEMORY_SEGMENT_SIZE - (uint8_t*)nextAvailableSegment;
+}
+
+extern SdFat SD;
+
+void displayFile(const char* filename)
+{
+  resetAlloc();
+  uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
+  uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
+  GraphicsManager gm(strip1, strip2);
+  
   bool exists = SD.exists(filename);
   
   if(!exists)
@@ -21,9 +52,7 @@ using namespace roads;
     return;
   }
 
-  f.rewind();
-  
-  uint16_t* strip = GraphicsManager::StartFrame();
+  uint16_t* strip = gm.StartFrame();
   uint16_t* stripCursor = strip;
 
   for(unsigned int y = 0; y < SCREEN_HEIGHT/8; ++y)
@@ -39,14 +68,14 @@ using namespace roads;
       f.flush();
       stripCursor+=160;
     }
-    strip = GraphicsManager::CommitStrip();
+    strip = gm.CommitStrip();
     stripCursor = strip;
 
   }
 
-   GraphicsManager::EndFrame();
+   gm.EndFrame();
   f.close();
-}*/
+}
 
 LevelConfig levelSelectionMenu() noexcept
 {
@@ -54,13 +83,12 @@ LevelConfig levelSelectionMenu() noexcept
   config.bumperWidth  = 6;
   config.roadWidth    = 140;
   config.lineWidth    = 4;
-/*
+
   displayFile("/Roads/brown.mph");
 
   while(true)
   {
     while (!gb.update());
-
 
     if (gb.buttons.repeat(BUTTON_LEFT, 10))
     {
@@ -75,6 +103,7 @@ LevelConfig levelSelectionMenu() noexcept
     {
       SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
       SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
+      SerialUSB.printf("REMAIN: %i\n", allocFreeRam());
     }
     
     if(gb.buttons.pressed(BUTTON_A))
@@ -82,7 +111,7 @@ LevelConfig levelSelectionMenu() noexcept
       return config;
     }
   }
-*/
+
   return config;
 }
 
@@ -140,12 +169,21 @@ void initPalette(uint16_t& skyColor,
 
 void gameLoop(const LevelConfig& config) noexcept
 {
-  // declare all the arrays
-  DepthInfo depthLevels[Y_E_PIXELS];
-  uint8_t yToDepth[SCREEN_HEIGHT];
-  int16_t xAtDepth[Y_E_PIXELS];
+  resetAlloc();
+
+  uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
+  uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
+  GraphicsManager gm(strip1, strip2);
   
-  RoadSegment segments[3];
+  // declare all the arrays
+//  DepthInfo depthLevels[Y_E_PIXELS];
+  DepthInfo* depthLevels = (DepthInfo*) mphAlloc(Y_E_PIXELS * sizeof(DepthInfo));
+  //uint8_t yToDepth[SCREEN_HEIGHT];
+  uint8_t* yToDepth = (uint8_t*) mphAlloc(SCREEN_HEIGHT);
+  //int16_t xAtDepth[Y_E_PIXELS];
+  int16_t* xAtDepth = (int16_t*) mphAlloc(Y_E_PIXELS * sizeof(int16_t));
+  
+  RoadSegment* segments = (RoadSegment*) mphAlloc(3 * sizeof(RoadSegment));
   uint16_t minSegmentSize;
   uint16_t maxSegmentSize;
 
@@ -155,7 +193,8 @@ void gameLoop(const LevelConfig& config) noexcept
   carInfo.speed = 0.f;
 
   uint16_t skyColor;
-  uint16_t trackPalette[2*COLOR_TRACK_SIZE];
+  //uint16_t trackPalette[2*COLOR_TRACK_SIZE];
+  uint16_t* trackPalette = (uint16_t*) mphAlloc(2 * COLOR_TRACK_SIZE * sizeof(uint16_t));
 
   initDepthInfo(config, depthLevels, minSegmentSize, maxSegmentSize);
   SerialUSB.printf("SEGMENTS: %i %i\n", minSegmentSize, maxSegmentSize);
@@ -233,7 +272,7 @@ void gameLoop(const LevelConfig& config) noexcept
 
 
   
-  uint16_t* strip = GraphicsManager::StartFrame();
+  uint16_t* strip = gm.StartFrame();
   uint16_t* stripCursor = strip;
 
   unsigned int yStrip = 1;
@@ -291,14 +330,14 @@ void gameLoop(const LevelConfig& config) noexcept
 
     if(yStrip == STRIP_HEIGHT)
     {
-      strip = GraphicsManager::CommitStrip();
+      strip = gm.CommitStrip();
       stripCursor = strip;
       yStrip = 0;
     }
   }
 
 
-  GraphicsManager::EndFrame();
+  gm.EndFrame();
 
   if (gb.buttons.repeat(BUTTON_LEFT, 0))
   {
@@ -347,6 +386,7 @@ void gameLoop(const LevelConfig& config) noexcept
     {
       SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
     SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
+    SerialUSB.printf("REMAIN: %i\n", allocFreeRam());
 //    for(unsigned int ii = 0; ii < Y_E_PIXELS; ++ii)
 //    {
 //      SerialUSB.printf("depth: %i %i\n", ii, depthLevels[ii].z);
@@ -366,6 +406,8 @@ void setup()
   gb.setFrameRate(40);
 
   SerialUSB.begin(9600);
+
+  nextAvailableSegment = memory;
 }
 
 void loop()

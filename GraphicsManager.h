@@ -2,23 +2,27 @@
 
 #include "Defines.h"
 
-namespace roads
+namespace  roads
 {
   class GraphicsManager
   {
     public:
+
+      GraphicsManager(uint16_t* strip1,
+                      uint16_t* strip2) noexcept;
+    
       // returns the buffer for the next strip
-      static uint16_t* StartFrame() noexcept;
+      uint16_t* StartFrame() noexcept;
 
-      static void EndFrame() noexcept;
+      void EndFrame() noexcept;
 
       // returns the buffer for the next strip
-      static uint16_t* CommitStrip() noexcept;
+      uint16_t* CommitStrip() noexcept;
 
-      private:
-        static uint16_t strip1[STRIP_SIZE_PIX];
-        static uint16_t strip2[STRIP_SIZE_PIX];
-        static uint16_t* currentStrip;
-        static uint16_t* sentStrip;
+    private:
+     uint16_t* strip1;
+     uint16_t* strip2;
+     uint16_t* currentStrip;
+     uint16_t* sentStrip;
   };
 }

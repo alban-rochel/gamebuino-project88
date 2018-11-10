@@ -30,10 +30,10 @@ namespace roads
       }
 }
 
-uint16_t roads::GraphicsManager::strip1[STRIP_SIZE_PIX];
-uint16_t roads::GraphicsManager::strip2[STRIP_SIZE_PIX];
-uint16_t* roads::GraphicsManager::currentStrip;
-uint16_t* roads::GraphicsManager::sentStrip;
+GraphicsManager::GraphicsManager(uint16_t* strip1, uint16_t* strip2) noexcept:
+  strip1(strip1),
+  strip2(strip2)
+{}
 
 uint16_t* GraphicsManager::StartFrame() noexcept
 {
