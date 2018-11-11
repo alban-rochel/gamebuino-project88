@@ -225,15 +225,15 @@ void gameLoop(const LevelConfig& config) noexcept
   //float zCurv = 0.f;
 
   segments[0].xCurvature = random(-50, 50)/1000.f;
-  segments[0].zCurvature = random(-100, 300)/1000.f;
+  segments[0].zCurvature = random(-150, 400)/1000.f;
   segments[0].segmentStartZ = 0;
 
   segments[1].xCurvature = random(-50, 50)/1000.f;
-  segments[1].zCurvature = random(-100, 300)/1000.f;
+  segments[1].zCurvature = random(-150, 400)/1000.f;
   segments[1].segmentStartZ = 400;//segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
 
   segments[2].xCurvature = random(-50, 50)/1000.f;
-  segments[2].zCurvature = random(-100, 300)/1000.f;
+  segments[2].zCurvature = random(-150, 400)/1000.f;
   segments[2].segmentStartZ = segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
 
   // Actual game loop
@@ -427,7 +427,7 @@ void gameLoop(const LevelConfig& config) noexcept
       segments[0] = segments[1];
       segments[1] = segments[2];
       segments[2].xCurvature = random(-50, 50)/1000.f;
-      segments[2].zCurvature = random(-100, 300)/1000.f;
+      segments[2].zCurvature = random(-150, 400)/1000.f;
       segments[2].segmentStartZ = segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
     }
 
