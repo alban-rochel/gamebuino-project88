@@ -222,18 +222,18 @@ void gameLoop(const LevelConfig& config) noexcept
   SerialUSB.printf("depthLevels: %i %i\n", depthLevels[0].leftBumperIndex, depthLevels[50].z);
   initPalette(skyColor, trackPalette);
 
-  float zCurv = 0.f;
+  //float zCurv = 0.f;
 
-  segments[0].xCurvature = random(-5, 5)/100.;
-  segments[0].zCurvature = 0.f;
+  segments[0].xCurvature = random(-50, 50)/1000.f;
+  segments[0].zCurvature = random(-100, 300)/1000.f;
   segments[0].segmentStartZ = 0;
 
-  segments[1].xCurvature = random(-5, 5)/100.;
-  segments[1].zCurvature = 0.f;
-  segments[1].segmentStartZ = segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
+  segments[1].xCurvature = random(-50, 50)/1000.f;
+  segments[1].zCurvature = random(-100, 300)/1000.f;
+  segments[1].segmentStartZ = 400;//segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
 
-  segments[2].xCurvature = random(-5, 5)/100.;
-  segments[2].zCurvature = 0.f;
+  segments[2].xCurvature = random(-50, 50)/1000.f;
+  segments[2].zCurvature = random(-100, 300)/1000.f;
   segments[2].segmentStartZ = segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
 
   // Actual game loop
@@ -273,19 +273,45 @@ void gameLoop(const LevelConfig& config) noexcept
   }
 
   {
-    float currentZ = 0.f;
-    int16_t prevZInt = 0;
-    int16_t zInt = 0;
+
+    float currZIndex = 0.f;
+    int16_t zIndex = 0;
     int16_t y=0;
-  
-    while(zInt < Y_E_PIXELS && y < SCREEN_HEIGHT && zInt >= prevZInt)
+    totalOffset = 0;
+    float totalCurvature = 0.f;
+    prevZ = 0.f;
+
+    while(zIndex < Y_E_PIXELS && y < SCREEN_HEIGHT && zIndex >= 0)
     {
-      yToDepth[SCREEN_HEIGHT - 1 - y] = zInt;
-      currentZ += 1.f + zCurv;
-      prevZInt = zInt;
-     zInt = (currentZ + 0.5f);
+      yToDepth[SCREEN_HEIGHT - 1 - y] = zIndex;
+
+      const DepthInfo& di = depthLevels[zIndex];
+      
+      if(di.zf + carInfo.posZ < segments[1].segmentStartZ)
+      {
+        totalOffset += segments[0].zCurvature * di.scaleFactor;
+      }
+      else
+      {
+        if(di.zf + carInfo.posZ < segments[2].segmentStartZ)
+        {
+          totalOffset += segments[1].zCurvature * di.scaleFactor;
+        }
+        else
+        {
+          totalOffset += segments[2].zCurvature * di.scaleFactor;
+        }
+      }
+
+
+      //totalOffset += totalCurvature;
+      
+      prevZ = depthLevels[zIndex].zf;
+      currZIndex = y + totalOffset;
+      zIndex = currZIndex + 0.5f;
       ++y;
     }
+    
     while(y < SCREEN_HEIGHT)
     {
       yToDepth[SCREEN_HEIGHT - 1 - y] = SKY_Z;
@@ -400,8 +426,8 @@ void gameLoop(const LevelConfig& config) noexcept
     {
       segments[0] = segments[1];
       segments[1] = segments[2];
-      segments[2].xCurvature = random(-5, 5)/100.;
-      segments[2].zCurvature = 0.f;
+      segments[2].xCurvature = random(-50, 50)/1000.f;
+      segments[2].zCurvature = random(-100, 300)/1000.f;
       segments[2].segmentStartZ = segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
     }
 
