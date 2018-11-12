@@ -1,5 +1,7 @@
 #include "GraphicsManager.h"
 
+#include "CarSprites.h"
+
 using namespace roads;
 
 #define MEMORY_SEGMENT_SIZE 8192
@@ -36,6 +38,7 @@ inline void* mphAlloc(uint16_t size)
 
   void* res = nextAvailableSegment;
   nextAvailableSegment += size;
+  
   return res;
 }
 
@@ -188,9 +191,44 @@ void initPalette(uint16_t& skyColor,
   trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX + 1] = trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX + 1];
 }
 
+void updateCurvature(CarInfo& carInfo, DepthInfo* depthLevels, int16_t* xAtDepth, RoadSegment* segments) noexcept
+{
+  xAtDepth[0] = SCREEN_WIDTH / 2 + carInfo.posX;
+  float x = xAtDepth[0];
+  float prevZ = depthLevels[0].zf;
+  //centering = SCREEN_WIDTH / 2 + (carInfo.posX);
+ float totalOffset = 0;
+  for(int16_t depthLevel = 1; depthLevel < Y_E_PIXELS; ++depthLevel)
+  {
+    float currZ = depthLevels[depthLevel].zf;
+    if(currZ + carInfo.posZ < segments[1].segmentStartZ)
+    {
+      totalOffset += segments[0].xCurvature * (currZ - prevZ)*100;
+    }
+    else
+    {
+      if(currZ + carInfo.posZ < segments[2].segmentStartZ)
+      {
+        totalOffset += segments[1].xCurvature * (currZ - prevZ)*100;
+      }
+      else
+      {
+        totalOffset += segments[2].xCurvature * (currZ - prevZ)*100;
+      }
+    }
+          //x = x + (currCurvature * (currZ - prevZ) * depthLevels[depthLevel].scaleFactor);
+          x = SCREEN_WIDTH / 2 + (carInfo.posX + totalOffset) * depthLevels[depthLevel].scaleFactor;
+    xAtDepth[depthLevel] = x;
+    prevZ = currZ;
+  }
+}
+
 void gameLoop(const LevelConfig& config) noexcept
 {
   resetAlloc();
+
+  bool left = false;
+  unsigned int zCactus = 300;
 
   uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
   uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
@@ -222,6 +260,9 @@ void gameLoop(const LevelConfig& config) noexcept
   SerialUSB.printf("depthLevels: %i %i\n", depthLevels[0].leftBumperIndex, depthLevels[50].z);
   initPalette(skyColor, trackPalette);
 
+  SpriteProgram* sprites = (SpriteProgram*) mphAlloc(MAX_SPRITES * sizeof(SpriteProgram));
+  uint8_t spriteCount(0);
+
   //float zCurv = 0.f;
 
   segments[0].xCurvature = random(-50, 50)/1000.f;
@@ -241,37 +282,12 @@ void gameLoop(const LevelConfig& config) noexcept
   while(true)
   { 
     while (!gb.update());
+
+    spriteCount = 0;
 // Update curvature map
-
-  xAtDepth[0] = SCREEN_WIDTH / 2 + carInfo.posX;
-  float x = xAtDepth[0];
-  float prevZ = depthLevels[0].zf;
-  //centering = SCREEN_WIDTH / 2 + (carInfo.posX);
- float totalOffset = 0;
-  for(int16_t depthLevel = 1; depthLevel < Y_E_PIXELS; ++depthLevel)
-  {
-    float currZ = depthLevels[depthLevel].zf;
-    if(currZ + carInfo.posZ < segments[1].segmentStartZ)
-    {
-      totalOffset += segments[0].xCurvature * (currZ - prevZ)*100;
-    }
-    else
-    {
-      if(currZ + carInfo.posZ < segments[2].segmentStartZ)
-      {
-        totalOffset += segments[1].xCurvature * (currZ - prevZ)*100;
-      }
-      else
-      {
-        totalOffset += segments[2].xCurvature * (currZ - prevZ)*100;
-      }
-    }
-          //x = x + (currCurvature * (currZ - prevZ) * depthLevels[depthLevel].scaleFactor);
-          x = SCREEN_WIDTH / 2 + (carInfo.posX + totalOffset) * depthLevels[depthLevel].scaleFactor;
-    xAtDepth[depthLevel] = x;
-    prevZ = currZ;
-  }
-
+ updateCurvature(carInfo, depthLevels, xAtDepth, segments);
+ float prevZ = 0.f;
+ float totalOffset = 0.f;
   {
 
     float currZIndex = 0.f;
@@ -319,9 +335,57 @@ void gameLoop(const LevelConfig& config) noexcept
     }
   }
 
+uint8_t yCactus = -1;
+  // position cactus
+  {
+    prevZ = SKY_Z;
+    for(unsigned int y = 0; y < SCREEN_HEIGHT && yCactus == -1; ++y)
+    {
+      if(yToDepth[y] != SKY_Z)
+      {
+        if(depthLevels[yToDepth[y]].zf <= zCactus && prevZ > zCactus)
+        {
+          yCactus = y;
+        }
+        prevZ = depthLevels[yToDepth[y]].z;
+      }
+    }
+  }
 
+if(yCactus != -1)
+{
+    SpriteProgram& sprite = sprites[spriteCount];
+  sprite.xStart = SCREEN_WIDTH/2 - CACTUS_WIDTH/2;
+  sprite.yStart = 30 - CACTUS_HEIGHT;
+  sprite.width = CACTUS_WIDTH;
+  sprite.yEnd = sprites[0].yStart + CACTUS_HEIGHT - 1;
+  sprite.buffer = CACTUS;
+    ++spriteCount;
+}
+
+if(left)
+{
+  SpriteProgram& sprite = sprites[spriteCount];
+  sprite.xStart = SCREEN_WIDTH/2 - CAR_LEFT_WIDTH/2;
+  sprite.yStart = 120 - CAR_LEFT_HEIGHT;
+  sprite.width = CAR_LEFT_WIDTH;
+  sprite.yEnd = sprites[0].yStart + CAR_LEFT_HEIGHT - 1;
+  sprite.buffer = CAR_LEFT;
+}
+else
+{
+    SpriteProgram& sprite = sprites[spriteCount];
+    sprite.xStart = SCREEN_WIDTH/2 - CAR_WIDTH/2;
+  sprite.yStart = 120 - CAR_HEIGHT;
+  sprite.width = CAR_WIDTH;
+  sprite.yEnd = sprites[0].yStart + CAR_HEIGHT - 1;
+  sprite.buffer = CAR;
+}
+  ++spriteCount;
+  
   
   uint16_t* strip = gm.StartFrame();
+  uint16_t* stripLine;
   uint16_t* stripCursor = strip;
 
   unsigned int yStrip = 1;
@@ -329,6 +393,7 @@ void gameLoop(const LevelConfig& config) noexcept
 
   for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip)
   {
+    stripLine = stripCursor;
     uint8_t depthLevel = yToDepth[y];
     //SerialUSB.printf("%i %i\n", y, *currentZ);
     if(depthLevel == SKY_Z)
@@ -377,6 +442,24 @@ void gameLoop(const LevelConfig& config) noexcept
       }
     }
 
+    for(unsigned int spriteIndex = 0; spriteIndex < spriteCount; ++spriteIndex)
+    {
+      const SpriteProgram& sprite = sprites[spriteIndex];
+      if(y >= sprite.yStart && y <= sprite.yEnd)
+      {
+        uint16_t offset = sprite.width * (y - sprite.yStart);
+        uint8_t xIndex = sprite.xStart;
+        for(uint8_t x = 0; x < sprite.width; ++x, ++xIndex)
+        {
+          uint16_t color = pgm_read_word(sprite.buffer + offset + x);
+          if(color != COLOR_565(0xFF, 0x00, 0xFF))
+          {
+            stripLine[xIndex] = pgm_read_word(sprite.buffer + offset + x);
+          }
+        }
+      }
+    }
+
     if(yStrip == STRIP_HEIGHT)
     {
       strip = gm.CommitStrip();
@@ -388,9 +471,11 @@ void gameLoop(const LevelConfig& config) noexcept
 
   gm.EndFrame();
 
+left = false;
   if (gb.buttons.repeat(BUTTON_LEFT, 0))
   {
     ++carInfo.posX;
+    left = true;
   }
   else if (gb.buttons.repeat(BUTTON_RIGHT, 0))
   {
@@ -430,6 +515,11 @@ void gameLoop(const LevelConfig& config) noexcept
       segments[2].zCurvature = random(-150, 400)/1000.f;
       segments[2].segmentStartZ = segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
     }
+
+if(carInfo.posZ > zCactus)
+{
+  zCactus += 400;
+}
 
     if(gb.buttons.repeat(BUTTON_MENU, 0))
     {

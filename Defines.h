@@ -20,6 +20,8 @@ namespace Gamebuino_Meta
 #define STRIP_SIZE_PIX (SCREEN_WIDTH * STRIP_HEIGHT)
 #define STRIP_SIZE_BYTES (STRIP_SIZE_PIX * 2)
 
+#define FIXED_8_8 uint16_t
+
 namespace roads
 {
   struct LevelConfig
@@ -41,6 +43,8 @@ namespace roads
 #define COLOR_TRACK_ROAD_INDEX (COLOR_TRACK_BUMPER_INDEX+1)
 #define COLOR_TRACK_LINE_INDEX (COLOR_TRACK_ROAD_INDEX+1)
 #define COLOR_TRACK_SIZE (COLOR_TRACK_LINE_INDEX)
+
+#define MAX_SPRITES 10
 
 /*
  * Perspective computation: 
@@ -70,7 +74,7 @@ struct CarInfo
 struct DepthInfo
 {
   uint16_t z = 0;
-  float zf = 0.f;               // TODO 8.8
+  float zf = 0;
   float scaleFactor = 0;        // TODO 8.8
   int16_t leftBumperIndex = 0;  // TODO int8_t
   int16_t leftRoadIndex = 0;    // TODO int8_t
@@ -85,4 +89,13 @@ struct RoadSegment
   float xCurvature;
   float zCurvature;
   uint16_t segmentStartZ;
+};
+
+struct SpriteProgram
+{
+  uint8_t xStart;
+  uint8_t yStart;
+  uint8_t width;
+  uint8_t yEnd;
+  const uint16_t* buffer;  
 };
