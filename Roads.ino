@@ -154,6 +154,8 @@ void initDepthInfo( const LevelConfig& config,
     //We consider that at the horizon, the road is 10 times narrower than at the bottom of the viewport
       depthInfo.scaleFactor = 1.f - (0.9f * (rowIndex)) / Y_E_PIXELS;
 
+      //float scaleFactor = pgm_read_word(ScaleFactor + rowIndex)/65535.f;
+
       depthInfo.leftBumperIndex = - (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + (config.roadWidth >> 1) + config.bumperWidth + 0.5f));
       depthInfo.leftRoadIndex =   - (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + (config.roadWidth >> 1) + 0.5f));
       depthInfo.leftLineIndex =   - (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + 0.5f));
@@ -191,10 +193,10 @@ void initPalette(uint16_t& skyColor,
   trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX + 1] = trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX + 1];
 }
 
-void updateCurvature(CarInfo& carInfo, DepthInfo* depthLevels, int16_t* xAtDepth, RoadSegment* segments) noexcept
+void computeTurns(CarInfo& carInfo, DepthInfo* depthLevels, int16_t* depthToX, RoadSegment* segments) noexcept
 {
-  xAtDepth[0] = SCREEN_WIDTH / 2 + carInfo.posX;
-  float x = xAtDepth[0];
+  depthToX[0] = SCREEN_WIDTH / 2 + carInfo.posX;
+  float x = depthToX[0];
   float prevZ = depthLevels[0].zf;
   //centering = SCREEN_WIDTH / 2 + (carInfo.posX);
  float totalOffset = 0;
@@ -217,91 +219,30 @@ void updateCurvature(CarInfo& carInfo, DepthInfo* depthLevels, int16_t* xAtDepth
       }
     }
           //x = x + (currCurvature * (currZ - prevZ) * depthLevels[depthLevel].scaleFactor);
+          //float scaleFactor = pgm_read_word(ScaleFactor + depthLevel)/65535.;
           x = SCREEN_WIDTH / 2 + (carInfo.posX + totalOffset) * depthLevels[depthLevel].scaleFactor;
-    xAtDepth[depthLevel] = x;
+    depthToX[depthLevel] = x;
     prevZ = currZ;
   }
 }
 
-void gameLoop(const LevelConfig& config) noexcept
+void computeHills(CarInfo& carInfo, DepthInfo* depthLevels, RoadSegment* segments, uint8_t* yToDepth) noexcept
 {
-  resetAlloc();
-
-  bool left = false;
-  unsigned int zCactus = 300;
-
-  uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
-  uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
-  GraphicsManager gm(strip1, strip2);
-  
-  // declare all the arrays
-//  DepthInfo depthLevels[Y_E_PIXELS];
-  DepthInfo* depthLevels = (DepthInfo*) mphAlloc(Y_E_PIXELS * sizeof(DepthInfo));
-  //uint8_t yToDepth[SCREEN_HEIGHT];
-  uint8_t* yToDepth = (uint8_t*) mphAlloc(SCREEN_HEIGHT);
-  //int16_t xAtDepth[Y_E_PIXELS];
-  int16_t* xAtDepth = (int16_t*) mphAlloc(Y_E_PIXELS * sizeof(int16_t));
-  
-  RoadSegment* segments = (RoadSegment*) mphAlloc(3 * sizeof(RoadSegment));
-  uint16_t minSegmentSize;
-  uint16_t maxSegmentSize;
-
-  CarInfo carInfo;
-  carInfo.posX = 0; //SCREEN_WIDTH / 2;
-  carInfo.posZ = 0;
-  carInfo.speed = 0.f;
-
-  uint16_t skyColor;
-  //uint16_t trackPalette[2*COLOR_TRACK_SIZE];
-  uint16_t* trackPalette = (uint16_t*) mphAlloc(2 * COLOR_TRACK_SIZE * sizeof(uint16_t));
-
-  initDepthInfo(config, depthLevels, minSegmentSize, maxSegmentSize);
-  SerialUSB.printf("SEGMENTS: %i %i\n", minSegmentSize, maxSegmentSize);
-  SerialUSB.printf("depthLevels: %i %i\n", depthLevels[0].leftBumperIndex, depthLevels[50].z);
-  initPalette(skyColor, trackPalette);
-
-  SpriteProgram* sprites = (SpriteProgram*) mphAlloc(MAX_SPRITES * sizeof(SpriteProgram));
-  uint8_t spriteCount(0);
-
-  //float zCurv = 0.f;
-
-  segments[0].xCurvature = random(-50, 50)/1000.f;
-  segments[0].zCurvature = random(-150, 400)/1000.f;
-  segments[0].segmentStartZ = 0;
-
-  segments[1].xCurvature = random(-50, 50)/1000.f;
-  segments[1].zCurvature = random(-150, 400)/1000.f;
-  segments[1].segmentStartZ = 400;//segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
-
-  segments[2].xCurvature = random(-50, 50)/1000.f;
-  segments[2].zCurvature = random(-150, 400)/1000.f;
-  segments[2].segmentStartZ = segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
-
-  // Actual game loop
-
-  while(true)
-  { 
-    while (!gb.update());
-
-    spriteCount = 0;
-// Update curvature map
- updateCurvature(carInfo, depthLevels, xAtDepth, segments);
- float prevZ = 0.f;
- float totalOffset = 0.f;
-  {
+  float prevZ = 0.f;
+  float totalOffset = 0.f;
 
     float currZIndex = 0.f;
     int16_t zIndex = 0;
     int16_t y=0;
     totalOffset = 0;
     float totalCurvature = 0.f;
-    prevZ = 0.f;
 
     while(zIndex < Y_E_PIXELS && y < SCREEN_HEIGHT && zIndex >= 0)
     {
       yToDepth[SCREEN_HEIGHT - 1 - y] = zIndex;
 
       const DepthInfo& di = depthLevels[zIndex];
+      //float scaleFactor = pgm_read_word(ScaleFactor + zIndex)/65535.;
       
       if(di.zf + carInfo.posZ < segments[1].segmentStartZ)
       {
@@ -322,7 +263,7 @@ void gameLoop(const LevelConfig& config) noexcept
 
       //totalOffset += totalCurvature;
       
-      prevZ = depthLevels[zIndex].zf;
+      //prevZ = depthLevels[zIndex].zf;
       currZIndex = y + totalOffset;
       zIndex = currZIndex + 0.5f;
       ++y;
@@ -333,12 +274,81 @@ void gameLoop(const LevelConfig& config) noexcept
       yToDepth[SCREEN_HEIGHT - 1 - y] = SKY_Z;
       ++y;
     }
-  }
+}
 
+void gameLoop(const LevelConfig& config) noexcept
+{
+  resetAlloc();
+  uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
+  uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
+  DepthInfo* depthLevels = (DepthInfo*) mphAlloc(Y_E_PIXELS * sizeof(DepthInfo));
+  uint8_t* yToDepth = (uint8_t*) mphAlloc(SCREEN_HEIGHT);
+  int16_t* depthToX = (int16_t*) mphAlloc(Y_E_PIXELS * sizeof(int16_t));
+  uint16_t* trackPalette = (uint16_t*) mphAlloc(2 * COLOR_TRACK_SIZE * sizeof(uint16_t));
+  RoadSegment* segments = (RoadSegment*) mphAlloc(3 * sizeof(RoadSegment));
+  SpriteProgram* sprites = (SpriteProgram*) mphAlloc(MAX_SPRITES * sizeof(SpriteProgram));
+      
+  bool left = false;
+  unsigned int zCactus = 300;
+
+
+  GraphicsManager gm(strip1, strip2);
+  
+  // declare all the arrays
+//  DepthInfo depthLevels[Y_E_PIXELS];
+
+  //uint8_t yToDepth[SCREEN_HEIGHT];
+  //int16_t depthToX[Y_E_PIXELS];
+
+  
+  uint16_t minSegmentSize;
+  uint16_t maxSegmentSize;
+
+  CarInfo carInfo;
+  carInfo.posX = 0; //SCREEN_WIDTH / 2;
+  carInfo.posZ = 0;
+  carInfo.speed = 0.f;
+
+  uint16_t skyColor;
+  //uint16_t trackPalette[2*COLOR_TRACK_SIZE];
+
+  initDepthInfo(config, depthLevels, minSegmentSize, maxSegmentSize);
+  SerialUSB.printf("SEGMENTS: %i %i\n", minSegmentSize, maxSegmentSize);
+  SerialUSB.printf("depthLevels: %i %i\n", depthLevels[0].leftBumperIndex, depthLevels[50].z);
+  initPalette(skyColor, trackPalette);
+
+  
+  uint8_t spriteCount(0);
+
+  segments[0].xCurvature = random(-50, 50)/1000.f;
+  segments[0].zCurvature = random(-150, 400)/1000.f;
+  segments[0].segmentStartZ = 0;
+
+  segments[1].xCurvature = random(-50, 50)/1000.f;
+  segments[1].zCurvature = random(-150, 400)/1000.f;
+  segments[1].segmentStartZ = 400;//segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
+
+  segments[2].xCurvature = random(-50, 50)/1000.f;
+  segments[2].zCurvature = random(-150, 400)/1000.f;
+  segments[2].segmentStartZ = segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
+
+  // Actual game loop
+
+  while(true)
+  { 
+    while (!gb.update());
+
+    spriteCount = 0;
+    
+    computeTurns(carInfo, depthLevels, depthToX, segments);
+
+    computeHills(carInfo, depthLevels, segments, yToDepth);
+ 
+/*
 uint8_t yCactus = -1;
   // position cactus
   {
-    prevZ = SKY_Z;
+    uint16_t prevZ = SKY_Z;
     for(unsigned int y = 0; y < SCREEN_HEIGHT && yCactus == -1; ++y)
     {
       if(yToDepth[y] != SKY_Z)
@@ -362,7 +372,7 @@ if(yCactus != -1)
   sprite.buffer = CACTUS;
     ++spriteCount;
 }
-
+*/
 if(left)
 {
   SpriteProgram& sprite = sprites[spriteCount];
@@ -382,6 +392,7 @@ else
   sprite.buffer = CAR;
 }
   ++spriteCount;
+
   
   
   uint16_t* strip = gm.StartFrame();
@@ -407,7 +418,7 @@ else
     else
     {
       DepthInfo& di = depthLevels[depthLevel];
-      int16_t x = xAtDepth[depthLevel];
+      int16_t x = depthToX[depthLevel];
       
       int altColor = (((uint16_t)(di.z + carInfo.posZ) >> 2) & 0x1);
       uint16_t* currentPalette = trackPalette + (COLOR_TRACK_SIZE+1) * altColor;
@@ -526,10 +537,10 @@ if(carInfo.posZ > zCactus)
       SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
     SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
     SerialUSB.printf("REMAIN: %i\n", allocFreeRam());
-//    for(unsigned int ii = 0; ii < Y_E_PIXELS; ++ii)
-//    {
-//      SerialUSB.printf("depth: %i %i\n", ii, depthLevels[ii].z);
-//    }
+    /*for(unsigned int ii = 0; ii < Y_E_PIXELS; ++ii)
+    {
+      SerialUSB.printf("depth: %i %i\n", ii, (uint32_t)(depthLevels[ii].scaleFactor * 65535));
+    }*/
 
 /*File root;
 root = SD.open("/Roads");
