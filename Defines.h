@@ -76,18 +76,15 @@ struct DepthInfo
   uint16_t z = 0;
   float zf = 0;
   float scaleFactor = 0;        // TODO 8.8
-  int16_t leftBumperIndex = 0;  // TODO int8_t
-  int16_t leftRoadIndex = 0;    // TODO int8_t
-  int16_t leftLineIndex = 0;    // TODO int8_t
-  int16_t rightRoadIndex = 0;   // TODO int8_t
-  int16_t rightBumperIndex = 0; // TODO int8_t
-  int16_t rightGrassIndex = 0;  // TODO int8_t
+  int16_t lineWidth = 0;  // TODO int8_t
+  int16_t lineRoadWidth = 0;    // TODO int8_t
+  int16_t lineRoadBumperWidth = 0;    // TODO int8_t
 };
 
 struct RoadSegment
 {
   float xCurvature;
-  float zCurvature;
+  /*float*/ int16_t zCurvature;
   uint16_t segmentStartZ;
 };
 

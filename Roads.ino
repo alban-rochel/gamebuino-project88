@@ -144,6 +144,8 @@ void initDepthInfo( const LevelConfig& config,
                     uint16_t& minSegmentSize,
                     uint16_t& maxSegmentSize) noexcept
 {
+  int16_t scaleFactor;
+  int32_t offset;
   for(unsigned int rowIndex = 0; rowIndex < Y_E_PIXELS; ++rowIndex)
   {
       float y = rowIndex * Y_E_METERS / Y_E_PIXELS;
@@ -154,28 +156,28 @@ void initDepthInfo( const LevelConfig& config,
     //We consider that at the horizon, the road is 10 times narrower than at the bottom of the viewport
       depthInfo.scaleFactor = 1.f - (0.9f * (rowIndex)) / Y_E_PIXELS;
 
-      //float scaleFactor = pgm_read_word(ScaleFactor + rowIndex)/65535.f;
+      scaleFactor = (int16_t)pgm_read_word(ScaleFactor_Signed_1_14 + rowIndex);
 
-      depthInfo.leftBumperIndex = - (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + (config.roadWidth >> 1) + config.bumperWidth + 0.5f));
-      depthInfo.leftRoadIndex =   - (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + (config.roadWidth >> 1) + 0.5f));
-      depthInfo.leftLineIndex =   - (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + 0.5f));
-      depthInfo.rightRoadIndex =    (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + 0.5f));
-      depthInfo.rightBumperIndex =  (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + (config.roadWidth >> 1) + 0.5f));
-      depthInfo.rightGrassIndex =   (int16_t)(depthInfo.scaleFactor*((config.lineWidth >> 1) + (config.roadWidth >> 1) + config.bumperWidth + 0.5f));
-  
-      if(depthInfo.leftBumperIndex == depthInfo.leftRoadIndex)
+      offset = config.lineWidth >> 1;
+      depthInfo.lineWidth = (int16_t)((scaleFactor*offset) >> ScaleFactor_Shift);
+      offset += (config.roadWidth) >> 1;
+      depthInfo.lineRoadWidth = (int16_t)((scaleFactor*offset) >> ScaleFactor_Shift);
+      offset += config.bumperWidth;
+      depthInfo.lineRoadBumperWidth = (int16_t)((scaleFactor*offset) >> ScaleFactor_Shift);
+
+      if(depthInfo.lineWidth == 0)
       {
-        ++depthInfo.leftRoadIndex;
+        depthInfo.lineWidth = 1;
+      }
+      
+      if(depthInfo.lineWidth == depthInfo.lineRoadWidth)
+      {
+        ++depthInfo.lineWidth;
       }
 
-      if(depthInfo.leftLineIndex == depthInfo.rightRoadIndex)
+      if(depthInfo.lineRoadWidth == depthInfo.lineRoadBumperWidth)
       {
-        ++depthInfo.rightRoadIndex;
-      }
-
-      if(depthInfo.rightBumperIndex == depthInfo.rightGrassIndex)
-      {
-        ++depthInfo.rightGrassIndex;
+        ++depthInfo.lineRoadBumperWidth;
       }
   }
 
@@ -237,12 +239,15 @@ void computeHills(CarInfo& carInfo, DepthInfo* depthLevels, RoadSegment* segment
     totalOffset = 0;
     float totalCurvature = 0.f;
 
+    //uint16_t scaleFactor0_16;
+
     while(zIndex < Y_E_PIXELS && y < SCREEN_HEIGHT && zIndex >= 0)
     {
       yToDepth[SCREEN_HEIGHT - 1 - y] = zIndex;
 
       const DepthInfo& di = depthLevels[zIndex];
       //float scaleFactor = pgm_read_word(ScaleFactor + zIndex)/65535.;
+      //scaleFactor0_16 = pgm_read_word(ScaleFactor + zIndex);
       
       if(di.zf + carInfo.posZ < segments[1].segmentStartZ)
       {
@@ -313,8 +318,6 @@ void gameLoop(const LevelConfig& config) noexcept
   //uint16_t trackPalette[2*COLOR_TRACK_SIZE];
 
   initDepthInfo(config, depthLevels, minSegmentSize, maxSegmentSize);
-  SerialUSB.printf("SEGMENTS: %i %i\n", minSegmentSize, maxSegmentSize);
-  SerialUSB.printf("depthLevels: %i %i\n", depthLevels[0].leftBumperIndex, depthLevels[50].z);
   initPalette(skyColor, trackPalette);
 
   
@@ -344,7 +347,7 @@ void gameLoop(const LevelConfig& config) noexcept
 
     computeHills(carInfo, depthLevels, segments, yToDepth);
  
-/*
+
 uint8_t yCactus = -1;
   // position cactus
   {
@@ -372,8 +375,8 @@ if(yCactus != -1)
   sprite.buffer = CACTUS;
     ++spriteCount;
 }
-*/
-if(left)
+
+/*if(left)
 {
   SpriteProgram& sprite = sprites[spriteCount];
   sprite.xStart = SCREEN_WIDTH/2 - CAR_LEFT_WIDTH/2;
@@ -391,7 +394,7 @@ else
   sprite.yEnd = sprites[0].yStart + CAR_HEIGHT - 1;
   sprite.buffer = CAR;
 }
-  ++spriteCount;
+  ++spriteCount;*/
 
   
   
@@ -423,27 +426,27 @@ else
       int altColor = (((uint16_t)(di.z + carInfo.posZ) >> 2) & 0x1);
       uint16_t* currentPalette = trackPalette + (COLOR_TRACK_SIZE+1) * altColor;
       int16_t col = 0;
-      for(; col < x + di.leftBumperIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x - di.lineRoadBumperWidth && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = currentPalette[COLOR_TRACK_GRASS_INDEX];
       }
-      for(; col < x + di.leftRoadIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x - di.lineRoadWidth && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = currentPalette[COLOR_TRACK_BUMPER_INDEX];
       }
-      for(; col < x + di.leftLineIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x - di.lineWidth && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = currentPalette[COLOR_TRACK_ROAD_INDEX];
       }
-      for(; col < x + di.rightRoadIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x + di.lineWidth && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = currentPalette[COLOR_TRACK_LINE_INDEX];
       }
-      for(; col < x + di.rightBumperIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x + di.lineRoadWidth && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = currentPalette[COLOR_TRACK_ROAD_INDEX];
       }
-      for(; col < x + di.rightGrassIndex && col < SCREEN_WIDTH; ++col)
+      for(; col < x + di.lineRoadBumperWidth && col < SCREEN_WIDTH; ++col)
       {
         (*stripCursor++) = currentPalette[COLOR_TRACK_BUMPER_INDEX];
       }
@@ -537,10 +540,11 @@ if(carInfo.posZ > zCactus)
       SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
     SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
     SerialUSB.printf("REMAIN: %i\n", allocFreeRam());
-    /*for(unsigned int ii = 0; ii < Y_E_PIXELS; ++ii)
+    SerialUSB.printf("Coin coin: %i\n", memory);
+    for(unsigned int ii = 0; ii < Y_E_PIXELS; ++ii)
     {
-      SerialUSB.printf("depth: %i %i\n", ii, (uint32_t)(depthLevels[ii].scaleFactor * 65535));
-    }*/
+      SerialUSB.printf("depth: %i %i\n", ii, (int32_t)(depthLevels[ii].scaleFactor * 16384));
+    }
 
 /*File root;
 root = SD.open("/Roads");
