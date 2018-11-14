@@ -20,7 +20,12 @@ namespace Gamebuino_Meta
 #define STRIP_SIZE_PIX (SCREEN_WIDTH * STRIP_HEIGHT)
 #define STRIP_SIZE_BYTES (STRIP_SIZE_PIX * 2)
 
-#define FIXED_8_8 uint16_t
+//#define FIXED_8_8 uint16_t
+#define Z_POSITION int32_t /* sign.23.8 */
+#define Z_POSITION_SHIFT 8
+
+#define ROAD_CURVATURE_X int8_t /* sign.3.4 */
+#define ROAD_CURVATURE_X_SHIFT 4
 
 namespace roads
 {
@@ -34,7 +39,7 @@ namespace roads
 
 #define Z_E (-5.f)
 #define Y_E_METERS (5.f)
-#define Y_E_PIXELS (80)
+#define DEPTH_LEVEL_COUNT (80)
 
 #define SKY_Z (0xFF)
 
@@ -67,14 +72,14 @@ namespace roads
 struct CarInfo
 {
   int16_t posX; // 0 is the center of the road
-  float posZ;
+  //float posZ;
+  Z_POSITION posZ;
   float speed;
 };
 
 struct DepthInfo
 {
-  uint16_t z = 0;
-  float zf = 0;
+  Z_POSITION z;
   float scaleFactor = 0;        // TODO 8.8
   int16_t lineWidth = 0;  // TODO int8_t
   int16_t lineRoadWidth = 0;    // TODO int8_t
@@ -83,9 +88,9 @@ struct DepthInfo
 
 struct RoadSegment
 {
-  float xCurvature;
+  ROAD_CURVATURE_X xCurvature;
   /*float*/ int16_t zCurvature;
-  uint16_t segmentStartZ;
+  Z_POSITION segmentStartZ;
 };
 
 struct SpriteProgram

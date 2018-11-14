@@ -2,8 +2,9 @@
 
 #include <avr/pgmspace.h>
 
-
-const int16_t ScaleFactor_Signed_1_14[] PROGMEM = /* sign.1.14, the [0., 1.] range is mapped on [0, 1<<14] */
+#define SCALE_FACTOR int16_t /* sign.1.14, the [0., 1.] range is mapped on [0, 1<<14] */
+#define SCALE_FACTOR_SHIFT 14
+const SCALE_FACTOR ScaleFactor[] PROGMEM = 
 {
   16384,  16199,  16015,  15831,  15646,  15462,  15278,  15093,  14909,  14725,
   14540,  14356,  14172,  13987,  13803,  13619,  13434,  13250,  13066,  12881,
@@ -14,7 +15,6 @@ const int16_t ScaleFactor_Signed_1_14[] PROGMEM = /* sign.1.14, the [0., 1.] ran
   5324,   5140,   4956,   4771,   4587,   4403,   4218,   4034,   3850,   3665,
   3481,   3297,   3112,   2928,   2744,   2560,   2375,   2191,   2007,   1822
 };
-#define ScaleFactor_Shift 14
   
 /*const uint16_t ScaleFactor_Unsigned_8_8[] PROGMEM =
 {
