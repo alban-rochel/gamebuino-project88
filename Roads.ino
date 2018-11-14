@@ -188,10 +188,10 @@ void initPalette(uint16_t& skyColor,
                  uint16_t* trackPalette) noexcept
 {
   skyColor = COLOR_565(150, 200, 255);
-  trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(93, 130, 37); trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX + 1]  = COLOR_565(118, 160, 54);
-  trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(178, 32, 32); trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX + 1] = COLOR_565(255, 255, 255);
-  trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX + 1] = COLOR_565(186, 186, 186);
-  trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX + 1] = trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX + 1];
+  trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(93, 130, 37); trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(118, 160, 54);
+  trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(178, 32, 32); trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = COLOR_565(255, 255, 255);
+  trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(186, 186, 186);
+  trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
 }
 
 void computeTurns(CarInfo& carInfo, DepthInfo* depthLevels, int16_t* depthLevelToX, RoadSegment* segments) noexcept
@@ -299,17 +299,10 @@ void gameLoop(const LevelConfig& config) noexcept
   SpriteProgram* sprites = (SpriteProgram*) mphAlloc(MAX_SPRITES * sizeof(SpriteProgram));
       
   bool left = false;
+  bool right = false;
   unsigned int zCactus = 300;
 
-
   GraphicsManager gm(strip1, strip2);
-  
-  // declare all the arrays
-//  DepthInfo depthLevels[DEPTH_LEVEL_COUNT];
-
-  //uint8_t lineToDepthLevel[SCREEN_HEIGHT];
-  //int16_t depthLevelToX[DEPTH_LEVEL_COUNT];
-
   
   Z_POSITION minSegmentSize;
   Z_POSITION maxSegmentSize;
@@ -328,15 +321,15 @@ void gameLoop(const LevelConfig& config) noexcept
   
   uint8_t spriteCount(0);
 
-  segments[0].xCurvature = -(5 << ROAD_CURVATURE_X_SHIFT);//random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
+  segments[0].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
   segments[0].zCurvature = random(-150, 400)/1000.f;
   segments[0].segmentStartZ = 0;
 
-  segments[1].xCurvature = 0;//random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
+  segments[1].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
   segments[1].zCurvature = random(-150, 400)/1000.f;
   segments[1].segmentStartZ = 400 * (1 << Z_POSITION_SHIFT);//segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
 
-  segments[2].xCurvature = 0;//random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
+  segments[2].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
   segments[2].zCurvature = random(-150, 400)/1000.f;
   segments[2].segmentStartZ = segments[1].segmentStartZ + random(minSegmentSize, maxSegmentSize);
 
@@ -381,7 +374,7 @@ if(yCactus != -1)
     ++spriteCount;
 }*/
 
-/*if(left)
+if(left)
 {
   SpriteProgram& sprite = sprites[spriteCount];
   sprite.xStart = SCREEN_WIDTH/2 - CAR_LEFT_WIDTH/2;
@@ -389,6 +382,15 @@ if(yCactus != -1)
   sprite.width = CAR_LEFT_WIDTH;
   sprite.yEnd = sprites[0].yStart + CAR_LEFT_HEIGHT - 1;
   sprite.buffer = CAR_LEFT;
+}
+else if(right)
+{
+  SpriteProgram& sprite = sprites[spriteCount];
+  sprite.xStart = SCREEN_WIDTH/2 - CAR_RIGHT_WIDTH/2;
+  sprite.yStart = 120 - CAR_RIGHT_HEIGHT;
+  sprite.width = CAR_RIGHT_WIDTH;
+  sprite.yEnd = sprites[0].yStart + CAR_RIGHT_HEIGHT - 1;
+  sprite.buffer = CAR_RIGHT;
 }
 else
 {
@@ -399,7 +401,7 @@ else
   sprite.yEnd = sprites[0].yStart + CAR_HEIGHT - 1;
   sprite.buffer = CAR;
 }
-  ++spriteCount;*/
+  ++spriteCount;
 
   
   
@@ -429,7 +431,7 @@ else
       int16_t x = depthLevelToX[depthLevel];
       
       int altColor = (((uint16_t)(di.z + carInfo.posZ) >> (Z_POSITION_SHIFT + 2)) & 0x1);
-      uint16_t* currentPalette = trackPalette + (COLOR_TRACK_SIZE+1) * altColor;
+      uint16_t* currentPalette = trackPalette + (COLOR_TRACK_SIZE) * altColor;
       int16_t col = 0;
       for(; col < x - di.lineRoadBumperWidth && col < SCREEN_WIDTH; ++col)
       {
@@ -491,6 +493,7 @@ else
   gm.EndFrame();
 
 left = false;
+right = false;
   if (gb.buttons.repeat(BUTTON_LEFT, 0))
   {
     ++carInfo.posX;
@@ -499,6 +502,7 @@ left = false;
   else if (gb.buttons.repeat(BUTTON_RIGHT, 0))
   {
     --carInfo.posX;
+    right = true;
   }
 
   if (gb.buttons.repeat(BUTTON_A, 0))
@@ -549,6 +553,10 @@ if(carInfo.posZ > zCactus)
     for(unsigned int ii = 0; ii < DEPTH_LEVEL_COUNT; ++ii)
     {
       SerialUSB.printf("depth: %i %i\n", ii, (int32_t)(depthLevels[ii].scaleFactor * 16384));
+    }*/
+    /*for(unsigned int ii = 0; ii < 2 * COLOR_TRACK_SIZE; ++ii)
+    {
+      SerialUSB.printf("palette: %i %i\n", ii, trackPalette[ii]);
     }*/
 
 /*File root;
