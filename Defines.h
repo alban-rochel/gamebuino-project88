@@ -101,4 +101,5 @@ struct SpriteProgram
   uint16_t width;
   uint16_t yEnd;
   const uint16_t* buffer;  
+  uint16_t zoomPattern;
 };

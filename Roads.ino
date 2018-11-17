@@ -365,16 +365,32 @@ uint8_t yCactus = -1;
 
 if(yCactus != -1)
 {
-    SpriteProgram& sprite = sprites[spriteCount];
-  //sprite.xStart = SCREEN_WIDTH/2 - (ScaleFactor[lineToDepthLevel[y]] * config.roadWidth) - CACTUS_WIDTH/2;
-  sprite.xStart = depthLevelToX[lineToDepthLevel[yCactus]] - ((ScaleFactor[lineToDepthLevel[yCactus]] * config.roadWidth) >> SCALE_FACTOR_SHIFT);
-  if(sprite.xStart <= 0) sprite.xStart = 0;
-  //if(sprite.xStart > SCREEN_WIDTH-40) sprite.xStart = SCREEN_WIDTH-40;
+  SpriteProgram& sprite = sprites[spriteCount];
+  
+  SCALE_FACTOR scale = ScaleFactor[lineToDepthLevel[yCactus]];
+
+  if(scale <= SCALE_FACTOR_QUARTER)
+  {
+    sprite.zoomPattern = 4;
+  }
+  else if(scale <= SCALE_FACTOR_HALF)
+  {
+    sprite.zoomPattern = 2;
+  }
+  else
+  {
+    sprite.zoomPattern = 1;
+  }
+    
+  sprite.xStart = depthLevelToX[lineToDepthLevel[yCactus]] - ((scale * config.roadWidth) >> SCALE_FACTOR_SHIFT);
   sprite.width = CACTUS_WIDTH;
-  sprite.yStart = (yCactus >= CACTUS_HEIGHT) ? yCactus - CACTUS_HEIGHT : 0;
-  sprite.yEnd = sprite.yStart + CACTUS_HEIGHT - 1;
+  
+  uint16_t actualHeight = CACTUS_HEIGHT / sprite.zoomPattern;
+  sprite.yStart = (yCactus >= actualHeight) ? yCactus - actualHeight : 0;
+  sprite.yEnd = sprite.yStart + actualHeight - 1;
+  
   sprite.buffer = CACTUS;
-    ++spriteCount;
+  ++spriteCount;
 }
 
 if(left)
@@ -385,6 +401,7 @@ if(left)
   sprite.width = CAR_LEFT_WIDTH;
   sprite.yEnd = sprite.yStart + CAR_LEFT_HEIGHT - 1;
   sprite.buffer = CAR_LEFT;
+  sprite.zoomPattern = 1;
 }
 else if(right)
 {
@@ -394,6 +411,7 @@ else if(right)
   sprite.width = CAR_RIGHT_WIDTH;
   sprite.yEnd = sprite.yStart + CAR_RIGHT_HEIGHT - 1;
   sprite.buffer = CAR_RIGHT;
+  sprite.zoomPattern = 1;
 }
 else
 {
@@ -403,6 +421,7 @@ else
   sprite.width = CAR_WIDTH;
   sprite.yEnd = sprite.yStart + CAR_HEIGHT - 1;
   sprite.buffer = CAR;
+  sprite.zoomPattern = 1;
 }
   ++spriteCount;
 
@@ -471,9 +490,9 @@ else
       const SpriteProgram& sprite = sprites[spriteIndex];
       if(y >= sprite.yStart && y <= sprite.yEnd)
       {
-        uint16_t offset = sprite.width * (y - sprite.yStart);
+        uint16_t offset = sprite.width * (y - sprite.yStart) * sprite.zoomPattern;
         int16_t xIndex = sprite.xStart;
-        for(int16_t x = 0; x < sprite.width && xIndex <= SCREEN_WIDTH-1; ++x, ++xIndex)
+        for(int16_t x = 0; x < sprite.width && xIndex <= SCREEN_WIDTH-1; x+=sprite.zoomPattern, ++xIndex)
         {
           uint16_t color = *(sprite.buffer + offset + x);
           if(xIndex > 0 && color != COLOR_565(0xFF, 0x00, 0xFF))

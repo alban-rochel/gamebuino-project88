@@ -2,6 +2,9 @@
 
 #define SCALE_FACTOR int16_t /* sign.1.14, the [0., 1.] range is mapped on [0, 1<<14] */
 #define SCALE_FACTOR_SHIFT 14
+#define SCALE_FACTOR_HALF (1 << (SCALE_FACTOR_SHIFT-1))
+#define SCALE_FACTOR_QUARTER (1 << (SCALE_FACTOR_SHIFT-2))
+
 const SCALE_FACTOR ScaleFactor[] = 
 {
   16384,  16199,  16015,  15831,  15646,  15462,  15278,  15093,  14909,  14725,
