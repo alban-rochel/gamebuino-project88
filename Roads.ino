@@ -107,8 +107,8 @@ LevelConfig levelSelectionMenu() noexcept
   config.bumperWidth  = 6;
   config.roadWidth    = 140;
   config.lineWidth    = 4;
-
-  /*displayFile("/Roads/brown.mph");
+/*
+  displayFile("/Roads/brown.mph");
 
   while(true)
   {
@@ -134,8 +134,8 @@ LevelConfig levelSelectionMenu() noexcept
     {
       return config;
     }
-  }*/
-
+  }
+*/
   return config;
 }
 
@@ -155,7 +155,7 @@ void initDepthInfo( const LevelConfig& config,
     //We consider that at the horizon, the road is 10 times narrower than at the bottom of the viewport
       depthInfo.scaleFactor = 1.f - (0.9f * (rowIndex)) / DEPTH_LEVEL_COUNT;
 
-      scaleFactor = (SCALE_FACTOR)pgm_read_word(ScaleFactor + rowIndex);
+      scaleFactor = *(ScaleFactor + rowIndex);
 
       offset = config.lineWidth >> 1;
       depthInfo.lineWidth = (int16_t)((scaleFactor*offset) >> SCALE_FACTOR_SHIFT);
@@ -251,8 +251,6 @@ void computeHills(CarInfo& carInfo, DepthInfo* depthLevels, RoadSegment* segment
       lineToDepthLevel[SCREEN_HEIGHT - 1 - y] = zIndex;
 
       const DepthInfo& di = depthLevels[zIndex];
-      //float scaleFactor = pgm_read_word(ScaleFactor + zIndex)/65535.;
-      //scaleFactor0_16 = pgm_read_word(ScaleFactor + zIndex);
       
       if(di.z + carInfo.posZ < segments[1].segmentStartZ)
       {
@@ -296,11 +294,12 @@ void gameLoop(const LevelConfig& config) noexcept
   int16_t* depthLevelToX = (int16_t*) mphAlloc(DEPTH_LEVEL_COUNT * sizeof(int16_t));
   uint16_t* trackPalette = (uint16_t*) mphAlloc(2 * COLOR_TRACK_SIZE * sizeof(uint16_t));
   RoadSegment* segments = (RoadSegment*) mphAlloc(3 * sizeof(RoadSegment));
-  SpriteProgram* sprites = (SpriteProgram*) mphAlloc(MAX_SPRITES * sizeof(SpriteProgram));
+  //SpriteProgram* sprites = (SpriteProgram*) mphAlloc(MAX_SPRITES * sizeof(SpriteProgram));
+  SpriteProgram sprites[MAX_SPRITES];
       
   bool left = false;
   bool right = false;
-  unsigned int zCactus = 300;
+  Z_POSITION zCactus = (100 << Z_POSITION_SHIFT);
 
   GraphicsManager gm(strip1, strip2);
   
@@ -346,19 +345,20 @@ void gameLoop(const LevelConfig& config) noexcept
     computeHills(carInfo, depthLevels, segments, lineToDepthLevel);
  
 
-/*uint8_t yCactus = -1;
+uint8_t yCactus = -1;
   // position cactus
   {
-    uint16_t prevZ = SKY_Z;
-    for(unsigned int y = 0; y < SCREEN_HEIGHT && yCactus == -1; ++y)
-    {
+    Z_POSITION prevZ = Z_POSITION_MAX;
+    for(unsigned int y = 0; y < SCREEN_HEIGHT && yCactus == (uint8_t)-1; ++y)
+    {//SerialUSB.printf("%i zCactus %i depthLevels[lineToDepthLevel[y]].z%i \n", y, zCactus, depthLevels[lineToDepthLevel[y]].z);
       if(lineToDepthLevel[y] != SKY_Z)
       {
-        if(depthLevels[lineToDepthLevel[y]].zf <= zCactus && prevZ > zCactus)
+        
+        if(depthLevels[lineToDepthLevel[y]].z+carInfo.posZ <= zCactus && prevZ > zCactus)
         {
           yCactus = y;
         }
-        prevZ = depthLevels[lineToDepthLevel[y]].z;
+        prevZ = depthLevels[lineToDepthLevel[y]].z+carInfo.posZ;
       }
     }
   }
@@ -366,13 +366,16 @@ void gameLoop(const LevelConfig& config) noexcept
 if(yCactus != -1)
 {
     SpriteProgram& sprite = sprites[spriteCount];
-  sprite.xStart = SCREEN_WIDTH/2 - CACTUS_WIDTH/2;
-  sprite.yStart = 30 - CACTUS_HEIGHT;
+  //sprite.xStart = SCREEN_WIDTH/2 - (ScaleFactor[lineToDepthLevel[y]] * config.roadWidth) - CACTUS_WIDTH/2;
+  sprite.xStart = depthLevelToX[lineToDepthLevel[yCactus]] - ((ScaleFactor[lineToDepthLevel[yCactus]] * config.roadWidth) >> SCALE_FACTOR_SHIFT);
+  if(sprite.xStart <= 0) sprite.xStart = 0;
+  //if(sprite.xStart > SCREEN_WIDTH-40) sprite.xStart = SCREEN_WIDTH-40;
   sprite.width = CACTUS_WIDTH;
-  sprite.yEnd = sprites[0].yStart + CACTUS_HEIGHT - 1;
+  sprite.yStart = (yCactus >= CACTUS_HEIGHT) ? yCactus - CACTUS_HEIGHT : 0;
+  sprite.yEnd = sprite.yStart + CACTUS_HEIGHT - 1;
   sprite.buffer = CACTUS;
     ++spriteCount;
-}*/
+}
 
 if(left)
 {
@@ -380,7 +383,7 @@ if(left)
   sprite.xStart = SCREEN_WIDTH/2 - CAR_LEFT_WIDTH/2;
   sprite.yStart = 120 - CAR_LEFT_HEIGHT;
   sprite.width = CAR_LEFT_WIDTH;
-  sprite.yEnd = sprites[0].yStart + CAR_LEFT_HEIGHT - 1;
+  sprite.yEnd = sprite.yStart + CAR_LEFT_HEIGHT - 1;
   sprite.buffer = CAR_LEFT;
 }
 else if(right)
@@ -389,7 +392,7 @@ else if(right)
   sprite.xStart = SCREEN_WIDTH/2 - CAR_RIGHT_WIDTH/2;
   sprite.yStart = 120 - CAR_RIGHT_HEIGHT;
   sprite.width = CAR_RIGHT_WIDTH;
-  sprite.yEnd = sprites[0].yStart + CAR_RIGHT_HEIGHT - 1;
+  sprite.yEnd = sprite.yStart + CAR_RIGHT_HEIGHT - 1;
   sprite.buffer = CAR_RIGHT;
 }
 else
@@ -398,7 +401,7 @@ else
     sprite.xStart = SCREEN_WIDTH/2 - CAR_WIDTH/2;
   sprite.yStart = 120 - CAR_HEIGHT;
   sprite.width = CAR_WIDTH;
-  sprite.yEnd = sprites[0].yStart + CAR_HEIGHT - 1;
+  sprite.yEnd = sprite.yStart + CAR_HEIGHT - 1;
   sprite.buffer = CAR;
 }
   ++spriteCount;
@@ -469,13 +472,13 @@ else
       if(y >= sprite.yStart && y <= sprite.yEnd)
       {
         uint16_t offset = sprite.width * (y - sprite.yStart);
-        uint8_t xIndex = sprite.xStart;
-        for(uint8_t x = 0; x < sprite.width; ++x, ++xIndex)
+        int16_t xIndex = sprite.xStart;
+        for(int16_t x = 0; x < sprite.width && xIndex <= SCREEN_WIDTH-1; ++x, ++xIndex)
         {
-          uint16_t color = pgm_read_word(sprite.buffer + offset + x);
-          if(color != COLOR_565(0xFF, 0x00, 0xFF))
+          uint16_t color = *(sprite.buffer + offset + x);
+          if(xIndex > 0 && color != COLOR_565(0xFF, 0x00, 0xFF))
           {
-            stripLine[xIndex] = pgm_read_word(sprite.buffer + offset + x);
+            stripLine[xIndex] = color;
           }
         }
       }
@@ -541,7 +544,7 @@ right = false;
 
 if(carInfo.posZ > zCactus)
 {
-  zCactus += 400;
+  zCactus += (400 << Z_POSITION_SHIFT);
 }
 
     if(gb.buttons.repeat(BUTTON_MENU, 0))

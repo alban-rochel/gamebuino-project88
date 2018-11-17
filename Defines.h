@@ -23,6 +23,7 @@ namespace Gamebuino_Meta
 //#define FIXED_8_8 uint16_t
 #define Z_POSITION int32_t /* sign.23.8 */
 #define Z_POSITION_SHIFT 8
+#define Z_POSITION_MAX 0x7FFFFFFF
 
 #define ROAD_CURVATURE_X int8_t /* sign.3.4 */
 #define ROAD_CURVATURE_X_SHIFT 4
@@ -95,9 +96,9 @@ struct RoadSegment
 
 struct SpriteProgram
 {
-  uint8_t xStart;
-  uint8_t yStart;
-  uint8_t width;
-  uint8_t yEnd;
+  int16_t xStart;
+  int16_t yStart;
+  uint16_t width;
+  uint16_t yEnd;
   const uint16_t* buffer;  
 };
