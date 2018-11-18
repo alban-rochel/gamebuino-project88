@@ -38,6 +38,9 @@ namespace roads
     uint8_t sceneryObjectsCount;
     uint8_t sceneryObjectsIndexStart;
     uint8_t sceneryObjectsIndexEnd;
+    uint8_t staticObstaclesCount;
+    uint8_t staticObstaclesIndexStart;
+    uint8_t staticObstaclesIndexEnd;
   };
 }
 
@@ -97,7 +100,7 @@ struct DepthInfo
 struct RoadSegment
 {
   ROAD_CURVATURE_X xCurvature;
-  /*float*/ int16_t zCurvature;
+  float zCurvature;
   Z_POSITION segmentStartZ;
 };
 

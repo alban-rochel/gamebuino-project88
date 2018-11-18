@@ -111,6 +111,9 @@ LevelConfig levelSelectionMenu() noexcept
   config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
   config.sceneryObjectsIndexStart = 3;
   config.sceneryObjectsIndexEnd = 6;
+  config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
+  config.staticObstaclesIndexStart = 5;
+  config.staticObstaclesIndexEnd = 6;
 /*
   displayFile("/Roads/brown.mph");
 
@@ -239,16 +242,14 @@ void computeTurns(CarInfo& carInfo, Level& level) noexcept
 
 void computeHills(CarInfo& carInfo, Level& level) noexcept
 {
-  float prevZ = 0.f;
-  float totalOffset = 0.f;
+    float prevZ = 0.f;
+    float totalOffset = 0.f;
 
     float currZIndex = 0.f;
+    //float totalCurvature = 0.f;
+
     int16_t zIndex = 0;
     int16_t y=0;
-    totalOffset = 0;
-    float totalCurvature = 0.f;
-
-    //uint16_t scaleFactor0_16;
 
     while(zIndex < DEPTH_LEVEL_COUNT && y < SCREEN_HEIGHT && zIndex >= 0)
     {
@@ -272,10 +273,6 @@ void computeHills(CarInfo& carInfo, Level& level) noexcept
         }
       }
 
-
-      //totalOffset += totalCurvature;
-      
-      //prevZ = depthLevels[zIndex].zf;
       currZIndex = y + totalOffset;
       zIndex = currZIndex + 0.5f;
       ++y;
@@ -324,9 +321,35 @@ void updateSceneryObjects(Level& level, const CarInfo& carInfo, const LevelConfi
   }
 }
 
-void updateFixedObstacles(/*bool init,*/ Level& level, const CarInfo& carInfo, const LevelConfig& config){}
+void createStaticObstacle(Level& level, StaticObstacle& object, Z_POSITION zPos, const LevelConfig& config)
+{
+  object.posX = random(- config.roadWidth/2, config.roadWidth/2);
+  object.posZ = zPos + random(0, level.depthLevels[DEPTH_LEVEL_COUNT-1].z/2);
+  object.sprite = level.sprites + random(config.staticObstaclesIndexStart, config.staticObstaclesIndexEnd);
+}
 
-void updateMobileObstacles(/*bool init,*/ Level& level, const CarInfo& carInfo, const LevelConfig& config){}
+void createStaticObstacles(Level& level, const LevelConfig& config)
+{
+    for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
+  {
+    StaticObstacle& object = level.staticObstacles[index];
+    createStaticObstacle(level, object, 0, config);
+  }
+}
+
+void updateStaticObstacles(Level& level, const CarInfo& carInfo, const LevelConfig& config)
+{
+  for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
+  {
+    StaticObstacle& object = level.staticObstacles[index];
+    if(object.posZ < carInfo.posZ)
+    {
+      createStaticObstacle(level, object, carInfo.posZ + level.depthLevels[DEPTH_LEVEL_COUNT-1].z, config);
+    }
+  }
+}
+
+void updateMobileObstacles( Level& level, const CarInfo& carInfo, const LevelConfig& config){}
 
 uint8_t computeDrawable(Level& level, int16_t posX, Z_POSITION posZ, SpriteDefinition* sprite, const CarInfo& carInfo, uint8_t index)
 {
@@ -379,57 +402,6 @@ uint8_t computeDrawable(Level& level, int16_t posX, Z_POSITION posZ, SpriteDefin
   }
 
   return index;
-    
-  
-   #if 0
-  uint8_t yCactus = -1;
-  // position cactus
-  {
-    Z_POSITION prevZ = Z_POSITION_MAX;
-    for(unsigned int y = 0; y < SCREEN_HEIGHT && yCactus == (uint8_t)-1; ++y)
-    {//SerialUSB.printf("%i zCactus %i depthLevels[lineToDepthLevel[y]].z%i \n", y, zCactus, depthLevels[lineToDepthLevel[y]].z);
-      if(lineToDepthLevel[y] != SKY_Z)
-      {
-        
-        if(depthLevels[lineToDepthLevel[y]].z+carInfo.posZ <= zCactus && prevZ > zCactus)
-        {
-          yCactus = y;
-        }
-        prevZ = depthLevels[lineToDepthLevel[y]].z+carInfo.posZ;
-      }
-    }
-  }
-
-if(yCactus != -1)
-{
-  Drawable& drawable = drawables[drawableCount];
-  
-  SCALE_FACTOR scale = ScaleFactor[lineToDepthLevel[yCactus]];
-
-  if(scale <= SCALE_FACTOR_QUARTER)
-  {
-    drawable.zoomPattern = 4;
-  }
-  else if(scale <= SCALE_FACTOR_HALF)
-  {
-    drawable.zoomPattern = 2;
-  }
-  else
-  {
-    drawable.zoomPattern = 1;
-  }
-    
-  drawable.xStart = depthLevelToX[lineToDepthLevel[yCactus]] - ((scale * config.roadWidth) >> SCALE_FACTOR_SHIFT);
-  drawable.width = CACTUS_WIDTH;
-  
-  uint16_t actualHeight = CACTUS_HEIGHT / drawable.zoomPattern;
-  drawable.yStart = (yCactus >= actualHeight) ? yCactus - actualHeight : 0;
-  drawable.yEnd = drawable.yStart + actualHeight - 1;
-  
-  drawable.buffer = CACTUS;
-  ++drawableCount;
-}
-#endif
 }
 
 uint8_t computeDrawables(Level& level, const CarInfo& carInfo, const LevelConfig& config)
@@ -438,6 +410,17 @@ uint8_t computeDrawables(Level& level, const CarInfo& carInfo, const LevelConfig
   for(uint8_t index = 0; index < config.sceneryObjectsCount; ++index)
   {
     SceneryObject& object = level.sceneryObjects[index];
+    nextDrawableIndex = computeDrawable(level,
+                                        object.posX,
+                                        object.posZ,
+                                        object.sprite,
+                                        carInfo,
+                                        nextDrawableIndex);
+  }
+
+    for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
+  {
+    StaticObstacle& object = level.staticObstacles[index];
     nextDrawableIndex = computeDrawable(level,
                                         object.posX,
                                         object.posZ,
@@ -525,6 +508,7 @@ void gameLoop(const LevelConfig& config) noexcept
 
 
   createSceneryObjects(level, config);
+  createStaticObstacles(level, config);
 
   int16_t backgroundShift = 0; /* sign.11.4 */
 
@@ -535,16 +519,13 @@ void gameLoop(const LevelConfig& config) noexcept
 // Compute environment geometry
 
     computeTurns(carInfo, level);
-
     computeHills(carInfo, level);
 
 // Update drawables
 
     updateSceneryObjects(level, carInfo, config);
-
-    updateFixedObstacles(/*init,*/ level, carInfo, config);
-
-    updateMobileObstacles(/*init,*/ level, carInfo, config);
+    updateStaticObstacles(level, carInfo, config);
+    updateMobileObstacles(level, carInfo, config);
 
     uint8_t drawableCount = computeDrawables(level, carInfo, config);
 
