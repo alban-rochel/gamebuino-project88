@@ -1,6 +1,7 @@
 #include "GraphicsManager.h"
 
 #include "CarSprites.h"
+#include "BackgroundWest.h"
 
 using namespace roads;
 
@@ -521,6 +522,8 @@ void gameLoop(const LevelConfig& config) noexcept
 
   createSceneryObjects(level, config);
 
+  int16_t backgroundShift = 0; /* sign.11.4 */
+
   while(true)
   { 
     while (!gb.update());
@@ -609,12 +612,24 @@ void gameLoop(const LevelConfig& config) noexcept
   {
     stripLine = stripCursor;
     uint8_t depthLevel = level.lineToDepthLevel[y];
+
+int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
+    
     if(depthLevel == SKY_Z)
     {
       // draw sky
-      for(uint16_t ii = 0; ii < SCREEN_WIDTH; ++ii)
+      uint16_t line = y;
+      if(y >= BACKGROUND_ARIZONA_HEIGHT)
       {
-        (*stripCursor++) = COLOR_565(150, 200, 255);
+        y = BACKGROUND_ARIZONA_HEIGHT-1;
+      }
+      for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
+      {
+        //(*stripCursor++) = COLOR_565(150, 200, 255);
+        uint16_t pixelsIndex = y * 256 + (uint8_t)(ii/2 + actualShift);
+        uint8_t colorIndexes = BACKGROUND_ARIZONA[pixelsIndex];
+        (*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[colorIndexes >> 4];
+        (*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[colorIndexes & 0x0F];
       }
     }
     else
@@ -730,6 +745,8 @@ right = false;
       level.segments[2].zCurvature = random(-150, 400)/1000.f;
       level.segments[2].segmentStartZ = level.segments[1].segmentStartZ + random(minSegmentSize, maxSegmentSize);
     }
+
+    backgroundShift += (level.segments[0].xCurvature * carInfo.speed) / 4;
 
 /*if(carInfo.posZ > zCactus)
 {
