@@ -11,23 +11,23 @@
 
 #define COLOR_565(r, g, b) (uint16_t)(COLOR_R(r) | COLOR_G_LOW(g) | COLOR_G_HIGH(g) | COLOR_B(b))
 
-#define SPRITE_NAME "CAR_RIGHT"
+#define SPRITE_NAME "BOULDER"
 
 int main(int, char)
 {
-    QImage img("C:\\temp\\delorean3.png");
+    QImage img("C:\\Users\\Famille\\Documents\\Arduino\\Gamebuino\\Roads\\Assets\\boulder.tif");
     if(img.isNull())
     {
         std::cout << "Failed opening" << std::endl;
         return 1;
     }
 
-    FILE* out = fopen("C:\\temp\\out.mph", "w");
+    FILE* out = fopen("C:\\temp\\boulder.mph", "w");
 
     fprintf(out, "#define %s_WIDTH (%d)\n", SPRITE_NAME, img.width());
     fprintf(out, "#define %s_HEIGHT (%d)\n", SPRITE_NAME, img.height());
 
-    fprintf(out, "const uint16_t %s[] PROGMEM = {", SPRITE_NAME);
+    fprintf(out, "const uint16_t %s[] = {", SPRITE_NAME);
 
     for(unsigned int y = 0; y < img.height(); ++y)
     {

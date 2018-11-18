@@ -109,8 +109,8 @@ LevelConfig levelSelectionMenu() noexcept
   config.roadWidth    = 140;
   config.lineWidth    = 4;
   config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
-  config.sceneryObjectsIndexStart = 4;
-  config.sceneryObjectsIndexEnd = 4;
+  config.sceneryObjectsIndexStart = 3;
+  config.sceneryObjectsIndexEnd = 6;
 /*
   displayFile("/Roads/brown.mph");
 
@@ -192,7 +192,7 @@ void initPalette(uint16_t& skyColor,
                  Level& level) noexcept
 {
   skyColor = COLOR_565(150, 200, 255);
-  level.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(93, 130, 37); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(118, 160, 54);
+  level.trackPalette[COLOR_TRACK_GRASS_INDEX]  = /*COLOR_565(93, 130, 37)*/COLOR_565(147, 52, 28); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = /*COLOR_565(118, 160, 54)*/COLOR_565(187, 126, 83);
   level.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(178, 32, 32); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = COLOR_565(255, 255, 255);
   level.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(186, 186, 186);
   level.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
@@ -483,9 +483,13 @@ void gameLoop(const LevelConfig& config) noexcept
   level.sprites[3].height = CACTUS_HEIGHT;
   level.sprites[3].buffer = CACTUS;
 
-  level.sprites[4].width = CACTUS_WIDTH;
-  level.sprites[4].height = CACTUS_HEIGHT;
-  level.sprites[4].buffer = CACTUS;
+  level.sprites[4].width = BUSH_WIDTH;
+  level.sprites[4].height = BUSH_HEIGHT;
+  level.sprites[4].buffer = BUSH;
+
+  level.sprites[5].width = BOULDER_WIDTH;
+  level.sprites[5].height = BOULDER_HEIGHT;
+  level.sprites[5].buffer = BOULDER;
       
   bool left = false;
   bool right = false;
