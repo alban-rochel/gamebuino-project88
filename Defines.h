@@ -35,6 +35,9 @@ namespace roads
     uint8_t bumperWidth;
     uint8_t roadWidth;
     uint8_t lineWidth;
+    uint8_t sceneryObjectsCount;
+    uint8_t sceneryObjectsIndexStart;
+    uint8_t sceneryObjectsIndexEnd;
   };
 }
 
@@ -51,6 +54,10 @@ namespace roads
 #define COLOR_TRACK_SIZE (COLOR_TRACK_LINE_INDEX + 1)
 
 #define MAX_SPRITES 10
+#define MAX_SCENERY_OBJECTS 20
+#define MAX_STATIC_OBSTACLES 4
+#define MAX_MOVING_OBSTACLES 4
+#define MAX_DRAWABLES (MAX_SCENERY_OBJECTS + MAX_STATIC_OBSTACLES + MAX_MOVING_OBSTACLES + 1 /*car*/)
 
 /*
  * Perspective computation: 
@@ -94,12 +101,53 @@ struct RoadSegment
   Z_POSITION segmentStartZ;
 };
 
-struct SpriteProgram
+struct SpriteDefinition
+{
+  uint8_t width;
+  uint8_t height;
+  const uint16_t* buffer;
+};
+
+struct SceneryObject
+{
+  int16_t posX; // 0 is the center of the road
+  Z_POSITION posZ;
+  SpriteDefinition* sprite;
+};
+
+struct StaticObstacle
+{
+  int16_t posX; // 0 is the center of the road
+  Z_POSITION posZ;
+  SpriteDefinition* sprite;  
+};
+
+struct MovingObstacle
+{
+  int16_t posX; // 0 is the center of the road
+  Z_POSITION posZ;
+  SpriteDefinition* sprite;  
+};
+
+struct Drawable
 {
   int16_t xStart;
   int16_t yStart;
-  uint16_t width;
   uint16_t yEnd;
-  const uint16_t* buffer;  
   uint16_t zoomPattern;
+  SpriteDefinition* sprite; 
+};
+
+struct Level
+{
+  DepthInfo* depthLevels;
+  uint8_t* lineToDepthLevel;
+  int16_t* depthLevelToX;
+  uint16_t* trackPalette;
+  RoadSegment* segments;
+  SpriteDefinition* sprites;
+  SceneryObject* sceneryObjects;
+  StaticObstacle* staticObstacles;
+  MovingObstacle* movingObstacles;
+  Drawable* drawables;
 };
