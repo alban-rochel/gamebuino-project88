@@ -491,6 +491,9 @@ uint8_t computeDrawables(Level& level, const CarInfo& carInfo, const LevelConfig
 
 void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& config)
 {
+  const RoadSegment& segment = level.segments[0];
+  bool offRoad = (carInfo.posX < -config.roadWidth/2 || carInfo.posX > config.roadWidth/2);
+  
   bool accelerates = gb.buttons.repeat(BUTTON_A, 0);
   bool brakes = gb.buttons.repeat(BUTTON_B, 0);
   int8_t direction = 0;
@@ -517,7 +520,14 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
     carInfo.accelZ = -0.001;
   }
 
+  if(offRoad)
+  {
+    carInfo.accelZ -= 0.005;
+  }
+
   carInfo.speedZ += carInfo.accelZ;
+
+  float maxSpeedZ = (offRoad ? MAX_SPEED_Z/5 : MAX_SPEED_Z);
 
   if(carInfo.speedZ <= 0)
   {
@@ -539,10 +549,31 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
 
   // Sprinkle with a bit of inertia
 
-  const RoadSegment& segment = level.segments[0];
   carInfo.accelX += segment.xCurvature * carInfo.speedZ / 100.;
 
   // Handle collisions
+
+  for(uint8_t objectIndex = 0; objectIndex < config.sceneryObjectsCount; ++objectIndex)
+  {
+    const SceneryObject& object = level.sceneryObjects[objectIndex];
+    Z_POSITION diffZ = object.posZ-carInfo.posZ;
+    if(diffZ < 0)
+    {
+      diffZ = -diffZ;
+    }
+    
+    if(diffZ <= (1 << Z_POSITION_SHIFT))
+    {
+      // check collision
+      int16_t obstacleXMin = object.posX - object.sprite->width/2;
+      int16_t obstacleXMax = object.posX + object.sprite->width/2;
+      if(carInfo.posX >= obstacleXMin && carInfo.posX <= obstacleXMax)
+      {
+        SerialUSB.printf("Collision\n");
+        carInfo.accelZ -= 0.01;
+      }
+    }
+  }
 
   // Update
   
