@@ -9,7 +9,24 @@ using namespace roads;
 uint8_t memory[MEMORY_SEGMENT_SIZE];
 void* nextAvailableSegment;
 
-/*void printDirectory(File dir, int numTabs) {
+float accelFromSpeed(float speed)
+{
+  // max speed : MAX_SPEED_Z
+
+  if(speed < 0.5)
+  {
+    return 0.01;
+  }
+  else if(speed < 1.)
+  {
+    return 0.005;
+  }
+
+  return 0.002;
+  
+}
+
+void printDirectory(File dir, int numTabs) {
   if(!dir)
     return;
   while (true)
@@ -28,7 +45,7 @@ void* nextAvailableSegment;
     SerialUSB.printf("%s\n", name);
     entry.close();
   }
-}*/
+}
 
 inline void* mphAlloc(uint16_t size)
 {
@@ -61,12 +78,51 @@ void displayFile(const char* filename)
   uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
   uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
   GraphicsManager gm(strip1, strip2);
-  
-  bool exists = SD.exists(filename);
+
+SdFile rdfile(filename, O_READ);
+
+  // check for open error
+  if (!rdfile.isOpen())
+  {
+    SerialUSB.printf("Failed opening file %s\n", filename);
+    return;
+  }
+
+SerialUSB.printf("Size %i\n", rdfile.available());
+
+  uint16_t* strip = gm.StartFrame();
+  uint16_t* stripCursor = strip;
+
+  for(unsigned int y = 0; y < 2/*SCREEN_HEIGHT/8*/; ++y)
+  {
+    for(unsigned int index = 0; index < STRIP_SIZE_BYTES; ++index)
+    {
+      stripCursor[index] = rdfile.read();
+    }
+    strip = gm.CommitStrip();
+    stripCursor = strip;
+
+  }
+
+   gm.EndFrame();
+   
+  /*bool exists = SD.exists(filename);
   
   if(!exists)
   {
     SerialUSB.printf("Cannot find file %s\n", filename);
+    {
+      SerialUSB.printf("Content of /Roads\n");
+      File root = SD.open("/Roads");
+      printDirectory(root, 0);
+      root.close();
+    }
+    {
+      SerialUSB.printf("Content of /\n");
+      File root = SD.open("/");
+      printDirectory(root, 0);
+      root.close();
+    }
     return;
   }
 
@@ -84,6 +140,7 @@ void displayFile(const char* filename)
   {
     for(unsigned int line = 0; line < 8; ++line)
     {
+      
       int size = f.read(stripCursor, 160);
       SerialUSB.printf("size1: %i\n", size);
       f.flush();
@@ -99,7 +156,7 @@ void displayFile(const char* filename)
   }
 
    gm.EndFrame();
-  f.close();
+  f.close();*/
 }
 
 LevelConfig levelSelectionMenu() noexcept
@@ -141,8 +198,8 @@ LevelConfig levelSelectionMenu() noexcept
     {
       return config;
     }
-  }
-*/
+  }*/
+
   return config;
 }
 
@@ -432,6 +489,92 @@ uint8_t computeDrawables(Level& level, const CarInfo& carInfo, const LevelConfig
  return nextDrawableIndex;
 }
 
+void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& config)
+{
+  bool accelerates = gb.buttons.repeat(BUTTON_A, 0);
+  bool brakes = gb.buttons.repeat(BUTTON_B, 0);
+  int8_t direction = 0;
+  carInfo.sprite = CarSprite::Front;
+  if(gb.buttons.repeat(BUTTON_LEFT, 0))
+  {
+    direction = 1;
+  }
+  else if(gb.buttons.repeat(BUTTON_RIGHT, 0))
+  {
+    direction = -1;
+  }
+
+  if(accelerates)
+  {
+    carInfo.accelZ = accelFromSpeed(carInfo.speedZ);
+  }
+  else if(brakes)
+  {
+    carInfo.accelZ = -0.005;
+  }
+  else
+  {
+    carInfo.accelZ = -0.001;
+  }
+
+  carInfo.speedZ += carInfo.accelZ;
+
+  if(carInfo.speedZ <= 0)
+  {
+    carInfo.speedZ = 0;
+  }
+  else if(carInfo.speedZ > MAX_SPEED_Z)
+  {
+    carInfo.speedZ = MAX_SPEED_Z;
+  }
+
+  if(direction)
+  {
+    carInfo.accelX = direction * carInfo.speedZ;
+  }
+  else
+  {
+    carInfo.accelX = -0.1 * carInfo.speedX * carInfo.speedZ;// tend to center the car
+  }
+
+  // Sprinkle with a bit of inertia
+
+  const RoadSegment& segment = level.segments[0];
+  carInfo.accelX += segment.xCurvature * carInfo.speedZ / 100.;
+
+  // Handle collisions
+
+  // Update
+  
+  carInfo.speedX += carInfo.accelX;
+
+  if(carInfo.speedX <= -MAX_SPEED_X)
+  {
+    carInfo.speedX = -MAX_SPEED_X;
+  }
+  else if(carInfo.speedX > MAX_SPEED_X)
+  {
+    carInfo.speedX = MAX_SPEED_X;
+  }
+
+  if(carInfo.speedX)
+  {
+    if(direction == 1)
+    {
+      carInfo.sprite = CarSprite::Left;
+    }
+    else if(direction == -1)
+    {
+      carInfo.sprite = CarSprite::Right;
+    }
+  }
+
+  // update
+
+  carInfo.posZ += carInfo.speedZ * 256;
+  carInfo.posX += carInfo.speedX;
+}
+
 void gameLoop(const LevelConfig& config) noexcept
 {
   resetAlloc();
@@ -474,8 +617,6 @@ void gameLoop(const LevelConfig& config) noexcept
   level.sprites[5].height = BOULDER_HEIGHT;
   level.sprites[5].buffer = BOULDER;
       
-  bool left = false;
-  bool right = false;
 //  Z_POSITION zCactus = (100 << Z_POSITION_SHIFT);
 
   GraphicsManager gm(strip1, strip2);
@@ -484,9 +625,13 @@ void gameLoop(const LevelConfig& config) noexcept
   Z_POSITION maxSegmentSize;
 
   CarInfo carInfo;
+  carInfo.sprite = CarSprite::Front;
   carInfo.posX = 0; //SCREEN_WIDTH / 2;
   carInfo.posZ = 0;
-  carInfo.speed = 0.f;
+  carInfo.speedZ = 0.f;
+  carInfo.speedX = 0.f;
+  carInfo.accelZ = 0.f;
+  carInfo.accelX = 0.f;
 
   uint16_t skyColor;
   //uint16_t trackPalette[2*COLOR_TRACK_SIZE];
@@ -516,6 +661,45 @@ void gameLoop(const LevelConfig& config) noexcept
   { 
     while (!gb.update());
 
+    updateCarInfo(level, carInfo, config);
+
+    /*switch((gb.frameCount >> 3) % 5)
+    {
+      case 0:
+        gb.lights.drawImage(0, 0, LIGHT_NONE);
+        break;
+
+      case 1:
+        gb.lights.drawImage(0, 0, LIGHT_1);
+        break;
+
+      case 2:
+        gb.lights.drawImage(0, 0, LIGHT_2);
+        break;
+
+      case 3:
+        gb.lights.drawImage(0, 0, LIGHT_3);
+        break;
+
+      case 4:
+      default:
+        gb.lights.drawImage(0, 0, LIGHT_4);
+        break;
+        
+    }*/
+
+// Update environment wrt to new car position
+
+    if(carInfo.posZ > level.segments[1].segmentStartZ)
+    {
+      level.segments[0] = level.segments[1];
+      level.segments[1] = level.segments[2];
+      level.segments[2].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
+      level.segments[2].zCurvature = random(-150, 400)/1000.f;
+      level.segments[2].segmentStartZ = level.segments[1].segmentStartZ + random(minSegmentSize, maxSegmentSize);
+    }
+        backgroundShift += (level.segments[0].xCurvature * carInfo.speedZ) / 4;
+
 // Compute environment geometry
 
     computeTurns(carInfo, level);
@@ -530,58 +714,27 @@ void gameLoop(const LevelConfig& config) noexcept
     uint8_t drawableCount = computeDrawables(level, carInfo, config);
 
 
-{
-  Drawable& drawable = level.drawables[drawableCount];
-  if(left)
-  {
-    drawable.sprite = &level.sprites[1];
-  }
-  else if(right)
-  {
-    drawable.sprite = &level.sprites[2];
-  }
-  else
-  {
-    drawable.sprite = &level.sprites[0];
-  }
-
-  drawable.xStart = SCREEN_WIDTH/2 - drawable.sprite->width/2;
-  drawable.yStart = 120 - drawable.sprite->height;
-  drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
-  drawable.zoomPattern = 1;
-}
-#if 0
-  if(left)
   {
     Drawable& drawable = level.drawables[drawableCount];
-    drawable.xStart = SCREEN_WIDTH/2 - CAR_LEFT_WIDTH/2;
-    drawable.yStart = 120 - CAR_LEFT_HEIGHT;
-    drawable.width = CAR_LEFT_WIDTH;
-    drawable.yEnd = drawable.yStart + CAR_LEFT_HEIGHT - 1;
-    drawable.buffer = CAR_LEFT;
+    switch(carInfo.sprite)
+    {
+      case CarSprite::Left:
+        drawable.sprite = &level.sprites[1];
+        break;
+      case CarSprite::Right:
+        drawable.sprite = &level.sprites[2];
+        break;
+      case CarSprite::Front:
+      default:
+        drawable.sprite = &level.sprites[0];
+        break;
+    }
+  
+    drawable.xStart = SCREEN_WIDTH/2 - drawable.sprite->width/2;
+    drawable.yStart = 120 - drawable.sprite->height;
+    drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 1;
   }
-  else if(right)
-  {
-    Drawable& drawable = level.drawables[drawableCount];
-    drawable.xStart = SCREEN_WIDTH/2 - CAR_RIGHT_WIDTH/2;
-    drawable.yStart = 120 - CAR_RIGHT_HEIGHT;
-    drawable.width = CAR_RIGHT_WIDTH;
-    drawable.yEnd = drawable.yStart + CAR_RIGHT_HEIGHT - 1;
-    drawable.buffer = CAR_RIGHT;
-    drawable.zoomPattern = 1;
-  }
-  else
-  {
-      Drawable& drawable = level.drawables[drawableCount];
-      drawable.xStart = SCREEN_WIDTH/2 - CAR_WIDTH/2;
-    drawable.yStart = 120 - CAR_HEIGHT;
-    drawable.width = CAR_WIDTH;
-    drawable.yEnd = drawable.yStart + CAR_HEIGHT - 1;
-    drawable.buffer = CAR;
-    drawable.zoomPattern = 1;
-  }
-#endif
   ++drawableCount;
 
   
@@ -683,55 +836,6 @@ int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
 
 
   gm.EndFrame();
-
-left = false;
-right = false;
-  if (gb.buttons.repeat(BUTTON_LEFT, 0))
-  {
-    ++carInfo.posX;
-    left = true;
-  }
-  else if (gb.buttons.repeat(BUTTON_RIGHT, 0))
-  {
-    --carInfo.posX;
-    right = true;
-  }
-
-  if (gb.buttons.repeat(BUTTON_A, 0))
-  {
-    carInfo.speed += 0.005;
-  }
-  else if(gb.buttons.repeat(BUTTON_B, 0))
-  {
-    carInfo.speed -= 0.02;
-  }
-  else
-  {
-    carInfo.speed -= 0.001;
-  }
-
-  if(carInfo.speed <= 0)
-  {
-    carInfo.speed = 0;
-  }
-  else if(carInfo.speed > 1.)
-  {
-    carInfo.speed = 1.;
-  }
-  
-
-    carInfo.posZ += carInfo.speed * 256;
-
-    if(carInfo.posZ > level.segments[1].segmentStartZ)
-    {
-      level.segments[0] = level.segments[1];
-      level.segments[1] = level.segments[2];
-      level.segments[2].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
-      level.segments[2].zCurvature = random(-150, 400)/1000.f;
-      level.segments[2].segmentStartZ = level.segments[1].segmentStartZ + random(minSegmentSize, maxSegmentSize);
-    }
-
-    backgroundShift += (level.segments[0].xCurvature * carInfo.speed) / 4;
 
 /*if(carInfo.posZ > zCactus)
 {

@@ -14,6 +14,72 @@ namespace Gamebuino_Meta
 
 #define COLOR_565(r, g, b) (COLOR_R(r) | COLOR_G_LOW(g) | COLOR_G_HIGH(g) | COLOR_B(b))
 
+
+const uint16_t LIGHT_NONE[] {
+  2,4,    // width, height
+  1,      // number of frames
+  0,      // frame looping speed
+  0,      // transparent color magenta
+  0,      // color mode RGB
+  //image data
+  0x0000, 0x0000,
+  0x0000, 0x0000,
+  0x0000, 0x0000,
+  0x0000, 0x0000
+  };
+
+const uint16_t LIGHT_1[] {
+  2,4,    // width, height
+  1,      // number of frames
+  0,      // frame looping speed
+  0,      // transparent color magenta
+  0,      // color mode RGB
+  //image data
+  COLOR_565(0x00, 0xFF, 0xFF), COLOR_565(0x00, 0xFF, 0xFF),
+  0x0000, 0x0000,
+  0x0000, 0x0000,
+  0x0000, 0x0000
+  };
+
+const uint16_t LIGHT_2[] {
+  2,4,    // width, height
+  1,      // number of frames
+  0,      // frame looping speed
+  0,      // transparent color magenta
+  0,      // color mode RGB
+  //image data
+  0x0000, 0x0000,
+  COLOR_565(0x00, 0xFF, 0xFF), COLOR_565(0x00, 0xFF, 0xFF),
+  0x0000, 0x0000,
+  0x0000, 0x0000
+  };
+
+const uint16_t LIGHT_3[] {
+  2,4,    // width, height
+  1,      // number of frames
+  0,      // frame looping speed
+  0,      // transparent color magenta
+  0,      // color mode RGB
+  //image data
+  0x0000, 0x0000,
+  0x0000, 0x0000,
+  COLOR_565(0x00, 0xFF, 0xFF), COLOR_565(0x00, 0xFF, 0xFF),
+  0x0000, 0x0000
+  };
+
+const uint16_t LIGHT_4[] {
+  2,4,    // width, height
+  1,      // number of frames
+  0,      // frame looping speed
+  0,      // transparent color magenta
+  0,      // color mode RGB
+  //image data
+  0x0000, 0x0000,
+  0x0000, 0x0000,
+  0x0000, 0x0000,
+  COLOR_565(0x00, 0xFF, 0xFF), COLOR_565(0x00, 0xFF, 0xFF)
+  };
+  
 #define SCREEN_WIDTH 160
 #define SCREEN_HEIGHT 128
 #define STRIP_HEIGHT 8
@@ -80,12 +146,27 @@ namespace roads
  * -> z = (-ze) / (ye - y) * ye + ze
  */
 
+enum class CarSprite 
+{
+  Front,
+  Left,
+  Right
+};
+
+// 88 mph is ~40 m/s = 1 m/frame. Make 1.5 to make things more dramatic
+#define MAX_SPEED_Z 1.5f
+#define MAX_SPEED_X 2.f
+
 struct CarInfo
 {
+  CarSprite sprite;
   int16_t posX; // 0 is the center of the road
   //float posZ;
-  Z_POSITION posZ;
-  float speed;
+  Z_POSITION posZ; // meters
+  float speedZ; // meters / frame. Max 1
+  float speedX;
+  float accelZ; // meters / frame / frame
+  float accelX;
 };
 
 struct DepthInfo
