@@ -9,6 +9,8 @@ using namespace roads;
 uint8_t memory[MEMORY_SEGMENT_SIZE];
 void* nextAvailableSegment;
 
+int16_t capacitorCharge;
+
 float accelFromSpeed(float speed)
 {
   // max speed : MAX_SPEED_Z
@@ -259,7 +261,7 @@ void initPalette(uint16_t& skyColor,
   level.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
 #else
   level.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(147, 52, 28); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(187, 126, 83);
-  level.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(0xa7, 0x71, 0x4a); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = COLOR_565(0x83, 0x2e, 0x19);
+  level.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(0x83, 0x2e, 0x19); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = COLOR_565(0xa7, 0x71, 0x4a);
   level.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(0xc8, 0xac, 0x98); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(0xb6, 0x89, 0x7e);
   level.trackPalette[COLOR_TRACK_LINE_INDEX]   = level.trackPalette[COLOR_TRACK_ROAD_INDEX]; level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
 #endif
@@ -498,12 +500,12 @@ uint8_t computeDrawables(Level& level, const CarInfo& carInfo, const LevelConfig
 
 int8_t computeCollision(int16_t carXMin, int16_t carXMax, int16_t obstacleX, SpriteDefinition* obstacleSprite)
 {
-  if(carXMax > (obstacleX + obstacleSprite->width/2))
+  if(carXMin > (obstacleX + obstacleSprite->width/2))
   {
     return 0;
   }
 
-  if(carXMin < (obstacleX - obstacleSprite->width/2))
+  if(carXMax < (obstacleX - obstacleSprite->width/2))
   {
     return 0;
   }
@@ -530,6 +532,7 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
   bool turningLeft    = gb.buttons.repeat(BUTTON_LEFT, 0);
   bool turningRight   = gb.buttons.repeat(BUTTON_RIGHT, 0);
   bool offRoad        = (carInfo.posX < -config.roadWidth/2 || carInfo.posX > config.roadWidth/2);
+  const uint16_t* lightPattern = nullptr;
 
   // Compute collisions
   int8_t collision = 0;
@@ -582,11 +585,6 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
     accelerationValue = -0.005;
   }
 
-  if(offRoad)
-  {
-    accelerationValue -= 0.01;
-  }
-
   float accelX(0.f), accelZ(0.f);
   if(accelerating)
   {
@@ -625,134 +623,117 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
     }
   }
 
-  carInfo.speedX += accelX;
-  carInfo.speedZ += accelZ;
-
-  float maxSpeedZ = (offRoad ? MAX_SPEED_Z/5 : MAX_SPEED_Z);
-  if(carInfo.speedZ <= 0)
-  {
-    carInfo.speedZ = 0;
-  }
-  else if(carInfo.speedZ > MAX_SPEED_Z)
-  {
-    carInfo.speedZ = MAX_SPEED_Z;
-  }
-
-  carInfo.posX += carInfo.speedX;
-  carInfo.posZ += carInfo.speedZ * 256;
-  
-#if 0
-  bool accelerates = gb.buttons.repeat(BUTTON_A, 0);
-  bool brakes = gb.buttons.repeat(BUTTON_B, 0);
-  int8_t direction = 0;
-  carInfo.sprite = CarSprite::Front;
-  if(gb.buttons.repeat(BUTTON_LEFT, 0))
-  {
-    direction = 1;
-  }
-  else if(gb.buttons.repeat(BUTTON_RIGHT, 0))
-  {
-    direction = -1;
-  }
-
-  if(accelerates)
-  {
-    carInfo.accelZ = accelFromSpeed(carInfo.speedZ);
-  }
-  else if(brakes)
-  {
-    carInfo.accelZ = -0.005;
-  }
-  else
-  {
-    carInfo.accelZ = -0.001;
-  }
-
   if(offRoad)
   {
-    carInfo.accelZ -= 0.005;
+    accelZ /= 2;
   }
 
-  carInfo.speedZ += carInfo.accelZ;
+  switch(collision)
+  {
+    case COLLISION_LEFT:
+        lightPattern = LIGHT_COLLISION_LEFT;
+        carInfo.speedZ /= 2;
+        carInfo.speedX += 0.5;
+        break;
+
+    case COLLISION_RIGHT:
+        lightPattern = LIGHT_COLLISION_RIGHT;
+        carInfo.speedZ /= 2;
+        carInfo.speedX -= 0.5;
+        break;
+
+    case COLLISION_FRONT:
+        lightPattern = LIGHT_COLLISION_FRONT;
+        carInfo.speedZ /= 2;
+        break;
+
+    default:
+      break;
+  }
+
+  carInfo.speedX += accelX;
+  carInfo.speedZ += accelZ;
+  
+  if(offRoad)
+  {
+    if(carInfo.speedZ > 0.7)
+    {
+      carInfo.speedZ = 0.7;
+    }
+  }
 
   float maxSpeedZ = (offRoad ? MAX_SPEED_Z/5 : MAX_SPEED_Z);
-
   if(carInfo.speedZ <= 0)
   {
     carInfo.speedZ = 0;
   }
-  else if(carInfo.speedZ > MAX_SPEED_Z)
+  else if(carInfo.speedZ >= MAX_SPEED_Z)
   {
     carInfo.speedZ = MAX_SPEED_Z;
   }
 
-  if(direction)
+  if(carInfo.speedZ == MAX_SPEED_Z)
   {
-    carInfo.accelX = direction * carInfo.speedZ;
+      capacitorCharge += 1;
   }
   else
   {
-    carInfo.accelX = -0.1 * carInfo.speedX * carInfo.speedZ;// tend to center the car
+    capacitorCharge -= 5;
+    if(capacitorCharge < 0)
+    {
+      capacitorCharge = 0;
+    }
   }
 
-  // Sprinkle with a bit of inertia
+  carInfo.posX += carInfo.speedX;
+  carInfo.posZ += carInfo.speedZ * 256;
 
-  carInfo.accelX += segment.xCurvature * carInfo.speedZ / 100.;
-
-  // Handle collisions
-
-  for(uint8_t objectIndex = 0; objectIndex < config.sceneryObjectsCount; ++objectIndex)
+  if(lightPattern)
   {
-    const SceneryObject& object = level.sceneryObjects[objectIndex];
-    Z_POSITION diffZ = object.posZ-carInfo.posZ;
-    if(diffZ < 0)
+    gb.lights.drawImage(0, 0, lightPattern);
+  }
+  else
+  {
+    int8_t step = 0;
+    if(capacitorCharge < 100)
     {
-      diffZ = -diffZ;
+      step = ((capacitorCharge / 20) % 5);
+    }
+    else if(capacitorCharge < 200)
+    {
+      step = ((capacitorCharge / 10) % 5);
+    }
+    else if(capacitorCharge < 300)
+    {
+      step = ((capacitorCharge / 2) % 5);
+    }
+
+    switch(step)
+    {
+      case 1:
+        gb.lights.drawImage(0, 0, LIGHT_1);
+        break;
+
+      case 2:
+        gb.lights.drawImage(0, 0, LIGHT_2);
+        break;
+
+      case 3:
+        gb.lights.drawImage(0, 0, LIGHT_3);
+        break;
+
+      case 4:
+        gb.lights.drawImage(0, 0, LIGHT_4);
+        break;
+
+      default:
+        gb.lights.drawImage(0, 0, LIGHT_NONE);
+        break;
     }
     
-    if(diffZ <= (1 << Z_POSITION_SHIFT))
-    {
-      // check collision
-      int16_t obstacleXMin = object.posX - object.sprite->width/2;
-      int16_t obstacleXMax = object.posX + object.sprite->width/2;
-      if(carInfo.posX >= obstacleXMin && carInfo.posX <= obstacleXMax)
-      {
-        SerialUSB.printf("Collision\n");
-        carInfo.accelZ -= 0.01;
-      }
-    }
   }
-
-  // Update
   
-  carInfo.speedX += carInfo.accelX;
 
-  if(carInfo.speedX <= -MAX_SPEED_X)
-  {
-    carInfo.speedX = -MAX_SPEED_X;
-  }
-  else if(carInfo.speedX > MAX_SPEED_X)
-  {
-    carInfo.speedX = MAX_SPEED_X;
-  }
-
-  if(carInfo.speedX)
-  {
-    if(direction == 1)
-    {
-      carInfo.sprite = CarSprite::Left;
-    }
-    else if(direction == -1)
-    {
-      carInfo.sprite = CarSprite::Right;
-    }
-  }
-
-  // update
-
-  carInfo.posZ += carInfo.speedZ * 256;
-  carInfo.posX += carInfo.speedX;
-#endif
 }
 
 void gameLoop(const LevelConfig& config) noexcept
@@ -836,6 +817,8 @@ void gameLoop(const LevelConfig& config) noexcept
   createStaticObstacles(level, config);
 
   int16_t backgroundShift = 0; /* sign.11.4 */
+
+  capacitorCharge = 0;
 
   while(true)
   { 
