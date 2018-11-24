@@ -153,6 +153,10 @@ enum class CarSprite
   Right
 };
 
+#define COLLISION_LEFT 0x01
+#define COLLISION_RIGHT 0x02
+#define COLLISION_FRONT (COLLISION_RIGHT | COLLISION_LEFT)
+
 // 88 mph is ~40 m/s = 1 m/frame. Make 1.5 to make things more dramatic
 #define MAX_SPEED_Z 1.5f
 #define MAX_SPEED_X 2.f

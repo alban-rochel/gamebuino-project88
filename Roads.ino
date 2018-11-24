@@ -163,7 +163,7 @@ LevelConfig levelSelectionMenu() noexcept
 {
   LevelConfig config;
   config.bumperWidth  = 6;
-  config.roadWidth    = 140;
+  config.roadWidth    = 200;
   config.lineWidth    = 4;
   config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
   config.sceneryObjectsIndexStart = 3;
@@ -252,10 +252,17 @@ void initPalette(uint16_t& skyColor,
                  Level& level) noexcept
 {
   skyColor = COLOR_565(150, 200, 255);
+#if OLD
   level.trackPalette[COLOR_TRACK_GRASS_INDEX]  = /*COLOR_565(93, 130, 37)*/COLOR_565(147, 52, 28); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = /*COLOR_565(118, 160, 54)*/COLOR_565(187, 126, 83);
   level.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(178, 32, 32); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = COLOR_565(255, 255, 255);
-  level.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(186, 186, 186);
+  level.trackPalette[COLOR_TRACK_ROAD_INDEX]   = /*COLOR_565(142, 142, 142)*/COLOR_565(0xc8, 0xac, 0x98); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = /*COLOR_565(186, 186, 186)*/ COLOR_565(0xb6, 0x89, 0x7e);
   level.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
+#else
+  level.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(147, 52, 28); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(187, 126, 83);
+  level.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(0xa7, 0x71, 0x4a); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = COLOR_565(0x83, 0x2e, 0x19);
+  level.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(0xc8, 0xac, 0x98); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(0xb6, 0x89, 0x7e);
+  level.trackPalette[COLOR_TRACK_LINE_INDEX]   = level.trackPalette[COLOR_TRACK_ROAD_INDEX]; level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
+#endif
 }
 
 void computeTurns(CarInfo& carInfo, Level& level) noexcept
@@ -489,11 +496,152 @@ uint8_t computeDrawables(Level& level, const CarInfo& carInfo, const LevelConfig
  return nextDrawableIndex;
 }
 
+int8_t computeCollision(int16_t carXMin, int16_t carXMax, int16_t obstacleX, SpriteDefinition* obstacleSprite)
+{
+  if(carXMax > (obstacleX + obstacleSprite->width/2))
+  {
+    return 0;
+  }
+
+  if(carXMin < (obstacleX - obstacleSprite->width/2))
+  {
+    return 0;
+  }
+
+  if(carXMin > obstacleX)
+  {
+    return COLLISION_LEFT;
+  }
+
+  if(carXMax < obstacleX)
+  {
+    return COLLISION_RIGHT;
+  }
+
+  return COLLISION_FRONT;
+}
+
 void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& config)
 {
   const RoadSegment& segment = level.segments[0];
-  bool offRoad = (carInfo.posX < -config.roadWidth/2 || carInfo.posX > config.roadWidth/2);
   
+  bool accelerating   = gb.buttons.repeat(BUTTON_A, 0);
+  bool braking        = gb.buttons.repeat(BUTTON_B, 0);
+  bool turningLeft    = gb.buttons.repeat(BUTTON_LEFT, 0);
+  bool turningRight   = gb.buttons.repeat(BUTTON_RIGHT, 0);
+  bool offRoad        = (carInfo.posX < -config.roadWidth/2 || carInfo.posX > config.roadWidth/2);
+
+  // Compute collisions
+  int8_t collision = 0;
+  {
+    Z_POSITION diffZ = 0;
+    int16_t carXMin = carInfo.posX - CAR_WIDTH/2;
+    int16_t carXMax = carInfo.posX + CAR_WIDTH/2;
+    for(uint8_t objectIndex = 0; objectIndex < config.sceneryObjectsCount && collision != COLLISION_FRONT; ++objectIndex)
+    {
+      const SceneryObject& object = level.sceneryObjects[objectIndex];
+      diffZ = object.posZ-carInfo.posZ;
+      if(diffZ < 0)
+      {
+        diffZ = -diffZ;
+      }
+    
+      if(diffZ <= (1 << Z_POSITION_SHIFT))
+      {
+        collision = collision | computeCollision(carXMin, carXMax, object.posX, object.sprite);
+      }
+    }
+
+    for(uint8_t objectIndex = 0; objectIndex < config.staticObstaclesCount && collision != COLLISION_FRONT; ++objectIndex)
+    {
+      const StaticObstacle& object = level.staticObstacles[objectIndex];
+      diffZ = object.posZ-carInfo.posZ;
+      if(diffZ < 0)
+      {
+        diffZ = -diffZ;
+      }
+    
+      if(diffZ <= (1 << Z_POSITION_SHIFT))
+      {
+        collision = collision | computeCollision(carXMin, carXMax, object.posX, object.sprite);
+      }
+    }
+  } // end compute collisions
+
+  float accelerationValue(0);
+  if(accelerating)
+  {
+    accelerationValue = accelFromSpeed(carInfo.speedZ);
+  }
+  else if(braking)
+  {
+    accelerationValue = -0.015;
+  }
+  else
+  {
+    accelerationValue = -0.005;
+  }
+
+  if(offRoad)
+  {
+    accelerationValue -= 0.01;
+  }
+
+  float accelX(0.f), accelZ(0.f);
+  if(accelerating)
+  {
+    if(turningLeft)
+    {
+      accelX = carInfo.speedZ / 5;
+      accelZ = accelerationValue * 0.8f;
+    }
+    else if(turningRight)
+    {
+      accelX = -carInfo.speedZ  / 5;
+      accelZ = accelerationValue * 0.8f;
+    }
+    else
+    {
+      accelX = -carInfo.speedX/10;
+      accelZ = accelerationValue;
+    }
+  }
+  else
+  {
+    if(turningLeft)
+    {
+      accelX = carInfo.speedZ / 5;
+      accelZ = accelerationValue * 0.8f;
+    }
+    else if(turningRight)
+    {
+     accelX = -carInfo.speedZ / 5;
+      accelZ = accelerationValue * 0.8f;
+    }
+    else
+    {
+      accelX = -carInfo.speedX/10;
+      accelZ = accelerationValue;
+    }
+  }
+
+  carInfo.speedX += accelX;
+  carInfo.speedZ += accelZ;
+
+  float maxSpeedZ = (offRoad ? MAX_SPEED_Z/5 : MAX_SPEED_Z);
+  if(carInfo.speedZ <= 0)
+  {
+    carInfo.speedZ = 0;
+  }
+  else if(carInfo.speedZ > MAX_SPEED_Z)
+  {
+    carInfo.speedZ = MAX_SPEED_Z;
+  }
+
+  carInfo.posX += carInfo.speedX;
+  carInfo.posZ += carInfo.speedZ * 256;
+  
+#if 0
   bool accelerates = gb.buttons.repeat(BUTTON_A, 0);
   bool brakes = gb.buttons.repeat(BUTTON_B, 0);
   int8_t direction = 0;
@@ -604,6 +752,7 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
 
   carInfo.posZ += carInfo.speedZ * 256;
   carInfo.posX += carInfo.speedX;
+#endif
 }
 
 void gameLoop(const LevelConfig& config) noexcept
