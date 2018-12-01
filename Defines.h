@@ -208,8 +208,8 @@ struct CarInfo
   Z_POSITION posZ; // meters
   float speedZ; // meters / frame. Max 1
   float speedX;
-  float accelZ; // meters / frame / frame
-  float accelX;
+//  float accelZ; // meters / frame / frame
+//  float accelX;
 };
 
 struct DepthInfo

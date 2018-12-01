@@ -500,22 +500,27 @@ uint8_t computeDrawables(Level& level, const CarInfo& carInfo, const LevelConfig
 
 int8_t computeCollision(int16_t carXMin, int16_t carXMax, int16_t obstacleX, SpriteDefinition* obstacleSprite)
 {
-  if(carXMin > (obstacleX + obstacleSprite->width/2))
+  if(gb.buttons.repeat(BUTTON_MENU, 0))
+  {
+    SerialUSB.printf("carXMin %i carXMax %i obstacleX %i obstacleWidth %i\n", carXMin, carXMax, obstacleX, obstacleSprite->width);
+  }
+  
+  if(carXMin > (obstacleX))
   {
     return 0;
   }
 
-  if(carXMax < (obstacleX - obstacleSprite->width/2))
+  if(carXMax < (obstacleX - obstacleSprite->width))
   {
     return 0;
   }
 
-  if(carXMin > obstacleX)
+  if(carXMin > obstacleX - obstacleSprite->width/2)
   {
     return COLLISION_LEFT;
   }
 
-  if(carXMax < obstacleX)
+  if(carXMax < obstacleX - obstacleSprite->width/2)
   {
     return COLLISION_RIGHT;
   }
@@ -543,7 +548,7 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
     for(uint8_t objectIndex = 0; objectIndex < config.sceneryObjectsCount && collision != COLLISION_FRONT; ++objectIndex)
     {
       const SceneryObject& object = level.sceneryObjects[objectIndex];
-      diffZ = object.posZ-carInfo.posZ;
+      diffZ = 8*(object.posZ-carInfo.posZ);
       if(diffZ < 0)
       {
         diffZ = -diffZ;
@@ -585,22 +590,31 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
     accelerationValue = -0.005;
   }
 
-  float accelX(0.f), accelZ(0.f);
+  float accelX(segment.xCurvature * carInfo.speedZ / 200.), accelZ(0.f);
+  //SerialUSB.printf("AccelX1 %i\n", accelX*10000);
+  if(accelX > 0.3)
+  {
+    accelX = 0.3;
+  }
+  if(accelX < -0.3)
+  {
+    accelX = -0.3;
+  }
   if(accelerating)
   {
     if(turningLeft)
     {
-      accelX = carInfo.speedZ / 5;
+      accelX += carInfo.speedZ / 2;
       accelZ = accelerationValue * 0.8f;
     }
     else if(turningRight)
     {
-      accelX = -carInfo.speedZ  / 5;
+      accelX += -carInfo.speedZ  / 2;
       accelZ = accelerationValue * 0.8f;
     }
     else
     {
-      accelX = -carInfo.speedX/10;
+      accelX += -carInfo.speedX/2; // center car
       accelZ = accelerationValue;
     }
   }
@@ -608,23 +622,24 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
   {
     if(turningLeft)
     {
-      accelX = carInfo.speedZ / 5;
+      accelX += carInfo.speedZ / 2;
       accelZ = accelerationValue * 0.8f;
     }
     else if(turningRight)
     {
-     accelX = -carInfo.speedZ / 5;
+     accelX += -carInfo.speedZ / 2;
       accelZ = accelerationValue * 0.8f;
     }
     else
     {
-      accelX = -carInfo.speedX/10;
+      accelX += -carInfo.speedX/2; // center car
       accelZ = accelerationValue;
     }
   }
 
   if(offRoad)
   {
+    accelX /= 2;
     accelZ /= 2;
   }
 
@@ -791,8 +806,8 @@ void gameLoop(const LevelConfig& config) noexcept
   carInfo.posZ = 0;
   carInfo.speedZ = 0.f;
   carInfo.speedX = 0.f;
-  carInfo.accelZ = 0.f;
-  carInfo.accelX = 0.f;
+//  carInfo.accelZ = 0.f;
+//  carInfo.accelX = 0.f;
 
   uint16_t skyColor;
   //uint16_t trackPalette[2*COLOR_TRACK_SIZE];
