@@ -637,6 +637,15 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
     }
   }
 
+  carInfo.sprite = CarSprite::Front;
+  if(carInfo.speedZ)
+  {
+    if(turningLeft)
+      carInfo.sprite = CarSprite::Left;
+    else if(turningRight)
+      carInfo.sprite = CarSprite::Right;
+  }
+
   if(offRoad)
   {
     accelX /= 2;
