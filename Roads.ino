@@ -2,6 +2,7 @@
 
 #include "CarSprites.h"
 #include "BackgroundWest.h"
+#include "Dashboard.h"
 
 using namespace roads;
 
@@ -168,11 +169,11 @@ LevelConfig levelSelectionMenu() noexcept
   config.roadWidth    = 200;
   config.lineWidth    = 4;
   config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
-  config.sceneryObjectsIndexStart = 3;
-  config.sceneryObjectsIndexEnd = 6;
+  config.sceneryObjectsIndexStart = 0;
+  config.sceneryObjectsIndexEnd = 3;
   config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
-  config.staticObstaclesIndexStart = 5;
-  config.staticObstaclesIndexEnd = 6;
+  config.staticObstaclesIndexStart = 2;
+  config.staticObstaclesIndexEnd = 3;
 /*
   displayFile("/Roads/brown.mph");
 
@@ -410,7 +411,7 @@ void updateStaticObstacles(Level& level, const CarInfo& carInfo, const LevelConf
     StaticObstacle& object = level.staticObstacles[index];
     if(object.posZ < carInfo.posZ)
     {
-      createStaticObstacle(level, object, carInfo.posZ + level.depthLevels[DEPTH_LEVEL_COUNT-1].z, config);
+      createStaticObstacle(level, object, carInfo.posZ + level.depthLevels[DEPTH_LEVEL_COUNT-5].z, config);
     }
   }
 }
@@ -714,7 +715,8 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
 
   if(lightPattern)
   {
-    gb.lights.drawImage(0, 0, lightPattern);
+    carInfo.lights = lightPattern;
+    //gb.lights.drawImage(0, 0, lightPattern);
   }
   else
   {
@@ -735,23 +737,36 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
     switch(step)
     {
       case 1:
-        gb.lights.drawImage(0, 0, LIGHT_1);
+        if(!lightPattern)
+          carInfo.lights = LIGHT_1;
+        carInfo.fluxSprite = &level.speedSprites[1];
         break;
 
       case 2:
-        gb.lights.drawImage(0, 0, LIGHT_2);
+        if(!lightPattern)
+          carInfo.lights = LIGHT_2;
+        carInfo.fluxSprite = &level.speedSprites[2];
+        //gb.lights.drawImage(0, 0, LIGHT_2);
         break;
 
       case 3:
-        gb.lights.drawImage(0, 0, LIGHT_3);
+        if(!lightPattern)
+          carInfo.lights = LIGHT_3;
+        carInfo.fluxSprite = &level.speedSprites[3];
+        //gb.lights.drawImage(0, 0, LIGHT_3);
         break;
 
       case 4:
-        gb.lights.drawImage(0, 0, LIGHT_4);
+        if(!lightPattern)
+          carInfo.lights = LIGHT_4;
+        carInfo.fluxSprite = &level.speedSprites[4];
+        //gb.lights.drawImage(0, 0, LIGHT_4);
         break;
 
       default:
-        gb.lights.drawImage(0, 0, LIGHT_NONE);
+        carInfo.lights = LIGHT_NONE;
+        carInfo.fluxSprite = &level.speedSprites[0];
+        //gb.lights.drawImage(0, 0, LIGHT_NONE);
         break;
     }
     
@@ -772,36 +787,62 @@ void gameLoop(const LevelConfig& config) noexcept
   level.depthLevelToX     = (int16_t*)          mphAlloc(DEPTH_LEVEL_COUNT * sizeof(int16_t));
   level.trackPalette      = (uint16_t*)         mphAlloc(2 * COLOR_TRACK_SIZE * sizeof(uint16_t));
   level.segments          = (RoadSegment*)      mphAlloc(3 * sizeof(RoadSegment));
+  level.carSprites        = (SpriteDefinition*) mphAlloc(3 * sizeof(SpriteDefinition));
+  level.fuelSprites       = (SpriteDefinition*) mphAlloc(2 * sizeof(SpriteDefinition));
+  level.speedSprites      = (SpriteDefinition*) mphAlloc(5 * sizeof(SpriteDefinition));
   level.sprites           = (SpriteDefinition*) mphAlloc(MAX_SPRITES * sizeof(SpriteDefinition));
   level.sceneryObjects    = (SceneryObject*)    mphAlloc(MAX_SCENERY_OBJECTS * sizeof(SceneryObject));
   level.staticObstacles   = (StaticObstacle*)   mphAlloc(MAX_STATIC_OBSTACLES * sizeof(StaticObstacle));
   level.movingObstacles   = (MovingObstacle*)   mphAlloc(MAX_MOVING_OBSTACLES * sizeof(MovingObstacle));
   level.drawables         = (Drawable*)         mphAlloc(MAX_DRAWABLES * sizeof(Drawable));
 
-  level.sprites[0].width = CAR_WIDTH;
-  level.sprites[0].height = CAR_HEIGHT;
-  level.sprites[0].buffer = CAR;
+  level.carSprites[0].width = CAR_WIDTH;
+  level.carSprites[0].height = CAR_HEIGHT;
+  level.carSprites[0].buffer = CAR;
 
-  level.sprites[1].width = CAR_LEFT_WIDTH;
-  level.sprites[1].height = CAR_LEFT_HEIGHT;
-  level.sprites[1].buffer = CAR_LEFT;
+  level.carSprites[1].width = CAR_LEFT_WIDTH;
+  level.carSprites[1].height = CAR_LEFT_HEIGHT;
+  level.carSprites[1].buffer = CAR_LEFT;
 
-  level.sprites[2].width = CAR_RIGHT_WIDTH;
-  level.sprites[2].height = CAR_RIGHT_HEIGHT;
-  level.sprites[2].buffer = CAR_RIGHT;
+  level.carSprites[2].width = CAR_RIGHT_WIDTH;
+  level.carSprites[2].height = CAR_RIGHT_HEIGHT;
+  level.carSprites[2].buffer = CAR_RIGHT;
 
-  level.sprites[3].width = CACTUS_WIDTH;
-  level.sprites[3].height = CACTUS_HEIGHT;
-  level.sprites[3].buffer = CACTUS;
+  level.fuelSprites[0].width = FUELF_WIDTH;
+  level.fuelSprites[0].height = FUELF_HEIGHT;
+  level.fuelSprites[0].buffer = FUELF;
 
-  level.sprites[4].width = BUSH_WIDTH;
-  level.sprites[4].height = BUSH_HEIGHT;
-  level.sprites[4].buffer = BUSH;
+  level.sprites[0].width = CACTUS_WIDTH;
+  level.sprites[0].height = CACTUS_HEIGHT;
+  level.sprites[0].buffer = CACTUS;
 
-  level.sprites[5].width = BOULDER_WIDTH;
-  level.sprites[5].height = BOULDER_HEIGHT;
-  level.sprites[5].buffer = BOULDER;
-      
+  level.sprites[1].width = BUSH_WIDTH;
+  level.sprites[1].height = BUSH_HEIGHT;
+  level.sprites[1].buffer = BUSH;
+
+  level.sprites[2].width = BOULDER_WIDTH;
+  level.sprites[2].height = BOULDER_HEIGHT;
+  level.sprites[2].buffer = BOULDER;
+
+  level.speedSprites[0].width = SPEEDO0_WIDTH;
+  level.speedSprites[0].height = SPEEDO0_HEIGHT;
+  level.speedSprites[0].buffer = SPEEDO0;
+
+  level.speedSprites[1].width = SPEEDO1_WIDTH;
+  level.speedSprites[1].height = SPEEDO1_HEIGHT;
+  level.speedSprites[1].buffer = SPEEDO1;
+
+  level.speedSprites[2].width = SPEEDO2_WIDTH;
+  level.speedSprites[2].height = SPEEDO2_HEIGHT;
+  level.speedSprites[2].buffer = SPEEDO2;
+
+  level.speedSprites[3].width = SPEEDO3_WIDTH;
+  level.speedSprites[3].height = SPEEDO3_HEIGHT;
+  level.speedSprites[3].buffer = SPEEDO3;
+
+  level.speedSprites[4].width = SPEEDO4_WIDTH;
+  level.speedSprites[4].height = SPEEDO4_HEIGHT;
+  level.speedSprites[4].buffer = SPEEDO4;
 //  Z_POSITION zCactus = (100 << Z_POSITION_SHIFT);
 
   GraphicsManager gm(strip1, strip2);
@@ -903,17 +944,37 @@ void gameLoop(const LevelConfig& config) noexcept
 
   {
     Drawable& drawable = level.drawables[drawableCount];
+    drawable.sprite = carInfo.fluxSprite;
+    drawable.xStart = SCREEN_WIDTH - drawable.sprite->width;
+    drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
+    drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
+    drawable.zoomPattern = 1;
+  }
+  ++drawableCount;
+
+    {
+    Drawable& drawable = level.drawables[drawableCount];
+    drawable.sprite = &level.fuelSprites[0];
+    drawable.xStart = 0;
+    drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
+    drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
+    drawable.zoomPattern = 1;
+  }
+  ++drawableCount;
+
+    {
+    Drawable& drawable = level.drawables[drawableCount];
     switch(carInfo.sprite)
     {
       case CarSprite::Left:
-        drawable.sprite = &level.sprites[1];
+        drawable.sprite = &level.carSprites[1];
         break;
       case CarSprite::Right:
-        drawable.sprite = &level.sprites[2];
+        drawable.sprite = &level.carSprites[2];
         break;
       case CarSprite::Front:
       default:
-        drawable.sprite = &level.sprites[0];
+        drawable.sprite = &level.carSprites[0];
         break;
     }
   
@@ -924,7 +985,7 @@ void gameLoop(const LevelConfig& config) noexcept
   }
   ++drawableCount;
 
-  
+  gb.lights.drawImage(0, 0, carInfo.lights);
   
   uint16_t* strip = gm.StartFrame();
   uint16_t* stripLine;

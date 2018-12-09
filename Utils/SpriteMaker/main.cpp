@@ -11,18 +11,18 @@
 
 #define COLOR_565(r, g, b) (uint16_t)(COLOR_R(r) | COLOR_G_LOW(g) | COLOR_G_HIGH(g) | COLOR_B(b))
 
-#define SPRITE_NAME "CAR_RIGHT"
+#define SPRITE_NAME "SPEEDO4"
 
 int main(int, char)
 {
-    QImage img("C:\\Users\\Famille\\Documents\\Arduino\\Gamebuino\\Roads\\Assets\\car_right.tif");
+    QImage img("C:\\Users\\Famille\\Documents\\Arduino\\Gamebuino\\Roads\\Assets\\speed4.tif");
     if(img.isNull())
     {
         std::cout << "Failed opening" << std::endl;
         return 1;
     }
 
-    FILE* out = fopen("C:\\temp\\car_right.mph", "w");
+    FILE* out = fopen("C:\\temp\\speed2.mph", "w");
 
     fprintf(out, "#define %s_WIDTH (%d)\n", SPRITE_NAME, img.width());
     fprintf(out, "#define %s_HEIGHT (%d)\n", SPRITE_NAME, img.height());

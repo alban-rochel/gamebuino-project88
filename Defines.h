@@ -15,7 +15,7 @@ namespace Gamebuino_Meta
 #define COLOR_565(r, g, b) (COLOR_R(r) | COLOR_G_LOW(g) | COLOR_G_HIGH(g) | COLOR_B(b))
 
 
-const uint16_t LIGHT_COLLISION_LEFT[] {
+const uint16_t LIGHT_COLLISION_RIGHT[] {
   2,4,    // width, height
   1,      // number of frames
   0,      // frame looping speed
@@ -28,7 +28,7 @@ const uint16_t LIGHT_COLLISION_LEFT[] {
   COLOR_565(0x00, 0xFF, 0x00), 0x0000
   };
 
-const uint16_t LIGHT_COLLISION_RIGHT[] {
+const uint16_t LIGHT_COLLISION_LEFT[] {
   2,4,    // width, height
   1,      // number of frames
   0,      // frame looping speed
@@ -65,58 +65,6 @@ const uint16_t LIGHT_NONE[] {
   0x0000, 0x0000,
   0x0000, 0x0000,
   0x0000, 0x0000
-  };
-
-const uint16_t LIGHT_1[] {
-  2,4,    // width, height
-  1,      // number of frames
-  0,      // frame looping speed
-  0,      // transparent color magenta
-  0,      // color mode RGB
-  //image data
-  COLOR_565(0x00, 0xFF, 0xFF), COLOR_565(0x00, 0xFF, 0xFF),
-  0x0000, 0x0000,
-  0x0000, 0x0000,
-  0x0000, 0x0000
-  };
-
-const uint16_t LIGHT_2[] {
-  2,4,    // width, height
-  1,      // number of frames
-  0,      // frame looping speed
-  0,      // transparent color magenta
-  0,      // color mode RGB
-  //image data
-  0x0000, 0x0000,
-  COLOR_565(0x00, 0xFF, 0xFF), COLOR_565(0x00, 0xFF, 0xFF),
-  0x0000, 0x0000,
-  0x0000, 0x0000
-  };
-
-const uint16_t LIGHT_3[] {
-  2,4,    // width, height
-  1,      // number of frames
-  0,      // frame looping speed
-  0,      // transparent color magenta
-  0,      // color mode RGB
-  //image data
-  0x0000, 0x0000,
-  0x0000, 0x0000,
-  COLOR_565(0x00, 0xFF, 0xFF), COLOR_565(0x00, 0xFF, 0xFF),
-  0x0000, 0x0000
-  };
-
-const uint16_t LIGHT_4[] {
-  2,4,    // width, height
-  1,      // number of frames
-  0,      // frame looping speed
-  0,      // transparent color magenta
-  0,      // color mode RGB
-  //image data
-  0x0000, 0x0000,
-  0x0000, 0x0000,
-  0x0000, 0x0000,
-  COLOR_565(0x00, 0xFF, 0xFF), COLOR_565(0x00, 0xFF, 0xFF)
   };
   
 #define SCREEN_WIDTH 160
@@ -200,6 +148,13 @@ enum class CarSprite
 #define MAX_SPEED_Z 1.5f
 #define MAX_SPEED_X 2.f
 
+struct SpriteDefinition
+{
+  uint8_t width;
+  uint8_t height;
+  const uint16_t* buffer;
+};
+
 struct CarInfo
 {
   CarSprite sprite;
@@ -210,6 +165,8 @@ struct CarInfo
   float speedX;
 //  float accelZ; // meters / frame / frame
 //  float accelX;
+  const uint16_t* lights;
+  SpriteDefinition* fluxSprite;
 };
 
 struct DepthInfo
@@ -226,13 +183,6 @@ struct RoadSegment
   ROAD_CURVATURE_X xCurvature;
   float zCurvature;
   Z_POSITION segmentStartZ;
-};
-
-struct SpriteDefinition
-{
-  uint8_t width;
-  uint8_t height;
-  const uint16_t* buffer;
 };
 
 struct SceneryObject
@@ -272,6 +222,9 @@ struct Level
   int16_t* depthLevelToX;
   uint16_t* trackPalette;
   RoadSegment* segments;
+  SpriteDefinition* carSprites;
+  SpriteDefinition* speedSprites;
+  SpriteDefinition* fuelSprites;
   SpriteDefinition* sprites;
   SceneryObject* sceneryObjects;
   StaticObstacle* staticObstacles;
