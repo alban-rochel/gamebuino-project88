@@ -845,6 +845,11 @@ void gameLoop(const LevelConfig& config) noexcept
   level.speedSprites[4].buffer = SPEEDO4;
 //  Z_POSITION zCactus = (100 << Z_POSITION_SHIFT);
 
+  SpriteDefinition dotSprite;
+  dotSprite.width = DOT_WIDTH;
+  dotSprite.height = DOT_HEIGHT;
+  dotSprite.buffer = DOT;
+
   GraphicsManager gm(strip1, strip2);
   
   Z_POSITION minSegmentSize;
@@ -947,6 +952,32 @@ void gameLoop(const LevelConfig& config) noexcept
     drawable.sprite = carInfo.fluxSprite;
     drawable.xStart = SCREEN_WIDTH - drawable.sprite->width;
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
+    drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
+    drawable.zoomPattern = 1;
+  }
+  ++drawableCount;
+
+    {
+
+    float speedStep = MAX_SPEED_Z / SPEED_STEP_COUNT;
+    int actualSpeedStep = 100;
+    for(unsigned int step = 1; step <= SPEED_STEP_COUNT && actualSpeedStep == 100; ++step)
+    {
+      if((step * speedStep) > carInfo.speedZ)
+      {
+        actualSpeedStep = step;
+      }
+    }
+
+    if(actualSpeedStep > SPEED_STEP_COUNT)
+    {
+      actualSpeedStep = SPEED_STEP_COUNT;
+    }
+      SerialUSB.printf("pouet %i %i\n", actualSpeedStep, (int)(carInfo.speedZ*100));
+    Drawable& drawable = level.drawables[drawableCount];
+    drawable.sprite = &dotSprite;
+    drawable.xStart = SPEEDOMETER_X[actualSpeedStep-1] - drawable.sprite->width;
+    drawable.yStart = SPEEDOMETER_Y[actualSpeedStep-1] - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 1;
   }
@@ -1066,7 +1097,7 @@ int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
         for(int16_t x = 0; x < drawable.sprite->width && xIndex <= SCREEN_WIDTH-1; x+=drawable.zoomPattern, ++xIndex)
         {
           uint16_t color = *(drawable.sprite->buffer + offset + x);
-          if(xIndex > 0 && color != COLOR_565(0xFF, 0x00, 0xFF))
+          if(xIndex >= 0 && color != COLOR_565(0xFF, 0x00, 0xFF))
           {
             stripLine[xIndex] = color;
           }
@@ -1122,6 +1153,14 @@ void setup()
 
   // Just to push things to the limit for this example, increase to 40fps.
   gb.setFrameRate(40);
+
+  // Init speedometer "hand" coordinates
+  for(uint8_t index = 0; index < SPEED_STEP_COUNT; ++index)
+  {
+    float angle = MIN_SPEED_ANGLE + (MAX_SPEED_ANGLE - MIN_SPEED_ANGLE) * (index) / float(SPEED_STEP_COUNT);
+    SPEEDOMETER_X[index] = (SCREEN_WIDTH - SPEED_HAND_CENTER_X + DOT_WIDTH/2 + SPEED_HAND_LENGTH * cos(angle) + 0.5);
+    SPEEDOMETER_Y[index] = (SCREEN_HEIGHT - SPEED_HAND_CENTER_Y + DOT_HEIGHT/2 - SPEED_HAND_LENGTH * sin(angle) + 0.5);
+  }
 
   SerialUSB.begin(9600);
 
