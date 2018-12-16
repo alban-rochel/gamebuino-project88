@@ -1063,12 +1063,17 @@ int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
       }
       uint16_t pixelsIndex = (y << 8) + (uint8_t)(actualShift);
       const uint8_t* colorIndexes = &BACKGROUND_ARIZONA[pixelsIndex];
+      uint32_t color32;
+      uint32_t* stripCursor32 = (uint32_t*)stripCursor;
       for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
       {
-        (*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) >> 4];
-        (*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) & 0x0F];
+        color32 = BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) >> 4] | ((uint32_t)BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) & 0x0F]) << 16;
+        //(*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) >> 4];
+        //(*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) & 0x0F];
+        (*stripCursor32++) = color32;
         ++colorIndexes;
       }
+      stripCursor += SCREEN_WIDTH;
     }
     else
     {
