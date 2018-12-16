@@ -775,6 +775,28 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
 
 }
 
+inline __attribute__((always_inline)) uint16_t* drawLine(uint16_t* buffer, uint16_t color, uint16_t* size)
+{
+  buffer[0] = color;
+  buffer[1] = color;
+  memcpy((uint8_t*)&(buffer[2]), (uint8_t*)buffer, 2 * sizeof(uint16_t)); // Filled 4 pixels
+  memcpy((uint8_t*)&(buffer[4]), (uint8_t*)buffer, 4 * sizeof(uint16_t)); // Filled 8 pixels
+  memcpy((uint8_t*)&(buffer[8]), (uint8_t*)buffer, 8 * sizeof(uint16_t)); // Filled 16 pixels
+  memcpy((uint8_t*)&(buffer[16]), (uint8_t*)buffer, 16 * sizeof(uint16_t)); // Filled 32 pixels
+  memcpy((uint8_t*)&(buffer[32]), (uint8_t*)buffer, 32 * sizeof(uint16_t)); // Filled 64 pixels
+  memcpy((uint8_t*)&(buffer[64]), (uint8_t*)buffer, 64 * sizeof(uint16_t)); // Filled 128 pixels
+  memcpy((uint8_t*)&(buffer[128]), (uint8_t*)buffer, (SCREEN_WIDTH-128) * sizeof(uint16_t)); // Filled all
+}
+
+inline __attribute__((always_inline)) uint16_t* drawColor(uint16_t* buffer, uint16_t from, uint16_t count, uint16_t color)
+{
+  for(uint16_t col = 0; col < count; ++col)
+  {
+    (*buffer++) = color;
+  }
+
+  return buffer;
+}
 void gameLoop(const LevelConfig& config) noexcept
 {
   resetAlloc();
@@ -973,7 +995,6 @@ void gameLoop(const LevelConfig& config) noexcept
     {
       actualSpeedStep = SPEED_STEP_COUNT;
     }
-      SerialUSB.printf("pouet %i %i\n", actualSpeedStep, (int)(carInfo.speedZ*100));
     Drawable& drawable = level.drawables[drawableCount];
     drawable.sprite = &dotSprite;
     drawable.xStart = SPEEDOMETER_X[actualSpeedStep-1] - drawable.sprite->width;
@@ -1040,13 +1061,13 @@ int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
       {
         y = BACKGROUND_ARIZONA_HEIGHT-1;
       }
+      uint16_t pixelsIndex = (y << 8) + (uint8_t)(actualShift);
+      const uint8_t* colorIndexes = &BACKGROUND_ARIZONA[pixelsIndex];
       for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
       {
-        //(*stripCursor++) = COLOR_565(150, 200, 255);
-        uint16_t pixelsIndex = y * 256 + (uint8_t)(ii/2 + actualShift);
-        uint8_t colorIndexes = BACKGROUND_ARIZONA[pixelsIndex];
-        (*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[colorIndexes >> 4];
-        (*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[colorIndexes & 0x0F];
+        (*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) >> 4];
+        (*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) & 0x0F];
+        ++colorIndexes;
       }
     }
     else
@@ -1057,33 +1078,71 @@ int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
       int altColor = (((uint16_t)(di.z + carInfo.posZ) >> (Z_POSITION_SHIFT + 2)) & 0x1);
       uint16_t* currentPalette = level.trackPalette + (COLOR_TRACK_SIZE) * altColor;
       int16_t col = 0;
-      for(; col < x - di.lineRoadBumperWidth && col < SCREEN_WIDTH; ++col)
+      const uint16_t& grassColor = currentPalette[COLOR_TRACK_GRASS_INDEX];
+      const uint16_t& bumperColor = currentPalette[COLOR_TRACK_BUMPER_INDEX];
+      const uint16_t& lineColor = currentPalette[COLOR_TRACK_LINE_INDEX];
+      const uint16_t& roadColor = currentPalette[COLOR_TRACK_ROAD_INDEX];
+      uint32_t grassColor32 = ((uint32_t)(grassColor) << 16) | grassColor;
+      uint32_t bumperColor32 = ((uint32_t)(bumperColor) << 16) | bumperColor;
+      uint32_t lineColor32 = ((uint32_t)(lineColor) << 16) | lineColor;
+      uint32_t roadColor32 = ((uint32_t)(roadColor) << 16) | roadColor;
+      int16_t target = x - di.lineRoadBumperWidth;
+      if(target >= SCREEN_WIDTH)
       {
-        (*stripCursor++) = currentPalette[COLOR_TRACK_GRASS_INDEX];
+        target = SCREEN_WIDTH - 1;
       }
-      for(; col < x - di.lineRoadWidth && col < SCREEN_WIDTH; ++col)
+      for(; col < target; ++col)
       {
-        (*stripCursor++) = currentPalette[COLOR_TRACK_BUMPER_INDEX];
+        (*stripCursor++) = grassColor;
       }
-      for(; col < x - di.lineWidth && col < SCREEN_WIDTH; ++col)
+      target = x - di.lineRoadWidth;
+      if(target >= SCREEN_WIDTH)
       {
-        (*stripCursor++) = currentPalette[COLOR_TRACK_ROAD_INDEX];
+        target = SCREEN_WIDTH - 1;
       }
-      for(; col < x + di.lineWidth && col < SCREEN_WIDTH; ++col)
+      for(; col < target; ++col)
       {
-        (*stripCursor++) = currentPalette[COLOR_TRACK_LINE_INDEX];
+        (*stripCursor++) = bumperColor;
       }
-      for(; col < x + di.lineRoadWidth && col < SCREEN_WIDTH; ++col)
+      target = x - di.lineWidth;
+      if(target >= SCREEN_WIDTH)
       {
-        (*stripCursor++) = currentPalette[COLOR_TRACK_ROAD_INDEX];
+        target = SCREEN_WIDTH - 1;
       }
-      for(; col < x + di.lineRoadBumperWidth && col < SCREEN_WIDTH; ++col)
+      for(; col < target; ++col)
       {
-        (*stripCursor++) = currentPalette[COLOR_TRACK_BUMPER_INDEX];
+        (*stripCursor++) = roadColor;
+      }
+      target = x + di.lineWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      for(; col < target; ++col)
+      {
+        (*stripCursor++) = lineColor;
+      }
+      target = x + di.lineRoadWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      for(; col < target; ++col)
+      {
+        (*stripCursor++) = roadColor;
+      }
+      target = x + di.lineRoadBumperWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      for(; col < target; ++col)
+      {
+        (*stripCursor++) = bumperColor;
       }
       for(; col < SCREEN_WIDTH; ++col)
       {
-        (*stripCursor++) = currentPalette[COLOR_TRACK_GRASS_INDEX];
+        (*stripCursor++) = grassColor;
       }
     }
 
@@ -1092,14 +1151,19 @@ int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
       const Drawable& drawable = level.drawables[drawableIndex];
       if(y >= drawable.yStart && y <= drawable.yEnd)
       {
-        uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
+        //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
+        const uint16_t* spriteBufferWithOffset = drawable.sprite->buffer + (drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern);
         int16_t xIndex = drawable.xStart;
-        for(int16_t x = 0; x < drawable.sprite->width && xIndex <= SCREEN_WIDTH-1; x+=drawable.zoomPattern, ++xIndex)
+        uint16_t color;
+        for(int16_t x = 0; x < drawable.sprite->width && xIndex < SCREEN_WIDTH; x+=drawable.zoomPattern, ++xIndex)
         {
-          uint16_t color = *(drawable.sprite->buffer + offset + x);
-          if(xIndex >= 0 && color != COLOR_565(0xFF, 0x00, 0xFF))
+          if(xIndex >= 0)
           {
-            stripLine[xIndex] = color;
+            color = (*spriteBufferWithOffset++);
+            if(color != COLOR_565(0xFF, 0x00, 0xFF))
+            {
+              stripLine[xIndex] = color;
+            }
           }
         }
       }

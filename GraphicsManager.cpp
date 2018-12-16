@@ -12,6 +12,8 @@ using namespace roads;
 #define DMA_DESC_COUNT (3)
 #endif
 
+#define DEBUG_PERF
+
 namespace Gamebuino_Meta
 {
   extern volatile uint32_t dma_desc_free_count;
@@ -19,9 +21,26 @@ namespace Gamebuino_Meta
 
 namespace roads
 {
+#ifdef DEBUG_PERF
+  int minCount = 32000;
+  int totalCount = 0;
+#endif
+
       static inline void WaitForDescAvailable(const uint32_t min_desc_num)
       {
+#ifdef DEBUG_PERF
+        int count = 0;
+        while (Gamebuino_Meta::dma_desc_free_count < min_desc_num){
+          ++count;
+        }
+        if(count < minCount)
+        {
+          minCount = count;
+        }
+        totalCount += count;
+#else
         while (Gamebuino_Meta::dma_desc_free_count < min_desc_num);
+#endif
       }
       
       static inline void WaitForTransfersDone(void)
@@ -53,6 +72,11 @@ void GraphicsManager::EndFrame() noexcept
   WaitForTransfersDone();
   gb.tft.idleMode();
   SPI.endTransaction();
+#ifdef DEBUG_PERF
+  SerialUSB.printf("Min Count %i / %i\n", minCount, totalCount);
+    roads::minCount = 32000;
+    roads::totalCount = 0;
+#endif
 }
 
 uint16_t* GraphicsManager::CommitStrip() noexcept
