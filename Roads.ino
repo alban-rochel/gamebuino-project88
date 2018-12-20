@@ -3,6 +3,7 @@
 #include "CarSprites.h"
 #include "BackgroundWest.h"
 #include "Dashboard.h"
+#include "SoundEffects.h"
 
 using namespace roads;
 
@@ -11,6 +12,8 @@ uint8_t memory[MEMORY_SEGMENT_SIZE];
 void* nextAvailableSegment;
 
 int16_t capacitorCharge;
+
+const Gamebuino_Meta::Sound_FX* currentFx;
 
 float accelFromSpeed(float speed)
 {
@@ -393,6 +396,7 @@ void createStaticObstacle(Level& level, StaticObstacle& object, Z_POSITION zPos,
   object.posX = random(- config.roadWidth/2, config.roadWidth/2);
   object.posZ = zPos + random(0, level.depthLevels[DEPTH_LEVEL_COUNT-1].z/2);
   object.sprite = level.sprites + random(config.staticObstaclesIndexStart, config.staticObstaclesIndexEnd);
+  object.validUntil = -1;
 }
 
 void createStaticObstacles(Level& level, const LevelConfig& config)
@@ -409,7 +413,7 @@ void updateStaticObstacles(Level& level, const CarInfo& carInfo, const LevelConf
   for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
   {
     StaticObstacle& object = level.staticObstacles[index];
-    if(object.posZ < carInfo.posZ)
+    if(object.posZ < carInfo.posZ || (object.validUntil != -1 && object.validUntil > gb.frameCount))
     {
       createStaticObstacle(level, object, carInfo.posZ + level.depthLevels[DEPTH_LEVEL_COUNT-5].z, config);
     }
@@ -531,6 +535,7 @@ int8_t computeCollision(int16_t carXMin, int16_t carXMax, int16_t obstacleX, Spr
 
 void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& config)
 {
+  currentFx = nullptr;
   const RoadSegment& segment = level.segments[0];
   
   bool accelerating   = gb.buttons.repeat(BUTTON_A, 0);
@@ -563,7 +568,7 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
 
     for(uint8_t objectIndex = 0; objectIndex < config.staticObstaclesCount && collision != COLLISION_FRONT; ++objectIndex)
     {
-      const StaticObstacle& object = level.staticObstacles[objectIndex];
+      StaticObstacle& object = level.staticObstacles[objectIndex];
       diffZ = object.posZ-carInfo.posZ;
       if(diffZ < 0)
       {
@@ -572,7 +577,12 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
     
       if(diffZ <= (1 << Z_POSITION_SHIFT))
       {
-        collision = collision | computeCollision(carXMin, carXMax, object.posX, object.sprite);
+        int8_t currentCollision = computeCollision(carXMin, carXMax, object.posX, object.sprite);
+        collision = collision | currentCollision;
+        if(currentCollision)
+        {
+          object.validUntil = gb.frameCount + OBJECT_VALIDITY;
+        }
       }
     }
   } // end compute collisions
@@ -676,6 +686,11 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
       break;
   }
 
+  if(collision)
+  {
+    currentFx = collisionSfx;
+  }
+
   carInfo.speedX += accelX;
   carInfo.speedZ += accelZ;
   
@@ -709,6 +724,22 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
       capacitorCharge = 0;
     }
   }
+
+/*if(!currentFx)
+{
+  if(carInfo.speedZ <= 0.7)
+  {
+    currentFx = engineLow;
+  }
+  else if(carInfo.speedZ <= 1.3)
+  {
+    currentFx = engineMid;
+  }
+  else
+  {
+    currentFx = engineHigh;
+  }
+} */
 
   carInfo.posX += carInfo.speedX;
   carInfo.posZ += carInfo.speedZ * 256;
@@ -771,7 +802,8 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
     }
     
   }
-  
+
+  gb.sound.fx(currentFx);
 
 }
 
@@ -797,8 +829,19 @@ inline __attribute__((always_inline)) uint16_t* drawColor(uint16_t* buffer, uint
 
   return buffer;
 }
+
+/*const uint16_t startSound[] = {0x0005,0x338,0x3FC,0x254,0x1FC,0x25C,0x3FC,0x368,0x123};
+
+const Gamebuino_Meta::Sound_FX my_sfx[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,1,70,0,0,240,1},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,0,0,-3,50,5},
+  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,70,0,0,224,1},
+};*/
+
 void gameLoop(const LevelConfig& config) noexcept
 {
+  //gb.sound.fx(my_sfx);
+  
   resetAlloc();
   uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
   uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
@@ -833,6 +876,10 @@ void gameLoop(const LevelConfig& config) noexcept
   level.fuelSprites[0].width = FUELF_WIDTH;
   level.fuelSprites[0].height = FUELF_HEIGHT;
   level.fuelSprites[0].buffer = FUELF;
+
+  level.fuelSprites[1].width = FUELE_WIDTH;
+  level.fuelSprites[1].height = FUELE_HEIGHT;
+  level.fuelSprites[1].buffer = FUELE;
 
   level.sprites[0].width = CACTUS_WIDTH;
   level.sprites[0].height = CACTUS_HEIGHT;
@@ -1010,6 +1057,17 @@ void gameLoop(const LevelConfig& config) noexcept
     drawable.xStart = 0;
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
+    drawable.zoomPattern = 1;
+  }
+  ++drawableCount;
+
+
+      {
+    Drawable& drawable = level.drawables[drawableCount];
+    drawable.sprite = &level.fuelSprites[1];
+    drawable.xStart = 0;
+    drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
+    drawable.yEnd = drawable.yStart + ((drawable.sprite->height * carInfo.posZ) >> 18) - 1;
     drawable.zoomPattern = 1;
   }
   ++drawableCount;

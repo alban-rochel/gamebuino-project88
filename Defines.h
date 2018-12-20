@@ -196,8 +196,11 @@ struct StaticObstacle
 {
   int16_t posX; // 0 is the center of the road
   Z_POSITION posZ;
-  SpriteDefinition* sprite;  
+  SpriteDefinition* sprite;
+  uint32_t validUntil; 
 };
+
+#define OBJECT_VALIDITY 400
 
 struct MovingObstacle
 {
