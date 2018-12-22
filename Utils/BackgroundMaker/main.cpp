@@ -79,7 +79,7 @@ int main(int, char)
             uint8_t index1 = colorIndex(palette, color1);
             uint8_t index2 = colorIndex(palette, color2);
             fprintf(out, "%d", (uint8_t)((index1 << 4) | (index2 & 0x0F)));
-            if(x == img.width() - 1 && y == img.height()-1)
+            if(x == img.width() - 2 && y == img.height()-1)
             {
                 fprintf(out, "};\n");
             }

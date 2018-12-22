@@ -1119,7 +1119,7 @@ int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
       {
         y = BACKGROUND_ARIZONA_HEIGHT-1;
       }
-      uint16_t pixelsIndex = (y << 8) + (uint8_t)(actualShift);
+      uint16_t pixelsIndex = (y << 7) + (uint8_t)(actualShift);
       const uint8_t* colorIndexes = &BACKGROUND_ARIZONA[pixelsIndex];
       uint32_t color32;
       uint32_t* stripCursor32 = (uint32_t*)stripCursor;
