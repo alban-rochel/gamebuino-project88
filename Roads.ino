@@ -165,52 +165,46 @@ SerialUSB.printf("Size %i\n", rdfile.available());
   f.close();*/
 }
 
-LevelConfig levelSelectionMenu() noexcept
+LevelConfig levelSelectionMenu(Level level) noexcept
 {
   LevelConfig config;
-  config.bumperWidth  = 6;
-  config.roadWidth    = 200;
-  config.lineWidth    = 4;
-  config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
-  config.sceneryObjectsIndexStart = 0;
-  config.sceneryObjectsIndexEnd = 3;
-  config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
-  config.staticObstaclesIndexStart = 2;
-  config.staticObstaclesIndexEnd = 3;
-/*
-  displayFile("/Roads/brown.mph");
+  config.level = level;
 
-  while(true)
+  if(level == Level::Arizona)
   {
-    while (!gb.update());
-
-    if (gb.buttons.repeat(BUTTON_LEFT, 10))
-    {
-      displayFile("/Roads/brown.mph");
-    }
-    if (gb.buttons.repeat(BUTTON_RIGHT, 10))
-    {
-      displayFile("/Roads/brown2.mph");
-    }
-
-    if (gb.buttons.pressed(BUTTON_MENU))
-    {
-      SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
-      SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
-      SerialUSB.printf("REMAIN: %i\n", allocFreeRam());
-    }
+    config.bumperWidth  = 6;
+    config.roadWidth    = 200;
+    config.lineWidth    = 4;
+    config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
+    config.sceneryObjectsIndexStart = 0;
+    config.sceneryObjectsIndexEnd = 3;
+    config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
+    config.staticObstaclesIndexStart = 2;
+    config.staticObstaclesIndexEnd = 3;
+  }
+  else if(level == Level::Suburb)
+  {
+    config.bumperWidth  = 8;
+    config.roadWidth    = 180;
+    config.lineWidth    = 4;
+    config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
+    config.sceneryObjectsIndexStart = 0;
+    config.sceneryObjectsIndexEnd = 3;
+    config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
+    config.staticObstaclesIndexStart = 2;
+    config.staticObstaclesIndexEnd = 3;
+  }
+  else
+  {
     
-    if(gb.buttons.pressed(BUTTON_A))
-    {
-      return config;
-    }
-  }*/
+  }
+
 
   return config;
 }
 
 void initDepthInfo( const LevelConfig& config,
-                    Level& level,
+                    LevelContext& context,
                     Z_POSITION& minSegmentSize,
                     Z_POSITION& maxSegmentSize) noexcept
 {
@@ -219,7 +213,7 @@ void initDepthInfo( const LevelConfig& config,
   for(unsigned int rowIndex = 0; rowIndex < DEPTH_LEVEL_COUNT; ++rowIndex)
   {
       float y = rowIndex * Y_E_METERS / DEPTH_LEVEL_COUNT;
-      DepthInfo& depthInfo = level.depthLevels[rowIndex];
+      DepthInfo& depthInfo = context.depthLevels[rowIndex];
       depthInfo.z = (Z_POSITION)(((-Z_E) / (Y_E_METERS - y) * Y_E_METERS + Z_E) * (1 << Z_POSITION_SHIFT));
 
     //We consider that at the horizon, the road is 10 times narrower than at the bottom of the viewport
@@ -250,32 +244,37 @@ void initDepthInfo( const LevelConfig& config,
       }
   }
 
-  minSegmentSize = (level.depthLevels[DEPTH_LEVEL_COUNT-1].z >> 1) + 1;
+  minSegmentSize = (context.depthLevels[DEPTH_LEVEL_COUNT-1].z >> 1) + 1;
   maxSegmentSize = minSegmentSize + (minSegmentSize >> 1);
 }
 
-void initPalette(uint16_t& skyColor,
-                 Level& level) noexcept
+void initPalette(Level level, LevelContext& context) noexcept
 {
-  skyColor = COLOR_565(150, 200, 255);
-#if OLD
-  level.trackPalette[COLOR_TRACK_GRASS_INDEX]  = /*COLOR_565(93, 130, 37)*/COLOR_565(147, 52, 28); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = /*COLOR_565(118, 160, 54)*/COLOR_565(187, 126, 83);
-  level.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(178, 32, 32); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = COLOR_565(255, 255, 255);
-  level.trackPalette[COLOR_TRACK_ROAD_INDEX]   = /*COLOR_565(142, 142, 142)*/COLOR_565(0xc8, 0xac, 0x98); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = /*COLOR_565(186, 186, 186)*/ COLOR_565(0xb6, 0x89, 0x7e);
-  level.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
-#else
-  level.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(147, 52, 28); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(187, 126, 83);
-  level.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(0x83, 0x2e, 0x19); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = COLOR_565(0xa7, 0x71, 0x4a);
-  level.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(0xc8, 0xac, 0x98); level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(0xb6, 0x89, 0x7e);
-  level.trackPalette[COLOR_TRACK_LINE_INDEX]   = level.trackPalette[COLOR_TRACK_ROAD_INDEX]; level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = level.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
-#endif
+  if(level == Level::Arizona)
+  {
+    context.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(147, 52, 28); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(187, 126, 83);
+    context.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(0x83, 0x2e, 0x19); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = COLOR_565(0xa7, 0x71, 0x4a);
+    context.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(0xc8, 0xac, 0x98); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(0xb6, 0x89, 0x7e);
+    context.trackPalette[COLOR_TRACK_LINE_INDEX]   = context.trackPalette[COLOR_TRACK_ROAD_INDEX]; context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];  
+  }
+  else if(level == Level::Suburb)
+  {
+    context.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(93, 130, 37); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(118, 160, 54);
+    context.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(100, 100, 100); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = context.trackPalette[COLOR_TRACK_BUMPER_INDEX];
+    context.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(186, 186, 186);
+    context.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];  
+  }
+  else
+  {
+    
+  }
 }
 
-void computeTurns(CarInfo& carInfo, Level& level) noexcept
+void computeTurns(CarInfo& carInfo, LevelContext& context) noexcept
 {
-  level.depthLevelToX[0] = SCREEN_WIDTH / 2 + carInfo.posX;
-  float x = level.depthLevelToX[0];
-  Z_POSITION previousZ = level.depthLevels[0].z;
+  context.depthLevelToX[0] = SCREEN_WIDTH / 2 + carInfo.posX;
+  float x = context.depthLevelToX[0];
+  Z_POSITION previousZ = context.depthLevels[0].z;
   Z_POSITION currentZ = previousZ;
   Z_POSITION absoluteZ = 0;
   int32_t deltaZ = 0;
@@ -283,34 +282,34 @@ void computeTurns(CarInfo& carInfo, Level& level) noexcept
   int32_t totalOffset = 0;
   for(int16_t depthLevel = 1; depthLevel < DEPTH_LEVEL_COUNT; ++depthLevel)
   {
-    currentZ = level.depthLevels[depthLevel].z;
+    currentZ = context.depthLevels[depthLevel].z;
     deltaZ = (currentZ - previousZ);
     absoluteZ = currentZ + carInfo.posZ;
     //float dzf = deltaZ / 256.f;
     
-    if(absoluteZ < level.segments[1].segmentStartZ)
+    if(absoluteZ < context.segments[1].segmentStartZ)
     {
-      totalOffset += (level.segments[0].xCurvature * deltaZ);
+      totalOffset += (context.segments[0].xCurvature * deltaZ);
     }
     else
     {
-      if(absoluteZ < level.segments[2].segmentStartZ)
+      if(absoluteZ < context.segments[2].segmentStartZ)
       {
-        totalOffset += (level.segments[1].xCurvature * deltaZ);
+        totalOffset += (context.segments[1].xCurvature * deltaZ);
       }
       else
       {
-        totalOffset += (level.segments[2].xCurvature * deltaZ);
+        totalOffset += (context.segments[2].xCurvature * deltaZ);
       }
     }
 
-    x = SCREEN_WIDTH / 2 + (carInfo.posX + (totalOffset >> (ROAD_CURVATURE_X_SHIFT + Z_POSITION_SHIFT))) * level.depthLevels[depthLevel].scaleFactor;
-    level.depthLevelToX[depthLevel] = x;
+    x = SCREEN_WIDTH / 2 + (carInfo.posX + (totalOffset >> (ROAD_CURVATURE_X_SHIFT + Z_POSITION_SHIFT))) * context.depthLevels[depthLevel].scaleFactor;
+    context.depthLevelToX[depthLevel] = x;
     previousZ = currentZ;
   }
 }
 
-void computeHills(CarInfo& carInfo, Level& level) noexcept
+void computeHills(CarInfo& carInfo, LevelContext& context) noexcept
 {
     float prevZ = 0.f;
     float totalOffset = 0.f;
@@ -323,23 +322,23 @@ void computeHills(CarInfo& carInfo, Level& level) noexcept
 
     while(zIndex < DEPTH_LEVEL_COUNT && y < SCREEN_HEIGHT && zIndex >= 0)
     {
-      level.lineToDepthLevel[SCREEN_HEIGHT - 1 - y] = zIndex;
+      context.lineToDepthLevel[SCREEN_HEIGHT - 1 - y] = zIndex;
 
-      const DepthInfo& di = level.depthLevels[zIndex];
+      const DepthInfo& di = context.depthLevels[zIndex];
       
-      if(di.z + carInfo.posZ < level.segments[1].segmentStartZ)
+      if(di.z + carInfo.posZ < context.segments[1].segmentStartZ)
       {
-        totalOffset += level.segments[0].zCurvature * di.scaleFactor;
+        totalOffset += context.segments[0].zCurvature * di.scaleFactor;
       }
       else
       {
-        if(di.z + carInfo.posZ < level.segments[2].segmentStartZ)
+        if(di.z + carInfo.posZ < context.segments[2].segmentStartZ)
         {
-          totalOffset += level.segments[1].zCurvature * di.scaleFactor;
+          totalOffset += context.segments[1].zCurvature * di.scaleFactor;
         }
         else
         {
-          totalOffset += level.segments[2].zCurvature * di.scaleFactor;
+          totalOffset += context.segments[2].zCurvature * di.scaleFactor;
         }
       }
 
@@ -350,12 +349,12 @@ void computeHills(CarInfo& carInfo, Level& level) noexcept
     
     while(y < SCREEN_HEIGHT)
     {
-      level.lineToDepthLevel[SCREEN_HEIGHT - 1 - y] = SKY_Z;
+      context.lineToDepthLevel[SCREEN_HEIGHT - 1 - y] = SKY_Z;
       ++y;
     }
 }
 
-void createSceneryObject(Level& level, SceneryObject& object, Z_POSITION zPos, const LevelConfig& config)
+void createSceneryObject(LevelContext& context, SceneryObject& object, Z_POSITION zPos, const LevelConfig& config)
 {
   int16_t posX = random(-30, 30);
   if(posX > 0)
@@ -366,86 +365,86 @@ void createSceneryObject(Level& level, SceneryObject& object, Z_POSITION zPos, c
   {
     object.posX = - config.roadWidth/2 - 20 - posX;
   }
-  object.posZ = zPos + random(0, level.depthLevels[DEPTH_LEVEL_COUNT-1].z/2);
-  object.sprite = level.sprites + random(config.sceneryObjectsIndexStart, config.sceneryObjectsIndexEnd);
+  object.posZ = zPos + random(0, context.depthLevels[DEPTH_LEVEL_COUNT-1].z/2);
+  object.sprite = context.sprites + random(config.sceneryObjectsIndexStart, config.sceneryObjectsIndexEnd);
 }
 
-void createSceneryObjects(Level& level, const LevelConfig& config)
+void createSceneryObjects(LevelContext& context, const LevelConfig& config)
 {
   for(uint8_t index = 0; index < config.sceneryObjectsCount; ++index)
   {
-    SceneryObject& object = level.sceneryObjects[index];
-    createSceneryObject(level, object, 0, config);
+    SceneryObject& object = context.sceneryObjects[index];
+    createSceneryObject(context, object, 0, config);
   }
 }
 
-void updateSceneryObjects(Level& level, const CarInfo& carInfo, const LevelConfig& config)
+void updateSceneryObjects(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config)
 {
   for(uint8_t index = 0; index < config.sceneryObjectsCount; ++index)
   {
-    SceneryObject& object = level.sceneryObjects[index];
+    SceneryObject& object = context.sceneryObjects[index];
     if(object.posZ < carInfo.posZ)
     {
-      createSceneryObject(level, object, carInfo.posZ + level.depthLevels[DEPTH_LEVEL_COUNT-1].z, config);
+      createSceneryObject(context, object, carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-1].z, config);
     }
   }
 }
 
-void createStaticObstacle(Level& level, StaticObstacle& object, Z_POSITION zPos, const LevelConfig& config)
+void createStaticObstacle(LevelContext& context, StaticObstacle& object, Z_POSITION zPos, const LevelConfig& config)
 {
   object.posX = random(- config.roadWidth/2, config.roadWidth/2);
-  object.posZ = zPos + random(0, level.depthLevels[DEPTH_LEVEL_COUNT-1].z/2);
-  object.sprite = level.sprites + random(config.staticObstaclesIndexStart, config.staticObstaclesIndexEnd);
+  object.posZ = zPos + random(0, context.depthLevels[DEPTH_LEVEL_COUNT-1].z/2);
+  object.sprite = context.sprites + random(config.staticObstaclesIndexStart, config.staticObstaclesIndexEnd);
   object.validUntil = -1;
 }
 
-void createStaticObstacles(Level& level, const LevelConfig& config)
+void createStaticObstacles(LevelContext& context, const LevelConfig& config)
 {
     for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
   {
-    StaticObstacle& object = level.staticObstacles[index];
-    createStaticObstacle(level, object, 0, config);
+    StaticObstacle& object = context.staticObstacles[index];
+    createStaticObstacle(context, object, 0, config);
   }
 }
 
-void updateStaticObstacles(Level& level, const CarInfo& carInfo, const LevelConfig& config)
+void updateStaticObstacles(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config)
 {
   for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
   {
-    StaticObstacle& object = level.staticObstacles[index];
+    StaticObstacle& object = context.staticObstacles[index];
     if(object.posZ < carInfo.posZ || (object.validUntil != -1 && object.validUntil > gb.frameCount))
     {
-      createStaticObstacle(level, object, carInfo.posZ + level.depthLevels[DEPTH_LEVEL_COUNT-5].z, config);
+      createStaticObstacle(context, object, carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-5].z, config);
     }
   }
 }
 
-void updateMobileObstacles( Level& level, const CarInfo& carInfo, const LevelConfig& config){}
+void updateMobileObstacles( LevelContext& context, const CarInfo& carInfo, const LevelConfig& config){}
 
-uint8_t computeDrawable(Level& level, int16_t posX, Z_POSITION posZ, SpriteDefinition* sprite, const CarInfo& carInfo, uint8_t index)
+uint8_t computeDrawable(LevelContext& context, int16_t posX, Z_POSITION posZ, SpriteDefinition* sprite, const CarInfo& carInfo, uint8_t index)
 {
   uint8_t drawableLine = -1;
   Z_POSITION prevZ = Z_POSITION_MAX;
   
     for(unsigned int line = 0; line < SCREEN_HEIGHT && drawableLine == (uint8_t)-1; ++line)
     {
-      if(level.lineToDepthLevel[line] != SKY_Z)
+      if(context.lineToDepthLevel[line] != SKY_Z)
       {
         
-        if(level.depthLevels[level.lineToDepthLevel[line]].z+carInfo.posZ <= posZ && prevZ > posZ)
+        if(context.depthLevels[context.lineToDepthLevel[line]].z+carInfo.posZ <= posZ && prevZ > posZ)
         {
           drawableLine = line;
         }
-        prevZ = level.depthLevels[level.lineToDepthLevel[line]].z+carInfo.posZ;
+        prevZ = context.depthLevels[context.lineToDepthLevel[line]].z+carInfo.posZ;
       }
     }
 
     if(drawableLine != -1)
   {
-    Drawable& drawable = level.drawables[index];
+    Drawable& drawable = context.drawables[index];
     drawable.sprite = sprite;
     
-    SCALE_FACTOR scale = ScaleFactor[level.lineToDepthLevel[drawableLine]];
+    SCALE_FACTOR scale = ScaleFactor[context.lineToDepthLevel[drawableLine]];
     if(scale <= SCALE_FACTOR_EIGHTH)
     {
       drawable.zoomPattern = 8;
@@ -463,7 +462,7 @@ uint8_t computeDrawable(Level& level, int16_t posX, Z_POSITION posZ, SpriteDefin
       drawable.zoomPattern = 1;
     }
 
-    drawable.xStart = level.depthLevelToX[level.lineToDepthLevel[drawableLine]] - ((scale * posX) >> SCALE_FACTOR_SHIFT);
+    drawable.xStart = context.depthLevelToX[context.lineToDepthLevel[drawableLine]] - ((scale * posX) >> SCALE_FACTOR_SHIFT);
     
     uint16_t actualHeight = drawable.sprite->height / drawable.zoomPattern;
     drawable.yStart = (drawableLine >= actualHeight) ? drawableLine - actualHeight : 0;
@@ -475,13 +474,13 @@ uint8_t computeDrawable(Level& level, int16_t posX, Z_POSITION posZ, SpriteDefin
   return index;
 }
 
-uint8_t computeDrawables(Level& level, const CarInfo& carInfo, const LevelConfig& config)
+uint8_t computeDrawables(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config)
 {
   uint8_t nextDrawableIndex = 0;
   for(uint8_t index = 0; index < config.sceneryObjectsCount; ++index)
   {
-    SceneryObject& object = level.sceneryObjects[index];
-    nextDrawableIndex = computeDrawable(level,
+    SceneryObject& object = context.sceneryObjects[index];
+    nextDrawableIndex = computeDrawable(context,
                                         object.posX,
                                         object.posZ,
                                         object.sprite,
@@ -491,8 +490,8 @@ uint8_t computeDrawables(Level& level, const CarInfo& carInfo, const LevelConfig
 
     for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
   {
-    StaticObstacle& object = level.staticObstacles[index];
-    nextDrawableIndex = computeDrawable(level,
+    StaticObstacle& object = context.staticObstacles[index];
+    nextDrawableIndex = computeDrawable(context,
                                         object.posX,
                                         object.posZ,
                                         object.sprite,
@@ -533,10 +532,10 @@ int8_t computeCollision(int16_t carXMin, int16_t carXMax, int16_t obstacleX, Spr
   return COLLISION_FRONT;
 }
 
-void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& config)
+void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelConfig& config)
 {
   currentFx = nullptr;
-  const RoadSegment& segment = level.segments[0];
+  const RoadSegment& segment = context.segments[0];
   
   bool accelerating   = gb.buttons.repeat(BUTTON_A, 0);
   bool braking        = gb.buttons.repeat(BUTTON_B, 0);
@@ -553,7 +552,7 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
     int16_t carXMax = carInfo.posX + CAR_WIDTH/2;
     for(uint8_t objectIndex = 0; objectIndex < config.sceneryObjectsCount && collision != COLLISION_FRONT; ++objectIndex)
     {
-      const SceneryObject& object = level.sceneryObjects[objectIndex];
+      const SceneryObject& object = context.sceneryObjects[objectIndex];
       diffZ = 8*(object.posZ-carInfo.posZ);
       if(diffZ < 0)
       {
@@ -568,7 +567,7 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
 
     for(uint8_t objectIndex = 0; objectIndex < config.staticObstaclesCount && collision != COLLISION_FRONT; ++objectIndex)
     {
-      StaticObstacle& object = level.staticObstacles[objectIndex];
+      StaticObstacle& object = context.staticObstacles[objectIndex];
       diffZ = object.posZ-carInfo.posZ;
       if(diffZ < 0)
       {
@@ -770,33 +769,33 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
       case 1:
         if(!lightPattern)
           carInfo.lights = LIGHT_1;
-        carInfo.fluxSprite = &level.speedSprites[1];
+        carInfo.fluxSprite = &context.speedSprites[1];
         break;
 
       case 2:
         if(!lightPattern)
           carInfo.lights = LIGHT_2;
-        carInfo.fluxSprite = &level.speedSprites[2];
+        carInfo.fluxSprite = &context.speedSprites[2];
         //gb.lights.drawImage(0, 0, LIGHT_2);
         break;
 
       case 3:
         if(!lightPattern)
           carInfo.lights = LIGHT_3;
-        carInfo.fluxSprite = &level.speedSprites[3];
+        carInfo.fluxSprite = &context.speedSprites[3];
         //gb.lights.drawImage(0, 0, LIGHT_3);
         break;
 
       case 4:
         if(!lightPattern)
           carInfo.lights = LIGHT_4;
-        carInfo.fluxSprite = &level.speedSprites[4];
+        carInfo.fluxSprite = &context.speedSprites[4];
         //gb.lights.drawImage(0, 0, LIGHT_4);
         break;
 
       default:
         carInfo.lights = LIGHT_NONE;
-        carInfo.fluxSprite = &level.speedSprites[0];
+        carInfo.fluxSprite = &context.speedSprites[0];
         //gb.lights.drawImage(0, 0, LIGHT_NONE);
         break;
     }
@@ -805,29 +804,6 @@ void updateCarInfo(const Level& level, CarInfo& carInfo, const LevelConfig& conf
 
   gb.sound.fx(currentFx);
 
-}
-
-inline __attribute__((always_inline)) uint16_t* drawLine(uint16_t* buffer, uint16_t color, uint16_t* size)
-{
-  buffer[0] = color;
-  buffer[1] = color;
-  memcpy((uint8_t*)&(buffer[2]), (uint8_t*)buffer, 2 * sizeof(uint16_t)); // Filled 4 pixels
-  memcpy((uint8_t*)&(buffer[4]), (uint8_t*)buffer, 4 * sizeof(uint16_t)); // Filled 8 pixels
-  memcpy((uint8_t*)&(buffer[8]), (uint8_t*)buffer, 8 * sizeof(uint16_t)); // Filled 16 pixels
-  memcpy((uint8_t*)&(buffer[16]), (uint8_t*)buffer, 16 * sizeof(uint16_t)); // Filled 32 pixels
-  memcpy((uint8_t*)&(buffer[32]), (uint8_t*)buffer, 32 * sizeof(uint16_t)); // Filled 64 pixels
-  memcpy((uint8_t*)&(buffer[64]), (uint8_t*)buffer, 64 * sizeof(uint16_t)); // Filled 128 pixels
-  memcpy((uint8_t*)&(buffer[128]), (uint8_t*)buffer, (SCREEN_WIDTH-128) * sizeof(uint16_t)); // Filled all
-}
-
-inline __attribute__((always_inline)) uint16_t* drawColor(uint16_t* buffer, uint16_t from, uint16_t count, uint16_t color)
-{
-  for(uint16_t col = 0; col < count; ++col)
-  {
-    (*buffer++) = color;
-  }
-
-  return buffer;
 }
 
 /*const uint16_t startSound[] = {0x0005,0x338,0x3FC,0x254,0x1FC,0x25C,0x3FC,0x368,0x123};
@@ -846,72 +822,72 @@ void gameLoop(const LevelConfig& config) noexcept
   uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
   uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
 
-  Level level;
-  level.depthLevels       = (DepthInfo*)        mphAlloc(DEPTH_LEVEL_COUNT * sizeof(DepthInfo));
-  level.lineToDepthLevel  = (uint8_t*)          mphAlloc(SCREEN_HEIGHT);
-  level.depthLevelToX     = (int16_t*)          mphAlloc(DEPTH_LEVEL_COUNT * sizeof(int16_t));
-  level.trackPalette      = (uint16_t*)         mphAlloc(2 * COLOR_TRACK_SIZE * sizeof(uint16_t));
-  level.segments          = (RoadSegment*)      mphAlloc(3 * sizeof(RoadSegment));
-  level.carSprites        = (SpriteDefinition*) mphAlloc(3 * sizeof(SpriteDefinition));
-  level.fuelSprites       = (SpriteDefinition*) mphAlloc(2 * sizeof(SpriteDefinition));
-  level.speedSprites      = (SpriteDefinition*) mphAlloc(5 * sizeof(SpriteDefinition));
-  level.sprites           = (SpriteDefinition*) mphAlloc(MAX_SPRITES * sizeof(SpriteDefinition));
-  level.sceneryObjects    = (SceneryObject*)    mphAlloc(MAX_SCENERY_OBJECTS * sizeof(SceneryObject));
-  level.staticObstacles   = (StaticObstacle*)   mphAlloc(MAX_STATIC_OBSTACLES * sizeof(StaticObstacle));
-  level.movingObstacles   = (MovingObstacle*)   mphAlloc(MAX_MOVING_OBSTACLES * sizeof(MovingObstacle));
-  level.drawables         = (Drawable*)         mphAlloc(MAX_DRAWABLES * sizeof(Drawable));
+  LevelContext context;
+  context.depthLevels       = (DepthInfo*)        mphAlloc(DEPTH_LEVEL_COUNT * sizeof(DepthInfo));
+  context.lineToDepthLevel  = (uint8_t*)          mphAlloc(SCREEN_HEIGHT);
+  context.depthLevelToX     = (int16_t*)          mphAlloc(DEPTH_LEVEL_COUNT * sizeof(int16_t));
+  context.trackPalette      = (uint16_t*)         mphAlloc(2 * COLOR_TRACK_SIZE * sizeof(uint16_t));
+  context.segments          = (RoadSegment*)      mphAlloc(3 * sizeof(RoadSegment));
+  context.carSprites        = (SpriteDefinition*) mphAlloc(3 * sizeof(SpriteDefinition));
+  context.fuelSprites       = (SpriteDefinition*) mphAlloc(2 * sizeof(SpriteDefinition));
+  context.speedSprites      = (SpriteDefinition*) mphAlloc(5 * sizeof(SpriteDefinition));
+  context.sprites           = (SpriteDefinition*) mphAlloc(MAX_SPRITES * sizeof(SpriteDefinition));
+  context.sceneryObjects    = (SceneryObject*)    mphAlloc(MAX_SCENERY_OBJECTS * sizeof(SceneryObject));
+  context.staticObstacles   = (StaticObstacle*)   mphAlloc(MAX_STATIC_OBSTACLES * sizeof(StaticObstacle));
+  context.movingObstacles   = (MovingObstacle*)   mphAlloc(MAX_MOVING_OBSTACLES * sizeof(MovingObstacle));
+  context.drawables         = (Drawable*)         mphAlloc(MAX_DRAWABLES * sizeof(Drawable));
 
-  level.carSprites[0].width = CAR_WIDTH;
-  level.carSprites[0].height = CAR_HEIGHT;
-  level.carSprites[0].buffer = CAR;
+  context.carSprites[0].width = CAR_WIDTH;
+  context.carSprites[0].height = CAR_HEIGHT;
+  context.carSprites[0].buffer = CAR;
 
-  level.carSprites[1].width = CAR_LEFT_WIDTH;
-  level.carSprites[1].height = CAR_LEFT_HEIGHT;
-  level.carSprites[1].buffer = CAR_LEFT;
+  context.carSprites[1].width = CAR_LEFT_WIDTH;
+  context.carSprites[1].height = CAR_LEFT_HEIGHT;
+  context.carSprites[1].buffer = CAR_LEFT;
 
-  level.carSprites[2].width = CAR_RIGHT_WIDTH;
-  level.carSprites[2].height = CAR_RIGHT_HEIGHT;
-  level.carSprites[2].buffer = CAR_RIGHT;
+  context.carSprites[2].width = CAR_RIGHT_WIDTH;
+  context.carSprites[2].height = CAR_RIGHT_HEIGHT;
+  context.carSprites[2].buffer = CAR_RIGHT;
 
-  level.fuelSprites[0].width = FUELF_WIDTH;
-  level.fuelSprites[0].height = FUELF_HEIGHT;
-  level.fuelSprites[0].buffer = FUELF;
+  context.fuelSprites[0].width = FUELF_WIDTH;
+  context.fuelSprites[0].height = FUELF_HEIGHT;
+  context.fuelSprites[0].buffer = FUELF;
 
-  level.fuelSprites[1].width = FUELE_WIDTH;
-  level.fuelSprites[1].height = FUELE_HEIGHT;
-  level.fuelSprites[1].buffer = FUELE;
+  context.fuelSprites[1].width = FUELE_WIDTH;
+  context.fuelSprites[1].height = FUELE_HEIGHT;
+  context.fuelSprites[1].buffer = FUELE;
 
-  level.sprites[0].width = CACTUS_WIDTH;
-  level.sprites[0].height = CACTUS_HEIGHT;
-  level.sprites[0].buffer = CACTUS;
+  context.sprites[0].width = CACTUS_WIDTH;
+  context.sprites[0].height = CACTUS_HEIGHT;
+  context.sprites[0].buffer = CACTUS;
 
-  level.sprites[1].width = BUSH_WIDTH;
-  level.sprites[1].height = BUSH_HEIGHT;
-  level.sprites[1].buffer = BUSH;
+  context.sprites[1].width = BUSH_WIDTH;
+  context.sprites[1].height = BUSH_HEIGHT;
+  context.sprites[1].buffer = BUSH;
 
-  level.sprites[2].width = BOULDER_WIDTH;
-  level.sprites[2].height = BOULDER_HEIGHT;
-  level.sprites[2].buffer = BOULDER;
+  context.sprites[2].width = BOULDER_WIDTH;
+  context.sprites[2].height = BOULDER_HEIGHT;
+  context.sprites[2].buffer = BOULDER;
 
-  level.speedSprites[0].width = SPEEDO0_WIDTH;
-  level.speedSprites[0].height = SPEEDO0_HEIGHT;
-  level.speedSprites[0].buffer = SPEEDO0;
+  context.speedSprites[0].width = SPEEDO0_WIDTH;
+  context.speedSprites[0].height = SPEEDO0_HEIGHT;
+  context.speedSprites[0].buffer = SPEEDO0;
 
-  level.speedSprites[1].width = SPEEDO1_WIDTH;
-  level.speedSprites[1].height = SPEEDO1_HEIGHT;
-  level.speedSprites[1].buffer = SPEEDO1;
+  context.speedSprites[1].width = SPEEDO1_WIDTH;
+  context.speedSprites[1].height = SPEEDO1_HEIGHT;
+  context.speedSprites[1].buffer = SPEEDO1;
 
-  level.speedSprites[2].width = SPEEDO2_WIDTH;
-  level.speedSprites[2].height = SPEEDO2_HEIGHT;
-  level.speedSprites[2].buffer = SPEEDO2;
+  context.speedSprites[2].width = SPEEDO2_WIDTH;
+  context.speedSprites[2].height = SPEEDO2_HEIGHT;
+  context.speedSprites[2].buffer = SPEEDO2;
 
-  level.speedSprites[3].width = SPEEDO3_WIDTH;
-  level.speedSprites[3].height = SPEEDO3_HEIGHT;
-  level.speedSprites[3].buffer = SPEEDO3;
+  context.speedSprites[3].width = SPEEDO3_WIDTH;
+  context.speedSprites[3].height = SPEEDO3_HEIGHT;
+  context.speedSprites[3].buffer = SPEEDO3;
 
-  level.speedSprites[4].width = SPEEDO4_WIDTH;
-  level.speedSprites[4].height = SPEEDO4_HEIGHT;
-  level.speedSprites[4].buffer = SPEEDO4;
+  context.speedSprites[4].width = SPEEDO4_WIDTH;
+  context.speedSprites[4].height = SPEEDO4_HEIGHT;
+  context.speedSprites[4].buffer = SPEEDO4;
 //  Z_POSITION zCactus = (100 << Z_POSITION_SHIFT);
 
   SpriteDefinition dotSprite;
@@ -926,34 +902,29 @@ void gameLoop(const LevelConfig& config) noexcept
 
   CarInfo carInfo;
   carInfo.sprite = CarSprite::Front;
-  carInfo.posX = 0; //SCREEN_WIDTH / 2;
+  carInfo.posX = 0;
   carInfo.posZ = 0;
   carInfo.speedZ = 0.f;
   carInfo.speedX = 0.f;
-//  carInfo.accelZ = 0.f;
-//  carInfo.accelX = 0.f;
 
-  uint16_t skyColor;
-  //uint16_t trackPalette[2*COLOR_TRACK_SIZE];
+  initDepthInfo(config, context, minSegmentSize, maxSegmentSize);
+  initPalette(config.level, context);
 
-  initDepthInfo(config, level, minSegmentSize, maxSegmentSize);
-  initPalette(skyColor, level);
+  context.segments[0].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
+  context.segments[0].zCurvature = random(-150, 400)/1000.f;
+  context.segments[0].segmentStartZ = 0;
 
-  level.segments[0].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
-  level.segments[0].zCurvature = random(-150, 400)/1000.f;
-  level.segments[0].segmentStartZ = 0;
+  context.segments[1].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
+  context.segments[1].zCurvature = random(-150, 400)/1000.f;
+  context.segments[1].segmentStartZ = 400 * (1 << Z_POSITION_SHIFT);//segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
 
-  level.segments[1].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
-  level.segments[1].zCurvature = random(-150, 400)/1000.f;
-  level.segments[1].segmentStartZ = 400 * (1 << Z_POSITION_SHIFT);//segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
-
-  level.segments[2].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
-  level.segments[2].zCurvature = random(-150, 400)/1000.f;
-  level.segments[2].segmentStartZ = level.segments[1].segmentStartZ + random(minSegmentSize, maxSegmentSize);
+  context.segments[2].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
+  context.segments[2].zCurvature = random(-150, 400)/1000.f;
+  context.segments[2].segmentStartZ = context.segments[1].segmentStartZ + random(minSegmentSize, maxSegmentSize);
 
 
-  createSceneryObjects(level, config);
-  createStaticObstacles(level, config);
+  createSceneryObjects(context, config);
+  createStaticObstacles(context, config);
 
   int16_t backgroundShift = 0; /* sign.11.4 */
 
@@ -963,7 +934,7 @@ void gameLoop(const LevelConfig& config) noexcept
   { 
     while (!gb.update());
 
-    updateCarInfo(level, carInfo, config);
+    updateCarInfo(context, carInfo, config);
 
     /*switch((gb.frameCount >> 3) % 5)
     {
@@ -992,32 +963,32 @@ void gameLoop(const LevelConfig& config) noexcept
 
 // Update environment wrt to new car position
 
-    if(carInfo.posZ > level.segments[1].segmentStartZ)
+    if(carInfo.posZ > context.segments[1].segmentStartZ)
     {
-      level.segments[0] = level.segments[1];
-      level.segments[1] = level.segments[2];
-      level.segments[2].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
-      level.segments[2].zCurvature = random(-150, 400)/1000.f;
-      level.segments[2].segmentStartZ = level.segments[1].segmentStartZ + random(minSegmentSize, maxSegmentSize);
+      context.segments[0] = context.segments[1];
+      context.segments[1] = context.segments[2];
+      context.segments[2].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
+      context.segments[2].zCurvature = random(-150, 400)/1000.f;
+      context.segments[2].segmentStartZ = context.segments[1].segmentStartZ + random(minSegmentSize, maxSegmentSize);
     }
-        backgroundShift += (level.segments[0].xCurvature * carInfo.speedZ) / 4;
+        backgroundShift += (context.segments[0].xCurvature * carInfo.speedZ) / 4;
 
 // Compute environment geometry
 
-    computeTurns(carInfo, level);
-    computeHills(carInfo, level);
+    computeTurns(carInfo, context);
+    computeHills(carInfo, context);
 
 // Update drawables
 
-    updateSceneryObjects(level, carInfo, config);
-    updateStaticObstacles(level, carInfo, config);
-    updateMobileObstacles(level, carInfo, config);
+    updateSceneryObjects(context, carInfo, config);
+    updateStaticObstacles(context, carInfo, config);
+    updateMobileObstacles(context, carInfo, config);
 
-    uint8_t drawableCount = computeDrawables(level, carInfo, config);
+    uint8_t drawableCount = computeDrawables(context, carInfo, config);
 
 
   {
-    Drawable& drawable = level.drawables[drawableCount];
+    Drawable& drawable = context.drawables[drawableCount];
     drawable.sprite = carInfo.fluxSprite;
     drawable.xStart = SCREEN_WIDTH - drawable.sprite->width;
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
@@ -1042,7 +1013,7 @@ void gameLoop(const LevelConfig& config) noexcept
     {
       actualSpeedStep = SPEED_STEP_COUNT;
     }
-    Drawable& drawable = level.drawables[drawableCount];
+    Drawable& drawable = context.drawables[drawableCount];
     drawable.sprite = &dotSprite;
     drawable.xStart = SPEEDOMETER_X[actualSpeedStep-1] - drawable.sprite->width;
     drawable.yStart = SPEEDOMETER_Y[actualSpeedStep-1] - drawable.sprite->height;
@@ -1052,8 +1023,8 @@ void gameLoop(const LevelConfig& config) noexcept
   ++drawableCount;
 
     {
-    Drawable& drawable = level.drawables[drawableCount];
-    drawable.sprite = &level.fuelSprites[0];
+    Drawable& drawable = context.drawables[drawableCount];
+    drawable.sprite = &context.fuelSprites[0];
     drawable.xStart = 0;
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
@@ -1063,28 +1034,28 @@ void gameLoop(const LevelConfig& config) noexcept
 
 
       {
-    Drawable& drawable = level.drawables[drawableCount];
-    drawable.sprite = &level.fuelSprites[1];
+    Drawable& drawable = context.drawables[drawableCount];
+    drawable.sprite = &context.fuelSprites[1];
     drawable.xStart = 0;
-    drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
+    drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height - 4;
     drawable.yEnd = drawable.yStart + ((drawable.sprite->height * carInfo.posZ) >> 18) - 1;
     drawable.zoomPattern = 1;
   }
   ++drawableCount;
 
     {
-    Drawable& drawable = level.drawables[drawableCount];
+    Drawable& drawable = context.drawables[drawableCount];
     switch(carInfo.sprite)
     {
       case CarSprite::Left:
-        drawable.sprite = &level.carSprites[1];
+        drawable.sprite = &context.carSprites[1];
         break;
       case CarSprite::Right:
-        drawable.sprite = &level.carSprites[2];
+        drawable.sprite = &context.carSprites[2];
         break;
       case CarSprite::Front:
       default:
-        drawable.sprite = &level.carSprites[0];
+        drawable.sprite = &context.carSprites[0];
         break;
     }
   
@@ -1107,7 +1078,7 @@ void gameLoop(const LevelConfig& config) noexcept
   for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip)
   {
     stripLine = stripCursor;
-    uint8_t depthLevel = level.lineToDepthLevel[y];
+    uint8_t depthLevel = context.lineToDepthLevel[y];
 
 int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
     
@@ -1126,8 +1097,6 @@ int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
       for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
       {
         color32 = BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) >> 4] | ((uint32_t)BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) & 0x0F]) << 16;
-        //(*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) >> 4];
-        //(*stripCursor++) = BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) & 0x0F];
         (*stripCursor32++) = color32;
         ++colorIndexes;
       }
@@ -1135,11 +1104,11 @@ int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
     }
     else
     {
-      DepthInfo& di = level.depthLevels[depthLevel];
-      int16_t x = level.depthLevelToX[depthLevel];
+      DepthInfo& di = context.depthLevels[depthLevel];
+      int16_t x = context.depthLevelToX[depthLevel];
       
       int altColor = (((uint16_t)(di.z + carInfo.posZ) >> (Z_POSITION_SHIFT + 2)) & 0x1);
-      uint16_t* currentPalette = level.trackPalette + (COLOR_TRACK_SIZE) * altColor;
+      uint16_t* currentPalette = context.trackPalette + (COLOR_TRACK_SIZE) * altColor;
       int16_t col = 0;
       const uint16_t& grassColor = currentPalette[COLOR_TRACK_GRASS_INDEX];
       const uint16_t& bumperColor = currentPalette[COLOR_TRACK_BUMPER_INDEX];
@@ -1211,7 +1180,7 @@ int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
 
     for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
     {
-      const Drawable& drawable = level.drawables[drawableIndex];
+      const Drawable& drawable = context.drawables[drawableIndex];
       if(y >= drawable.yStart && y <= drawable.yEnd)
       {
         //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
@@ -1296,7 +1265,7 @@ void setup()
 
 void loop()
 {
-  LevelConfig config = levelSelectionMenu();
+  LevelConfig config = levelSelectionMenu(Level::Suburb);
 
   gameLoop(config);
 }

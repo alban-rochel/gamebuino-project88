@@ -14,6 +14,12 @@ namespace Gamebuino_Meta
 
 #define COLOR_565(r, g, b) (COLOR_R(r) | COLOR_G_LOW(g) | COLOR_G_HIGH(g) | COLOR_B(b))
 
+enum class Level
+{
+  Arizona,
+  Suburb,
+  Skyway
+};
 
 const uint16_t LIGHT_COLLISION_RIGHT[] {
   2,4,    // width, height
@@ -85,6 +91,7 @@ namespace roads
 {
   struct LevelConfig
   {
+    Level level;
     uint8_t bumperWidth;
     uint8_t roadWidth;
     uint8_t lineWidth;
@@ -218,7 +225,7 @@ struct Drawable
   SpriteDefinition* sprite; 
 };
 
-struct Level
+struct LevelContext
 {
   DepthInfo* depthLevels;
   uint8_t* lineToDepthLevel;
