@@ -173,6 +173,9 @@ LevelConfig levelSelectionMenu(Level level) noexcept
 
   if(level == Level::Arizona)
   {
+    config.xCurvature = 5;
+    config.zCurvatureMin = -150;
+    config.zCurvatureMax = 400;
     config.bumperWidth  = 6;
     config.roadWidth    = 200;
     config.lineWidth    = 4;
@@ -185,6 +188,9 @@ LevelConfig levelSelectionMenu(Level level) noexcept
   }
   else if(level == Level::Suburb)
   {
+    config.xCurvature = 5;
+    config.zCurvatureMin = -150;
+    config.zCurvatureMax = 400;
     config.bumperWidth  = 8;
     config.roadWidth    = 180;
     config.lineWidth    = 4;
@@ -195,9 +201,20 @@ LevelConfig levelSelectionMenu(Level level) noexcept
     config.staticObstaclesIndexStart = 2;
     config.staticObstaclesIndexEnd = 3;
   }
-  else
+  else // Skyway
   {
-    
+    config.xCurvature = 8;
+    config.zCurvatureMin = -200;
+    config.zCurvatureMax = 600;
+    config.bumperWidth  = 8;
+    config.roadWidth    = 160;
+    config.lineWidth    = 8;
+    config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
+    config.sceneryObjectsIndexStart = 0;
+    config.sceneryObjectsIndexEnd = 3;
+    config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
+    config.staticObstaclesIndexStart = 2;
+    config.staticObstaclesIndexEnd = 3;
   }
 
 
@@ -261,19 +278,11 @@ void initPalette(Level level, LevelContext& context) noexcept
   else if(level == Level::Suburb)
   {
     context.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(93, 130, 37); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(118, 160, 54);
-    context.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(255, 255, 255); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = context.trackPalette[COLOR_TRACK_BUMPER_INDEX];
-    context.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(186, 186, 186);
-    context.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 0, 0); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = context.trackPalette[COLOR_TRACK_LINE_INDEX]; 
-
-
-     /*
-      * context.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(93, 130, 37); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(118, 160, 54);
     context.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(100, 100, 100); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = context.trackPalette[COLOR_TRACK_BUMPER_INDEX];
     context.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(186, 186, 186);
     context.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
-      */
   }
-  else
+  else // Skyway
   {
     
   }
@@ -815,6 +824,34 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
 
 }
 
+void drawSprites(uint16_t y, uint16_t* stripLine,  unsigned int drawableCount, LevelContext& context) noexcept
+{
+    for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
+    {
+      const Drawable& drawable = context.drawables[drawableIndex];
+      if(y >= drawable.yStart && y <= drawable.yEnd)
+      {
+        //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
+        const uint16_t* spriteBufferWithOffset = drawable.sprite->buffer + (drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern);
+        int16_t xIndex = drawable.xStart;
+        uint16_t color;
+        for(int16_t x = 0; x < drawable.sprite->width && xIndex < SCREEN_WIDTH; x+=drawable.zoomPattern, ++xIndex)
+        {
+          if(xIndex >= 0)
+          {
+            color = (*spriteBufferWithOffset++);
+            if(color != COLOR_565(0xFF, 0x00, 0xFF))
+            {
+              stripLine[xIndex] = color;
+            }
+          }
+        }
+      }
+    }
+}
+
+
+
 void drawFrame(GraphicsManager& gm,
                 LevelContext& context,
                 unsigned int drawableCount,
@@ -835,22 +872,24 @@ void drawFrame(GraphicsManager& gm,
   {
     stripLine = stripCursor;
     uint8_t depthLevel = context.lineToDepthLevel[y];
+
+    backgroundY = y;
     
     if(depthLevel == SKY_Z)
     {
       // draw sky
-      backgroundY = y;
-      if(backgroundY >= BACKGROUND_SKYLINE_HEIGHT)
+
+      if(backgroundY >= context.backgroundHeight)
       {
-        backgroundY = BACKGROUND_SKYLINE_HEIGHT-1;
+        backgroundY = context.backgroundHeight-1;
       }
       uint16_t pixelsIndex = (backgroundY << 7) + (uint8_t)(actualShift);
-      const uint8_t* colorIndexes = &BACKGROUND_SKYLINE[pixelsIndex];
+      const uint8_t* colorIndexes = &context.background[pixelsIndex];
       uint32_t color32;
       uint32_t* stripCursor32 = (uint32_t*)stripCursor;
       for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
       {
-        color32 = BACKGROUND_SKYLINE_PALETTE[(*colorIndexes) >> 4] | ((uint32_t)BACKGROUND_SKYLINE_PALETTE[(*colorIndexes) & 0x0F]) << 16;
+        color32 = context.backgroundPalette[(*colorIndexes) >> 4] | ((uint32_t)context.backgroundPalette[(*colorIndexes) & 0x0F]) << 16;
         (*stripCursor32++) = color32;
         ++colorIndexes;
       }
@@ -932,28 +971,7 @@ void drawFrame(GraphicsManager& gm,
       }
     }
 
-    for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
-    {
-      const Drawable& drawable = context.drawables[drawableIndex];
-      if(y >= drawable.yStart && y <= drawable.yEnd)
-      {
-        //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
-        const uint16_t* spriteBufferWithOffset = drawable.sprite->buffer + (drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern);
-        int16_t xIndex = drawable.xStart;
-        uint16_t color;
-        for(int16_t x = 0; x < drawable.sprite->width && xIndex < SCREEN_WIDTH; x+=drawable.zoomPattern, ++xIndex)
-        {
-          if(xIndex >= 0)
-          {
-            color = (*spriteBufferWithOffset++);
-            if(color != COLOR_565(0xFF, 0x00, 0xFF))
-            {
-              stripLine[xIndex] = color;
-            }
-          }
-        }
-      }
-    }
+    drawSprites(y, stripLine, drawableCount, context);
 
     if(yStrip == STRIP_HEIGHT)
     {
@@ -981,28 +999,27 @@ void drawFrameSkyway(GraphicsManager& gm,
   unsigned int yStrip = 1;
   int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
   unsigned int backgroundY;
-uint8_t pulse = gb.frameCount << 4;
+uint8_t pulse = gb.frameCount << 3;
   for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip)
   {
     stripLine = stripCursor;
     uint8_t depthLevel = context.lineToDepthLevel[y];
 
     backgroundY = y;
-    //if(depthLevel == SKY_Z)
     {
       // draw sky
 
-      if(backgroundY >= BACKGROUND_SKYLINE_HEIGHT)
+      if(backgroundY >= context.backgroundHeight)
       {
-        backgroundY = BACKGROUND_SKYLINE_HEIGHT-1;
+        backgroundY = context.backgroundHeight-1;
       }
       uint16_t pixelsIndex = (backgroundY << 7) + (uint8_t)(actualShift);
-      const uint8_t* colorIndexes = &BACKGROUND_SKYLINE[pixelsIndex];
+      const uint8_t* colorIndexes = &context.background[pixelsIndex];
       uint32_t color32;
       uint32_t* stripCursor32 = (uint32_t*)stripCursor;
       for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
       {
-        color32 = BACKGROUND_SKYLINE_PALETTE[(*colorIndexes) >> 4] | ((uint32_t)BACKGROUND_SKYLINE_PALETTE[(*colorIndexes) & 0x0F]) << 16;
+        color32 = context.backgroundPalette[(*colorIndexes) >> 4] | ((uint32_t)context.backgroundPalette[(*colorIndexes) & 0x0F]) << 16;
         (*stripCursor32++) = color32;
         ++colorIndexes;
       }
@@ -1014,20 +1031,14 @@ uint8_t pulse = gb.frameCount << 4;
     }
     else
     {
-DepthInfo& di = context.depthLevels[depthLevel];
+      DepthInfo& di = context.depthLevels[depthLevel];
       int16_t x = context.depthLevelToX[depthLevel];
       
       int altColor = ((((uint16_t)(di.z + carInfo.posZ) >> (Z_POSITION_SHIFT + 2)) & 0x3) == 0);
       uint16_t* currentPalette = context.trackPalette + (COLOR_TRACK_SIZE) * altColor;
       int16_t col = 0;
-      const uint16_t& grassColor = currentPalette[COLOR_TRACK_GRASS_INDEX];
-      const uint16_t& bumperColor = COLOR_565(pulse, pulse, pulse);//currentPalette[COLOR_TRACK_BUMPER_INDEX];
+      const uint16_t& bumperColor = COLOR_565(pulse, pulse, pulse);
       const uint16_t& lineColor = COLOR_565(pulse, 0, 0);
-      const uint16_t& roadColor = currentPalette[COLOR_TRACK_ROAD_INDEX];
-      uint32_t grassColor32 = ((uint32_t)(grassColor) << 16) | grassColor;
-      uint32_t bumperColor32 = ((uint32_t)(bumperColor) << 16) | bumperColor;
-      uint32_t lineColor32 = ((uint32_t)(lineColor) << 16) | lineColor;
-      uint32_t roadColor32 = ((uint32_t)(roadColor) << 16) | roadColor;
       int16_t target = x - di.lineRoadBumperWidth;
       
       if(target >= SCREEN_WIDTH)
@@ -1096,28 +1107,7 @@ DepthInfo& di = context.depthLevels[depthLevel];
       }
     }
 
-    for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
-    {
-      const Drawable& drawable = context.drawables[drawableIndex];
-      if(y >= drawable.yStart && y <= drawable.yEnd)
-      {
-        //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
-        const uint16_t* spriteBufferWithOffset = drawable.sprite->buffer + (drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern);
-        int16_t xIndex = drawable.xStart;
-        uint16_t color;
-        for(int16_t x = 0; x < drawable.sprite->width && xIndex < SCREEN_WIDTH; x+=drawable.zoomPattern, ++xIndex)
-        {
-          if(xIndex >= 0)
-          {
-            color = (*spriteBufferWithOffset++);
-            if(color != COLOR_565(0xFF, 0x00, 0xFF))
-            {
-              stripLine[xIndex] = color;
-            }
-          }
-        }
-      }
-    }
+    drawSprites(y, stripLine, drawableCount, context);
 
     if(yStrip == STRIP_HEIGHT)
     {
@@ -1215,6 +1205,27 @@ void gameLoop(const LevelConfig& config) noexcept
   context.speedSprites[4].buffer = SPEEDO4;
 //  Z_POSITION zCactus = (100 << Z_POSITION_SHIFT);
 
+  switch(config.level)
+  {
+    case Level::Arizona:
+      context.background = BACKGROUND_ARIZONA;
+      context.backgroundPalette = BACKGROUND_ARIZONA_PALETTE;
+      context.backgroundHeight = BACKGROUND_ARIZONA_HEIGHT;
+      break;
+
+    case Level::Suburb:
+      context.background = BACKGROUND_ARIZONA;
+      context.backgroundPalette = BACKGROUND_ARIZONA_PALETTE;
+      context.backgroundHeight = BACKGROUND_ARIZONA_HEIGHT;
+      break;
+
+    default:
+      context.background = BACKGROUND_SKYLINE;
+      context.backgroundPalette = BACKGROUND_SKYLINE_PALETTE;
+      context.backgroundHeight = BACKGROUND_SKYLINE_HEIGHT;
+      break;
+  }
+
   SpriteDefinition dotSprite;
   dotSprite.width = DOT_WIDTH;
   dotSprite.height = DOT_HEIGHT;
@@ -1235,16 +1246,16 @@ void gameLoop(const LevelConfig& config) noexcept
   initDepthInfo(config, context, minSegmentSize, maxSegmentSize);
   initPalette(config.level, context);
 
-  context.segments[0].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
-  context.segments[0].zCurvature = random(-150, 400)/1000.f;
+  context.segments[0].xCurvature = random(-(config.xCurvature << ROAD_CURVATURE_X_SHIFT), (config.xCurvature << ROAD_CURVATURE_X_SHIFT));
+  context.segments[0].zCurvature = random(config.zCurvatureMin, config.zCurvatureMax)/1000.f;
   context.segments[0].segmentStartZ = 0;
 
-  context.segments[1].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
-  context.segments[1].zCurvature = random(-150, 400)/1000.f;
+  context.segments[1].xCurvature = random(-(config.xCurvature << ROAD_CURVATURE_X_SHIFT), (config.xCurvature << ROAD_CURVATURE_X_SHIFT));
+  context.segments[1].zCurvature = random(config.zCurvatureMin, config.zCurvatureMax)/1000.f;
   context.segments[1].segmentStartZ = 400 * (1 << Z_POSITION_SHIFT);//segments[0].segmentStartZ + random(minSegmentSize, maxSegmentSize);
 
-  context.segments[2].xCurvature = random(-(5 << ROAD_CURVATURE_X_SHIFT), (5 << ROAD_CURVATURE_X_SHIFT));
-  context.segments[2].zCurvature = random(-150, 400)/1000.f;
+  context.segments[2].xCurvature = random(-(config.xCurvature << ROAD_CURVATURE_X_SHIFT), (config.xCurvature << ROAD_CURVATURE_X_SHIFT));
+  context.segments[2].zCurvature = random(config.zCurvatureMin, config.zCurvatureMax)/1000.f;
   context.segments[2].segmentStartZ = context.segments[1].segmentStartZ + random(minSegmentSize, maxSegmentSize);
 
 
@@ -1392,9 +1403,16 @@ void gameLoop(const LevelConfig& config) noexcept
   ++drawableCount;
 
   gb.lights.drawImage(0, 0, carInfo.lights);
+
+  if(config.level == Level::Skyway)
+  {
+    drawFrameSkyway(gm, context, drawableCount, carInfo, backgroundShift);
+  }
+  else
+  {
+    drawFrame(gm, context, drawableCount, carInfo, backgroundShift);
+  }
   
-  //drawFrame(gm, context, drawableCount, carInfo, backgroundShift);
-  drawFrameSkyway(gm, context, drawableCount, carInfo, backgroundShift);
 
 /*if(carInfo.posZ > zCactus)
 {
@@ -1449,7 +1467,19 @@ void setup()
 
 void loop()
 {
-  LevelConfig config = levelSelectionMenu(Level::Suburb);
+  LevelConfig config;
+  if(gb.buttons.repeat(BUTTON_UP, 0))
+  {
+    config = levelSelectionMenu(Level::Suburb);
+  }
+  else if(gb.buttons.repeat(BUTTON_DOWN, 0))
+  {
+    config = levelSelectionMenu(Level::Skyway);
+  }
+  else
+  {
+    config = levelSelectionMenu(Level::Arizona);
+  }
 
   gameLoop(config);
 }

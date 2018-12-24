@@ -92,6 +92,9 @@ namespace roads
   struct LevelConfig
   {
     Level level;
+    int16_t xCurvature;
+    int16_t zCurvatureMin;
+    int16_t zCurvatureMax;
     uint8_t bumperWidth;
     uint8_t roadWidth;
     uint8_t lineWidth;
@@ -240,4 +243,7 @@ struct LevelContext
   StaticObstacle* staticObstacles;
   MovingObstacle* movingObstacles;
   Drawable* drawables;
+  const uint8_t* background;
+  const uint16_t* backgroundPalette;
+  uint16_t backgroundHeight;
 };
