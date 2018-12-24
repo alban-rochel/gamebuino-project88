@@ -12,7 +12,7 @@
 
 #define COLOR_565(r, g, b) (uint16_t)(COLOR_R(r) | COLOR_G_LOW(g) | COLOR_G_HIGH(g) | COLOR_B(b))
 
-#define BG_NAME "BACKGROUND_ARIZONA"
+#define BG_NAME "BACKGROUND_SKYLINE"
 
 int colorIndex(const QVector<QColor> palette, const QColor& color)
 {
@@ -28,14 +28,14 @@ int colorIndex(const QVector<QColor> palette, const QColor& color)
 
 int main(int, char)
 {
-    QImage img("C:\\temp\\arizona.tif");
+    QImage img("C:\\temp\\skyline.tif");
     if(img.isNull())
     {
         std::cout << "Failed opening" << std::endl;
         return 1;
     }
 
-    FILE* out = fopen("C:\\temp\\arizona.mph", "w");
+    FILE* out = fopen("C:\\temp\\slyline.mph", "w");
 
     // Compute palette, check that it is 16 colors max
     QVector<QColor> palette;

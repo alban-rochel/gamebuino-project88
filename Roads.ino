@@ -2,6 +2,7 @@
 
 #include "CarSprites.h"
 #include "BackgroundWest.h"
+#include "BackgroundSkyline.h"
 #include "Dashboard.h"
 #include "SoundEffects.h"
 
@@ -260,9 +261,17 @@ void initPalette(Level level, LevelContext& context) noexcept
   else if(level == Level::Suburb)
   {
     context.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(93, 130, 37); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(118, 160, 54);
+    context.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(255, 255, 255); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = context.trackPalette[COLOR_TRACK_BUMPER_INDEX];
+    context.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(186, 186, 186);
+    context.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 0, 0); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = context.trackPalette[COLOR_TRACK_LINE_INDEX]; 
+
+
+     /*
+      * context.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(93, 130, 37); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(118, 160, 54);
     context.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(100, 100, 100); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = context.trackPalette[COLOR_TRACK_BUMPER_INDEX];
     context.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(186, 186, 186);
-    context.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];  
+    context.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
+      */
   }
   else
   {
@@ -806,6 +815,322 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
 
 }
 
+void drawFrame(GraphicsManager& gm,
+                LevelContext& context,
+                unsigned int drawableCount,
+                const CarInfo& carInfo,
+                int16_t backgroundShift
+                ) noexcept
+{
+    uint16_t* strip = gm.StartFrame();
+  uint16_t* stripLine;
+  uint16_t* stripCursor = strip;
+
+  unsigned int yStrip = 1;
+
+  int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
+  unsigned int backgroundY(0);
+
+  for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip)
+  {
+    stripLine = stripCursor;
+    uint8_t depthLevel = context.lineToDepthLevel[y];
+    
+    if(depthLevel == SKY_Z)
+    {
+      // draw sky
+      backgroundY = y;
+      if(backgroundY >= BACKGROUND_SKYLINE_HEIGHT)
+      {
+        backgroundY = BACKGROUND_SKYLINE_HEIGHT-1;
+      }
+      uint16_t pixelsIndex = (backgroundY << 7) + (uint8_t)(actualShift);
+      const uint8_t* colorIndexes = &BACKGROUND_SKYLINE[pixelsIndex];
+      uint32_t color32;
+      uint32_t* stripCursor32 = (uint32_t*)stripCursor;
+      for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
+      {
+        color32 = BACKGROUND_SKYLINE_PALETTE[(*colorIndexes) >> 4] | ((uint32_t)BACKGROUND_SKYLINE_PALETTE[(*colorIndexes) & 0x0F]) << 16;
+        (*stripCursor32++) = color32;
+        ++colorIndexes;
+      }
+      stripCursor += SCREEN_WIDTH;
+    }
+    else
+    {
+      DepthInfo& di = context.depthLevels[depthLevel];
+      int16_t x = context.depthLevelToX[depthLevel];
+      
+      int altColor = (((uint16_t)(di.z + carInfo.posZ) >> (Z_POSITION_SHIFT + 2)) & 0x1);
+      uint16_t* currentPalette = context.trackPalette + (COLOR_TRACK_SIZE) * altColor;
+      int16_t col = 0;
+      const uint16_t& grassColor = currentPalette[COLOR_TRACK_GRASS_INDEX];
+      const uint16_t& bumperColor = currentPalette[COLOR_TRACK_BUMPER_INDEX];
+      const uint16_t& lineColor = currentPalette[COLOR_TRACK_LINE_INDEX];
+      const uint16_t& roadColor = currentPalette[COLOR_TRACK_ROAD_INDEX];
+      uint32_t grassColor32 = ((uint32_t)(grassColor) << 16) | grassColor;
+      uint32_t bumperColor32 = ((uint32_t)(bumperColor) << 16) | bumperColor;
+      uint32_t lineColor32 = ((uint32_t)(lineColor) << 16) | lineColor;
+      uint32_t roadColor32 = ((uint32_t)(roadColor) << 16) | roadColor;
+      int16_t target = x - di.lineRoadBumperWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      for(; col < target; ++col)
+      {
+        (*stripCursor++) = grassColor;
+      }
+      target = x - di.lineRoadWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      for(; col < target; ++col)
+      {
+        (*stripCursor++) = bumperColor;
+      }
+      target = x - di.lineWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      for(; col < target; ++col)
+      {
+        (*stripCursor++) = roadColor;
+      }
+      target = x + di.lineWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      for(; col < target; ++col)
+      {
+        (*stripCursor++) = lineColor;
+      }
+      target = x + di.lineRoadWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      for(; col < target; ++col)
+      {
+        (*stripCursor++) = roadColor;
+      }
+      target = x + di.lineRoadBumperWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      for(; col < target; ++col)
+      {
+        (*stripCursor++) = bumperColor;
+      }
+      for(; col < SCREEN_WIDTH; ++col)
+      {
+        (*stripCursor++) = grassColor;
+      }
+    }
+
+    for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
+    {
+      const Drawable& drawable = context.drawables[drawableIndex];
+      if(y >= drawable.yStart && y <= drawable.yEnd)
+      {
+        //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
+        const uint16_t* spriteBufferWithOffset = drawable.sprite->buffer + (drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern);
+        int16_t xIndex = drawable.xStart;
+        uint16_t color;
+        for(int16_t x = 0; x < drawable.sprite->width && xIndex < SCREEN_WIDTH; x+=drawable.zoomPattern, ++xIndex)
+        {
+          if(xIndex >= 0)
+          {
+            color = (*spriteBufferWithOffset++);
+            if(color != COLOR_565(0xFF, 0x00, 0xFF))
+            {
+              stripLine[xIndex] = color;
+            }
+          }
+        }
+      }
+    }
+
+    if(yStrip == STRIP_HEIGHT)
+    {
+      strip = gm.CommitStrip();
+      stripCursor = strip;
+      yStrip = 0;
+    }
+  }
+
+
+  gm.EndFrame();
+}
+
+void drawFrameSkyway(GraphicsManager& gm,
+                      LevelContext& context,
+                      unsigned int drawableCount,
+                      const CarInfo& carInfo,
+                      int16_t backgroundShift
+                      ) noexcept
+{
+    uint16_t* strip = gm.StartFrame();
+  uint16_t* stripLine;
+  uint16_t* stripCursor = strip;
+
+  unsigned int yStrip = 1;
+  int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
+  unsigned int backgroundY;
+uint8_t pulse = gb.frameCount << 4;
+  for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip)
+  {
+    stripLine = stripCursor;
+    uint8_t depthLevel = context.lineToDepthLevel[y];
+
+    backgroundY = y;
+    //if(depthLevel == SKY_Z)
+    {
+      // draw sky
+
+      if(backgroundY >= BACKGROUND_SKYLINE_HEIGHT)
+      {
+        backgroundY = BACKGROUND_SKYLINE_HEIGHT-1;
+      }
+      uint16_t pixelsIndex = (backgroundY << 7) + (uint8_t)(actualShift);
+      const uint8_t* colorIndexes = &BACKGROUND_SKYLINE[pixelsIndex];
+      uint32_t color32;
+      uint32_t* stripCursor32 = (uint32_t*)stripCursor;
+      for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
+      {
+        color32 = BACKGROUND_SKYLINE_PALETTE[(*colorIndexes) >> 4] | ((uint32_t)BACKGROUND_SKYLINE_PALETTE[(*colorIndexes) & 0x0F]) << 16;
+        (*stripCursor32++) = color32;
+        ++colorIndexes;
+      }
+    }
+    
+    if(depthLevel == SKY_Z)
+    {
+      stripCursor += SCREEN_WIDTH;
+    }
+    else
+    {
+DepthInfo& di = context.depthLevels[depthLevel];
+      int16_t x = context.depthLevelToX[depthLevel];
+      
+      int altColor = ((((uint16_t)(di.z + carInfo.posZ) >> (Z_POSITION_SHIFT + 2)) & 0x3) == 0);
+      uint16_t* currentPalette = context.trackPalette + (COLOR_TRACK_SIZE) * altColor;
+      int16_t col = 0;
+      const uint16_t& grassColor = currentPalette[COLOR_TRACK_GRASS_INDEX];
+      const uint16_t& bumperColor = COLOR_565(pulse, pulse, pulse);//currentPalette[COLOR_TRACK_BUMPER_INDEX];
+      const uint16_t& lineColor = COLOR_565(pulse, 0, 0);
+      const uint16_t& roadColor = currentPalette[COLOR_TRACK_ROAD_INDEX];
+      uint32_t grassColor32 = ((uint32_t)(grassColor) << 16) | grassColor;
+      uint32_t bumperColor32 = ((uint32_t)(bumperColor) << 16) | bumperColor;
+      uint32_t lineColor32 = ((uint32_t)(lineColor) << 16) | lineColor;
+      uint32_t roadColor32 = ((uint32_t)(roadColor) << 16) | roadColor;
+      int16_t target = x - di.lineRoadBumperWidth;
+      
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      if(target > col)
+      {
+        stripCursor += (target-col);
+        col = target;
+      }
+      target = x - di.lineRoadWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      for(; col < target; ++col)
+      {
+        (*stripCursor++) = bumperColor;
+      }
+      if(altColor)
+      {
+        target = x - di.lineWidth;
+        if(target >= SCREEN_WIDTH)
+        {
+          target = SCREEN_WIDTH - 1;
+        }
+        if(target > col)
+        {
+          stripCursor += (target-col);
+          col = target;
+        }
+        target = x + di.lineWidth;
+        if(target >= SCREEN_WIDTH)
+        {
+          target = SCREEN_WIDTH - 1;
+        }
+        for(; col < target; ++col)
+        {
+          (*stripCursor++) = lineColor;
+        }
+      }
+      target = x + di.lineRoadWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      if(target > col)
+      {
+        stripCursor += (target-col);
+        col = target;
+      }
+      target = x + di.lineRoadBumperWidth;
+      if(target >= SCREEN_WIDTH)
+      {
+        target = SCREEN_WIDTH - 1;
+      }
+      for(; col < target; ++col)
+      {
+        (*stripCursor++) = bumperColor;
+      }
+      if(SCREEN_WIDTH > col)
+      {
+        stripCursor += (SCREEN_WIDTH-col);
+        col = SCREEN_WIDTH;
+      }
+    }
+
+    for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
+    {
+      const Drawable& drawable = context.drawables[drawableIndex];
+      if(y >= drawable.yStart && y <= drawable.yEnd)
+      {
+        //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
+        const uint16_t* spriteBufferWithOffset = drawable.sprite->buffer + (drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern);
+        int16_t xIndex = drawable.xStart;
+        uint16_t color;
+        for(int16_t x = 0; x < drawable.sprite->width && xIndex < SCREEN_WIDTH; x+=drawable.zoomPattern, ++xIndex)
+        {
+          if(xIndex >= 0)
+          {
+            color = (*spriteBufferWithOffset++);
+            if(color != COLOR_565(0xFF, 0x00, 0xFF))
+            {
+              stripLine[xIndex] = color;
+            }
+          }
+        }
+      }
+    }
+
+    if(yStrip == STRIP_HEIGHT)
+    {
+      strip = gm.CommitStrip();
+      stripCursor = strip;
+      yStrip = 0;
+    }
+  }
+
+
+  gm.EndFrame();
+}
+
 /*const uint16_t startSound[] = {0x0005,0x338,0x3FC,0x254,0x1FC,0x25C,0x3FC,0x368,0x123};
 
 const Gamebuino_Meta::Sound_FX my_sfx[] = {
@@ -1068,149 +1393,8 @@ void gameLoop(const LevelConfig& config) noexcept
 
   gb.lights.drawImage(0, 0, carInfo.lights);
   
-  uint16_t* strip = gm.StartFrame();
-  uint16_t* stripLine;
-  uint16_t* stripCursor = strip;
-
-  unsigned int yStrip = 1;
-  //DepthInfo * currentZ = zMap;
-
-  for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip)
-  {
-    stripLine = stripCursor;
-    uint8_t depthLevel = context.lineToDepthLevel[y];
-
-int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
-    
-    if(depthLevel == SKY_Z)
-    {
-      // draw sky
-      uint16_t line = y;
-      if(y >= BACKGROUND_ARIZONA_HEIGHT)
-      {
-        y = BACKGROUND_ARIZONA_HEIGHT-1;
-      }
-      uint16_t pixelsIndex = (y << 7) + (uint8_t)(actualShift);
-      const uint8_t* colorIndexes = &BACKGROUND_ARIZONA[pixelsIndex];
-      uint32_t color32;
-      uint32_t* stripCursor32 = (uint32_t*)stripCursor;
-      for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
-      {
-        color32 = BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) >> 4] | ((uint32_t)BACKGROUND_ARIZONA_PALETTE[(*colorIndexes) & 0x0F]) << 16;
-        (*stripCursor32++) = color32;
-        ++colorIndexes;
-      }
-      stripCursor += SCREEN_WIDTH;
-    }
-    else
-    {
-      DepthInfo& di = context.depthLevels[depthLevel];
-      int16_t x = context.depthLevelToX[depthLevel];
-      
-      int altColor = (((uint16_t)(di.z + carInfo.posZ) >> (Z_POSITION_SHIFT + 2)) & 0x1);
-      uint16_t* currentPalette = context.trackPalette + (COLOR_TRACK_SIZE) * altColor;
-      int16_t col = 0;
-      const uint16_t& grassColor = currentPalette[COLOR_TRACK_GRASS_INDEX];
-      const uint16_t& bumperColor = currentPalette[COLOR_TRACK_BUMPER_INDEX];
-      const uint16_t& lineColor = currentPalette[COLOR_TRACK_LINE_INDEX];
-      const uint16_t& roadColor = currentPalette[COLOR_TRACK_ROAD_INDEX];
-      uint32_t grassColor32 = ((uint32_t)(grassColor) << 16) | grassColor;
-      uint32_t bumperColor32 = ((uint32_t)(bumperColor) << 16) | bumperColor;
-      uint32_t lineColor32 = ((uint32_t)(lineColor) << 16) | lineColor;
-      uint32_t roadColor32 = ((uint32_t)(roadColor) << 16) | roadColor;
-      int16_t target = x - di.lineRoadBumperWidth;
-      if(target >= SCREEN_WIDTH)
-      {
-        target = SCREEN_WIDTH - 1;
-      }
-      for(; col < target; ++col)
-      {
-        (*stripCursor++) = grassColor;
-      }
-      target = x - di.lineRoadWidth;
-      if(target >= SCREEN_WIDTH)
-      {
-        target = SCREEN_WIDTH - 1;
-      }
-      for(; col < target; ++col)
-      {
-        (*stripCursor++) = bumperColor;
-      }
-      target = x - di.lineWidth;
-      if(target >= SCREEN_WIDTH)
-      {
-        target = SCREEN_WIDTH - 1;
-      }
-      for(; col < target; ++col)
-      {
-        (*stripCursor++) = roadColor;
-      }
-      target = x + di.lineWidth;
-      if(target >= SCREEN_WIDTH)
-      {
-        target = SCREEN_WIDTH - 1;
-      }
-      for(; col < target; ++col)
-      {
-        (*stripCursor++) = lineColor;
-      }
-      target = x + di.lineRoadWidth;
-      if(target >= SCREEN_WIDTH)
-      {
-        target = SCREEN_WIDTH - 1;
-      }
-      for(; col < target; ++col)
-      {
-        (*stripCursor++) = roadColor;
-      }
-      target = x + di.lineRoadBumperWidth;
-      if(target >= SCREEN_WIDTH)
-      {
-        target = SCREEN_WIDTH - 1;
-      }
-      for(; col < target; ++col)
-      {
-        (*stripCursor++) = bumperColor;
-      }
-      for(; col < SCREEN_WIDTH; ++col)
-      {
-        (*stripCursor++) = grassColor;
-      }
-    }
-
-    for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
-    {
-      const Drawable& drawable = context.drawables[drawableIndex];
-      if(y >= drawable.yStart && y <= drawable.yEnd)
-      {
-        //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
-        const uint16_t* spriteBufferWithOffset = drawable.sprite->buffer + (drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern);
-        int16_t xIndex = drawable.xStart;
-        uint16_t color;
-        for(int16_t x = 0; x < drawable.sprite->width && xIndex < SCREEN_WIDTH; x+=drawable.zoomPattern, ++xIndex)
-        {
-          if(xIndex >= 0)
-          {
-            color = (*spriteBufferWithOffset++);
-            if(color != COLOR_565(0xFF, 0x00, 0xFF))
-            {
-              stripLine[xIndex] = color;
-            }
-          }
-        }
-      }
-    }
-
-    if(yStrip == STRIP_HEIGHT)
-    {
-      strip = gm.CommitStrip();
-      stripCursor = strip;
-      yStrip = 0;
-    }
-  }
-
-
-  gm.EndFrame();
+  //drawFrame(gm, context, drawableCount, carInfo, backgroundShift);
+  drawFrameSkyway(gm, context, drawableCount, carInfo, backgroundShift);
 
 /*if(carInfo.posZ > zCactus)
 {
