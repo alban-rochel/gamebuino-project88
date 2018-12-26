@@ -185,6 +185,9 @@ LevelConfig levelSelectionMenu(Level level) noexcept
     config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
     config.staticObstaclesIndexStart = 2;
     config.staticObstaclesIndexEnd = 3;
+    config.movingObstaclesCount = 0;
+    config.movingObstaclesIndexStart = 0;
+    config.movingObstaclesIndexEnd = 0;
   }
   else if(level == Level::Suburb)
   {
@@ -200,6 +203,9 @@ LevelConfig levelSelectionMenu(Level level) noexcept
     config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
     config.staticObstaclesIndexStart = 2;
     config.staticObstaclesIndexEnd = 3;
+    config.movingObstaclesCount = MAX_MOVING_OBSTACLES;
+    config.movingObstaclesIndexStart = 3;
+    config.movingObstaclesIndexEnd = 4;
   }
   else // Skyway
   {
@@ -215,6 +221,9 @@ LevelConfig levelSelectionMenu(Level level) noexcept
     config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
     config.staticObstaclesIndexStart = 2;
     config.staticObstaclesIndexEnd = 3;
+    config.movingObstaclesCount = MAX_MOVING_OBSTACLES;
+    config.movingObstaclesIndexStart = 3;
+    config.movingObstaclesIndexEnd = 4;
   }
 
 
@@ -437,7 +446,43 @@ void updateStaticObstacles(LevelContext& context, const CarInfo& carInfo, const 
   }
 }
 
-void updateMobileObstacles( LevelContext& context, const CarInfo& carInfo, const LevelConfig& config){}
+void createMovingObstacle(LevelContext& context, MovingObstacle& object, Z_POSITION zPos, const LevelConfig& config)
+{
+  object.posX = //random(- config.roadWidth/2, config.roadWidth/2);
+                //(random(0, 2)  ? -object.sprite->width : 0);
+                 random(-30, 30) + object.sprite->width/2;//random(- config.roadWidth/2, config.roadWidth/2 - object.sprite->width/2);
+  object.posZ = zPos + random(0, context.depthLevels[DEPTH_LEVEL_COUNT-1].z/2);
+  object.speedZ = random(2, 10) * 0.1f;
+  object.sprite = context.sprites + random(config.movingObstaclesIndexStart, config.movingObstaclesIndexEnd);
+}
+
+void createMovingObstacles(LevelContext& context, const LevelConfig& config)
+{
+    for(uint8_t index = 0; index < config.movingObstaclesCount; ++index)
+  {
+    MovingObstacle& object = context.movingObstacles[index];
+    createMovingObstacle(context, object, 0, config);
+  }
+}
+
+void updateMovingObstacles( LevelContext& context, const CarInfo& carInfo, const LevelConfig& config)
+{
+  Z_POSITION threshold;
+  for(uint8_t index = 0; index < config.movingObstaclesCount; ++index)
+  {
+    MovingObstacle& object = context.movingObstacles[index];
+    object.posZ += object.speedZ * 256;
+    threshold = carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-5].z;
+    if(object.posZ < carInfo.posZ)
+    {
+      createMovingObstacle(context, object, threshold, config);
+    }
+    if(object.posZ > threshold)
+    {
+      object.posZ = threshold;
+    }
+  }
+}
 
 uint8_t computeDrawable(LevelContext& context, int16_t posX, Z_POSITION posZ, SpriteDefinition* sprite, const CarInfo& carInfo, uint8_t index)
 {
@@ -506,9 +551,20 @@ uint8_t computeDrawables(LevelContext& context, const CarInfo& carInfo, const Le
                                         nextDrawableIndex);
   }
 
-    for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
+  for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
   {
     StaticObstacle& object = context.staticObstacles[index];
+    nextDrawableIndex = computeDrawable(context,
+                                        object.posX,
+                                        object.posZ,
+                                        object.sprite,
+                                        carInfo,
+                                        nextDrawableIndex);
+  }
+
+  for(uint8_t index = 0; index < config.movingObstaclesCount; ++index)
+  {
+    MovingObstacle& object = context.movingObstacles[index];
     nextDrawableIndex = computeDrawable(context,
                                         object.posX,
                                         object.posZ,
@@ -600,6 +656,22 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
         {
           object.validUntil = gb.frameCount + OBJECT_VALIDITY;
         }
+      }
+    }
+
+    for(uint8_t objectIndex = 0; objectIndex < config.movingObstaclesCount && collision != COLLISION_FRONT; ++objectIndex)
+    {
+      MovingObstacle& object = context.movingObstacles[objectIndex];
+      diffZ = object.posZ-carInfo.posZ;
+      if(diffZ < 0)
+      {
+        diffZ = -diffZ;
+      }
+    
+      if(diffZ <= (1 << Z_POSITION_SHIFT))
+      {
+        int8_t currentCollision = computeCollision(carXMin, carXMax, object.posX, object.sprite);
+        collision = collision | currentCollision;
       }
     }
   } // end compute collisions
@@ -839,7 +911,8 @@ void drawSprites(uint16_t y, uint16_t* stripLine,  unsigned int drawableCount, L
         {
           if(xIndex >= 0)
           {
-            color = (*spriteBufferWithOffset++);
+            color = (*spriteBufferWithOffset);
+            spriteBufferWithOffset += drawable.zoomPattern;
             if(color != COLOR_565(0xFF, 0x00, 0xFF))
             {
               stripLine[xIndex] = color;
@@ -1184,6 +1257,10 @@ void gameLoop(const LevelConfig& config) noexcept
   context.sprites[2].height = BOULDER_HEIGHT;
   context.sprites[2].buffer = BOULDER;
 
+  context.sprites[3].width = CAR_WIDTH;
+  context.sprites[3].height = CAR_HEIGHT;
+  context.sprites[3].buffer = CAR;
+
   context.speedSprites[0].width = SPEEDO0_WIDTH;
   context.speedSprites[0].height = SPEEDO0_HEIGHT;
   context.speedSprites[0].buffer = SPEEDO0;
@@ -1261,6 +1338,7 @@ void gameLoop(const LevelConfig& config) noexcept
 
   createSceneryObjects(context, config);
   createStaticObstacles(context, config);
+  createMovingObstacles(context, config);
 
   int16_t backgroundShift = 0; /* sign.11.4 */
 
@@ -1318,7 +1396,7 @@ void gameLoop(const LevelConfig& config) noexcept
 
     updateSceneryObjects(context, carInfo, config);
     updateStaticObstacles(context, carInfo, config);
-    updateMobileObstacles(context, carInfo, config);
+    updateMovingObstacles(context, carInfo, config);
 
     uint8_t drawableCount = computeDrawables(context, carInfo, config);
 
@@ -1468,18 +1546,18 @@ void setup()
 void loop()
 {
   LevelConfig config;
-  if(gb.buttons.repeat(BUTTON_UP, 0))
+  //if(gb.buttons.repeat(BUTTON_UP, 0))
   {
     config = levelSelectionMenu(Level::Suburb);
   }
-  else if(gb.buttons.repeat(BUTTON_DOWN, 0))
+  /*else if(gb.buttons.repeat(BUTTON_DOWN, 0))
   {
     config = levelSelectionMenu(Level::Skyway);
   }
   else
   {
     config = levelSelectionMenu(Level::Arizona);
-  }
+  }*/
 
   gameLoop(config);
 }

@@ -104,6 +104,9 @@ namespace roads
     uint8_t staticObstaclesCount;
     uint8_t staticObstaclesIndexStart;
     uint8_t staticObstaclesIndexEnd;
+    uint8_t movingObstaclesCount;
+    uint8_t movingObstaclesIndexStart;
+    uint8_t movingObstaclesIndexEnd;
   };
 }
 
@@ -122,7 +125,7 @@ namespace roads
 #define MAX_SPRITES 10
 #define MAX_SCENERY_OBJECTS 20
 #define MAX_STATIC_OBSTACLES 4
-#define MAX_MOVING_OBSTACLES 4
+#define MAX_MOVING_OBSTACLES 3
 #define MAX_DRAWABLES (MAX_SCENERY_OBJECTS + MAX_STATIC_OBSTACLES + MAX_MOVING_OBSTACLES + 1 /*car*/)
 
 /*
@@ -216,6 +219,7 @@ struct MovingObstacle
 {
   int16_t posX; // 0 is the center of the road
   Z_POSITION posZ;
+  float speedZ; // meters / frame. Max 1
   SpriteDefinition* sprite;  
 };
 
