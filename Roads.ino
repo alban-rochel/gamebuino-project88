@@ -1202,6 +1202,163 @@ const Gamebuino_Meta::Sound_FX my_sfx[] = {
   {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,70,0,0,224,1},
 };*/
 
+void titleLoop(const LevelConfig& config) noexcept
+{
+  resetAlloc();
+  uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
+  uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
+  GraphicsManager gm(strip1, strip2);
+
+  const uint16_t * palette;
+  uint16_t width, height;
+  const uint8_t* title;
+
+  switch(config.level)
+  {
+    case Level::Arizona:
+      palette = TITLE_ARIZONA_PALETTE;
+      width = TITLE_ARIZONA_WIDTH;
+      height = TITLE_ARIZONA_HEIGHT;
+      title = TITLE_ARIZONA;
+      break;
+
+    case Level::Suburb:
+      palette = TITLE_SUBURB_PALETTE;
+      width = TITLE_SUBURB_WIDTH;
+      height = TITLE_SUBURB_HEIGHT;
+      title = TITLE_SUBURB;
+      break;
+
+    default:
+      palette = TITLE_SKYWAY_PALETTE;
+      width = TITLE_SKYWAY_WIDTH;
+      height = TITLE_SKYWAY_HEIGHT;
+      title = TITLE_SKYWAY;
+      break;
+  }
+
+  uint16_t startY = (SCREEN_HEIGHT - height)/2;
+
+  uint8_t animationPhase = 0; //  0: sliding in, 1: waiting for button press, 2: sliding right
+  int16_t offset(-160);
+
+  while(true)
+  { 
+    while (!gb.update());
+
+   if(gb.buttons.repeat(BUTTON_A, 0) && animationPhase == 1)
+   {
+     animationPhase = 2;
+   }
+
+    uint32_t color32;
+
+    uint16_t* strip = gm.StartFrame();
+
+    unsigned int yStrip = 1;
+
+    uint16_t* stripCursor = strip;
+    //const uint8_t* colorIndexes = title;
+    
+    for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip)
+    {
+        uint32_t* stripCursor32 = (uint32_t*)stripCursor;
+       
+        if(y >= startY && y < startY + height)
+        {
+          const uint8_t* colorIndexes = &title[(y - startY) * 80];
+          switch(animationPhase)
+          {
+            case 0:
+            {
+              colorIndexes -= offset/2;
+              for(uint16_t ii = 0; ii < SCREEN_WIDTH + offset; ii+=2)
+              {
+                color32 = palette[(*colorIndexes) >> 4] | ((uint32_t)palette[(*colorIndexes) & 0x0F]) << 16;
+                (*stripCursor32++) = color32;
+                ++colorIndexes;
+              }
+              for(uint16_t ii = SCREEN_WIDTH + offset; ii < SCREEN_WIDTH; ii+=2)
+              {
+                (*stripCursor32++) = 0;
+              }
+            }
+            break;
+
+            case 2:
+            {
+              for(uint16_t ii = 0; ii < offset; ii+=2)
+              {
+                (*stripCursor32++) = 0;
+              }
+              for(uint16_t ii = offset; ii < SCREEN_WIDTH; ii+=2)
+              {
+                color32 = palette[(*colorIndexes) >> 4] | ((uint32_t)palette[(*colorIndexes) & 0x0F]) << 16;
+                (*stripCursor32++) = color32;
+                ++colorIndexes;
+              }
+            }
+            break;
+
+            default:
+            {
+              for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
+              {
+                color32 = palette[(*colorIndexes) >> 4] | ((uint32_t)palette[(*colorIndexes) & 0x0F]) << 16;
+                (*stripCursor32++) = color32;
+                ++colorIndexes;
+              }
+            }
+            break;
+          }
+
+
+        }
+        else
+        {
+          for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
+          {
+            (*stripCursor32++) = 0;
+          }
+        }
+
+       stripCursor += SCREEN_WIDTH;
+
+        
+      if(yStrip == STRIP_HEIGHT)
+      {
+        strip = gm.CommitStrip();
+        stripCursor = strip;
+        yStrip = 0;
+      }
+    }
+    
+    gm.EndFrame();
+
+    switch(animationPhase)
+    {
+      case 0:
+        offset+=4;
+        if(offset == 0)
+        {
+          animationPhase = 1;
+        }
+        break;
+
+      case 2:
+        offset+=4;
+        if(offset == 160)
+        {
+          return;
+        }
+        break;
+
+      default:
+        break;
+    }
+  }
+}
+
 void gameLoop(const LevelConfig& config) noexcept
 {
   //gb.sound.fx(my_sfx);
@@ -1546,18 +1703,20 @@ void setup()
 void loop()
 {
   LevelConfig config;
-  //if(gb.buttons.repeat(BUTTON_UP, 0))
+  if(gb.buttons.repeat(BUTTON_UP, 0))
   {
     config = levelSelectionMenu(Level::Suburb);
   }
-  /*else if(gb.buttons.repeat(BUTTON_DOWN, 0))
+  else if(gb.buttons.repeat(BUTTON_DOWN, 0))
   {
     config = levelSelectionMenu(Level::Skyway);
   }
   else
   {
     config = levelSelectionMenu(Level::Arizona);
-  }*/
+  }
+
+  titleLoop(config);
 
   gameLoop(config);
 }
