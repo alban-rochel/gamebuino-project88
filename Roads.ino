@@ -3,6 +3,7 @@
 #include "CarSprites.h"
 #include "BackgroundWest.h"
 #include "BackgroundSkyline.h"
+#include "Title.h"
 #include "Dashboard.h"
 #include "SoundEffects.h"
 
@@ -1202,40 +1203,12 @@ const Gamebuino_Meta::Sound_FX my_sfx[] = {
   {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,70,0,0,224,1},
 };*/
 
-void titleLoop(const LevelConfig& config) noexcept
+void titleLoop(/*const LevelConfig& config*/const uint8_t* title, const uint16_t* palette, uint16_t width, uint16_t height) noexcept
 {
   resetAlloc();
   uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
   uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
   GraphicsManager gm(strip1, strip2);
-
-  const uint16_t * palette;
-  uint16_t width, height;
-  const uint8_t* title;
-
-  switch(config.level)
-  {
-    case Level::Arizona:
-      palette = TITLE_ARIZONA_PALETTE;
-      width = TITLE_ARIZONA_WIDTH;
-      height = TITLE_ARIZONA_HEIGHT;
-      title = TITLE_ARIZONA;
-      break;
-
-    case Level::Suburb:
-      palette = TITLE_SUBURB_PALETTE;
-      width = TITLE_SUBURB_WIDTH;
-      height = TITLE_SUBURB_HEIGHT;
-      title = TITLE_SUBURB;
-      break;
-
-    default:
-      palette = TITLE_SKYWAY_PALETTE;
-      width = TITLE_SKYWAY_WIDTH;
-      height = TITLE_SKYWAY_HEIGHT;
-      title = TITLE_SKYWAY;
-      break;
-  }
 
   uint16_t startY = (SCREEN_HEIGHT - height)/2;
 
@@ -1346,7 +1319,7 @@ void titleLoop(const LevelConfig& config) noexcept
         break;
 
       case 2:
-        offset+=4;
+        offset+=8;
         if(offset == 160)
         {
           return;
@@ -1702,6 +1675,8 @@ void setup()
 
 void loop()
 {
+  titleLoop(TITLE, TITLE_PALETTE, TITLE_WIDTH, TITLE_HEIGHT);
+  
   LevelConfig config;
   if(gb.buttons.repeat(BUTTON_UP, 0))
   {
@@ -1716,7 +1691,35 @@ void loop()
     config = levelSelectionMenu(Level::Arizona);
   }
 
-  titleLoop(config);
+  const uint16_t * palette;
+  uint16_t width, height;
+  const uint8_t* title;
+
+  switch(config.level)
+  {
+    case Level::Arizona:
+      palette = TITLE_ARIZONA_PALETTE;
+      width = TITLE_ARIZONA_WIDTH;
+      height = TITLE_ARIZONA_HEIGHT;
+      title = TITLE_ARIZONA;
+      break;
+
+    case Level::Suburb:
+      palette = TITLE_SUBURB_PALETTE;
+      width = TITLE_SUBURB_WIDTH;
+      height = TITLE_SUBURB_HEIGHT;
+      title = TITLE_SUBURB;
+      break;
+
+    default:
+      palette = TITLE_SKYWAY_PALETTE;
+      width = TITLE_SKYWAY_WIDTH;
+      height = TITLE_SKYWAY_HEIGHT;
+      title = TITLE_SKYWAY;
+      break;
+  }
+
+  titleLoop(title, palette, width, height);
 
   gameLoop(config);
 }
