@@ -180,6 +180,7 @@ struct CarInfo
 //  float accelX;
   const uint16_t* lights;
   SpriteDefinition* fluxSprite;
+  bool fluxed; // goal reached
 };
 
 struct DepthInfo

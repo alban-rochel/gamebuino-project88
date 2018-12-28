@@ -893,6 +893,13 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
     
   }
 
+  if(capacitorCharge >= 300)
+    {
+      SerialUSB.printf("FLUXING\n");
+      carInfo.fluxed = true;
+      capacitorCharge = 0;
+    }
+
   gb.sound.fx(currentFx);
 
 }
@@ -1332,7 +1339,7 @@ void titleLoop(/*const LevelConfig& config*/const uint8_t* title, const uint16_t
   }
 }
 
-void gameLoop(const LevelConfig& config) noexcept
+int gameLoop(const LevelConfig& config) noexcept
 {
   //gb.sound.fx(my_sfx);
   
@@ -1449,6 +1456,7 @@ void gameLoop(const LevelConfig& config) noexcept
   carInfo.posZ = 0;
   carInfo.speedZ = 0.f;
   carInfo.speedX = 0.f;
+  carInfo.fluxed = false;
 
   initDepthInfo(config, context, minSegmentSize, maxSegmentSize);
   initPalette(config.level, context);
@@ -1620,6 +1628,11 @@ void gameLoop(const LevelConfig& config) noexcept
   {
     drawFrame(gm, context, drawableCount, carInfo, backgroundShift);
   }
+
+  if(carInfo.fluxed)
+  {
+    return 0;
+  }
   
 
 /*if(carInfo.posZ > zCactus)
@@ -1648,6 +1661,8 @@ root = SD.open("/Roads");
   printDirectory(root, 0);*/
     }
   }
+
+  return 0;
   
 }
 
@@ -1673,53 +1688,85 @@ void setup()
   nextAvailableSegment = memory;
 }
 
+int runLevel(const LevelConfig& config) noexcept
+{
+    const uint16_t * palette;
+    uint16_t width, height;
+    const uint8_t* title;
+  
+    switch(config.level)
+    {
+      case Level::Arizona:
+        palette = TITLE_ARIZONA_PALETTE;
+        width = TITLE_ARIZONA_WIDTH;
+        height = TITLE_ARIZONA_HEIGHT;
+        title = TITLE_ARIZONA;
+        break;
+  
+      case Level::Suburb:
+        palette = TITLE_SUBURB_PALETTE;
+        width = TITLE_SUBURB_WIDTH;
+        height = TITLE_SUBURB_HEIGHT;
+        title = TITLE_SUBURB;
+        break;
+  
+      default:
+        palette = TITLE_SKYWAY_PALETTE;
+        width = TITLE_SKYWAY_WIDTH;
+        height = TITLE_SKYWAY_HEIGHT;
+        title = TITLE_SKYWAY;
+        break;
+    }
+  
+    titleLoop(title, palette, width, height);
+
+  return gameLoop(config);
+}
+
 void loop()
 {
-  titleLoop(TITLE, TITLE_PALETTE, TITLE_WIDTH, TITLE_HEIGHT);
+  while(true)
+  {
+    titleLoop(TITLE, TITLE_PALETTE, TITLE_WIDTH, TITLE_HEIGHT);
+    
+    LevelConfig config;
+    if(gb.buttons.repeat(BUTTON_UP, 0))
+    {
+      config = levelSelectionMenu(Level::Suburb);
+    }
+    else if(gb.buttons.repeat(BUTTON_DOWN, 0))
+    {
+      config = levelSelectionMenu(Level::Skyway);
+    }
+    else
+    {
+      config = levelSelectionMenu(Level::Arizona);
+    }
   
-  LevelConfig config;
-  if(gb.buttons.repeat(BUTTON_UP, 0))
-  {
-    config = levelSelectionMenu(Level::Suburb);
+    if(runLevel(config) == 0) // level successful
+    {
+      config = levelSelectionMenu(Level::Suburb);
+      if(runLevel(config) == 0) // level successful
+      {
+        config = levelSelectionMenu(Level::Skyway);
+        if(runLevel(config) == 0) // level successful
+        {
+          titleLoop(SUCCESS, SUCCESS_PALETTE, SUCCESS_WIDTH, SUCCESS_HEIGHT);
+        }
+        else
+        {
+          titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT);
+        }
+      }
+      else
+      {
+        titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT);
+      }
+    }
+    else
+    {
+      titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT);
+    }
+      
   }
-  else if(gb.buttons.repeat(BUTTON_DOWN, 0))
-  {
-    config = levelSelectionMenu(Level::Skyway);
-  }
-  else
-  {
-    config = levelSelectionMenu(Level::Arizona);
-  }
-
-  const uint16_t * palette;
-  uint16_t width, height;
-  const uint8_t* title;
-
-  switch(config.level)
-  {
-    case Level::Arizona:
-      palette = TITLE_ARIZONA_PALETTE;
-      width = TITLE_ARIZONA_WIDTH;
-      height = TITLE_ARIZONA_HEIGHT;
-      title = TITLE_ARIZONA;
-      break;
-
-    case Level::Suburb:
-      palette = TITLE_SUBURB_PALETTE;
-      width = TITLE_SUBURB_WIDTH;
-      height = TITLE_SUBURB_HEIGHT;
-      title = TITLE_SUBURB;
-      break;
-
-    default:
-      palette = TITLE_SKYWAY_PALETTE;
-      width = TITLE_SKYWAY_WIDTH;
-      height = TITLE_SKYWAY_HEIGHT;
-      title = TITLE_SKYWAY;
-      break;
-  }
-
-  titleLoop(title, palette, width, height);
-
-  gameLoop(config);
 }

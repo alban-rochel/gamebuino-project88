@@ -12,7 +12,7 @@
 
 #define COLOR_565(r, g, b) (uint16_t)(COLOR_R(r) | COLOR_G_LOW(g) | COLOR_G_HIGH(g) | COLOR_B(b))
 
-#define BG_NAME "TITLE"
+#define BG_NAME "GAME_OVER"
 
 int colorIndex(const QVector<QColor> palette, const QColor& color)
 {
@@ -28,14 +28,14 @@ int colorIndex(const QVector<QColor> palette, const QColor& color)
 
 int main(int, char)
 {
-    QImage img("C:\\temp\\project88.tif");
+    QImage img("C:\\temp\\gameover.tif");
     if(img.isNull())
     {
         std::cout << "Failed opening" << std::endl;
         return 1;
     }
 
-    FILE* out = fopen("C:\\temp\\project88.mph", "w");
+    FILE* out = fopen("C:\\temp\\gameover.mph", "w");
 
     // Compute palette, check that it is 16 colors max
     QVector<QColor> palette;

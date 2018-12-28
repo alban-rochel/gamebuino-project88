@@ -12,7 +12,7 @@ using namespace roads;
 #define DMA_DESC_COUNT (3)
 #endif
 
-#define DEBUG_PERF
+//#define DEBUG_PERF
 
 namespace Gamebuino_Meta
 {
