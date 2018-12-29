@@ -2,6 +2,7 @@
 
 #include "CarSprites.h"
 #include "BackgroundWest.h"
+#include "BackgroundSuburb.h"
 #include "BackgroundSkyline.h"
 #include "Title.h"
 #include "Dashboard.h"
@@ -14,6 +15,7 @@ uint8_t memory[MEMORY_SEGMENT_SIZE];
 void* nextAvailableSegment;
 
 int16_t capacitorCharge;
+Z_POSITION remainingFuel;
 
 const Gamebuino_Meta::Sound_FX* currentFx;
 
@@ -833,6 +835,7 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
 
   carInfo.posX += carInfo.speedX;
   carInfo.posZ += carInfo.speedZ * 256;
+  remainingFuel -= carInfo.speedZ * 256;
 
   if(lightPattern)
   {
@@ -1428,9 +1431,9 @@ int gameLoop(const LevelConfig& config) noexcept
       break;
 
     case Level::Suburb:
-      context.background = BACKGROUND_ARIZONA;
-      context.backgroundPalette = BACKGROUND_ARIZONA_PALETTE;
-      context.backgroundHeight = BACKGROUND_ARIZONA_HEIGHT;
+      context.background = BACKGROUND_SUBURB;
+      context.backgroundPalette = BACKGROUND_SUBURB_PALETTE;
+      context.backgroundHeight = BACKGROUND_SUBURB_HEIGHT;
       break;
 
     default:
@@ -1585,15 +1588,32 @@ int gameLoop(const LevelConfig& config) noexcept
   ++drawableCount;
 
 
+
       {
+        uint16_t fuelOffset = ((MAX_FUEL - remainingFuel) >> 17);
     Drawable& drawable = context.drawables[drawableCount];
     drawable.sprite = &context.fuelSprites[1];
     drawable.xStart = 0;
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height - 4;
-    drawable.yEnd = drawable.yStart + ((drawable.sprite->height * carInfo.posZ) >> 18) - 1;
+    drawable.yEnd = drawable.yStart + fuelOffset - 1;
     drawable.zoomPattern = 1;
+            if(fuelOffset >= drawable.sprite->height - 4) // blink
+        {
+          if((gb.frameCount >> 4) & 0x01)
+          {
+            ++drawableCount;
+          }
+        }
+        else
+        {
+          ++drawableCount;
+        }
+
+        if(fuelOffset >= drawable.sprite->height)
+        {
+          return 1; // game over
+        }
   }
-  ++drawableCount;
 
     {
     Drawable& drawable = context.drawables[drawableCount];
@@ -1728,6 +1748,8 @@ void loop()
   while(true)
   {
     titleLoop(TITLE, TITLE_PALETTE, TITLE_WIDTH, TITLE_HEIGHT);
+
+    remainingFuel = MAX_FUEL;
     
     LevelConfig config;
     if(gb.buttons.repeat(BUTTON_UP, 0))

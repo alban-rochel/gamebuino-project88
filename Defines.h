@@ -168,6 +168,8 @@ struct SpriteDefinition
   const uint16_t* buffer;
 };
 
+#define MAX_FUEL (10000 << Z_POSITION_SHIFT)
+
 struct CarInfo
 {
   CarSprite sprite;
