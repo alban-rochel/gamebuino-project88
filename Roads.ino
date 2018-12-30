@@ -621,6 +621,7 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
   bool offRoad        = (carInfo.posX < -config.roadWidth/2 || carInfo.posX > config.roadWidth/2);
   const uint16_t* lightPattern = nullptr;
 
+
   // Compute collisions
   int8_t collision = 0;
   {
@@ -662,6 +663,8 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
       }
     }
 
+   
+
     for(uint8_t objectIndex = 0; objectIndex < config.movingObstaclesCount && collision != COLLISION_FRONT; ++objectIndex)
     {
       MovingObstacle& object = context.movingObstacles[objectIndex];
@@ -677,6 +680,26 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
         collision = collision | currentCollision;
       }
     }
+
+              // If skyway, collision against boundaries
+      if(config.level == Level::Skyway)
+      {
+        if(carInfo.posX < -config.roadWidth/2)
+        {
+          collision = collision | COLLISION_LEFT;
+          turningRight = false;
+          turningLeft = true;
+          carInfo.posX = -config.roadWidth/2;
+        }
+        else if(carInfo.posX > config.roadWidth/2)
+        {
+          collision = collision | COLLISION_RIGHT;
+          turningRight = true;
+          turningLeft = false;
+          carInfo.posX = config.roadWidth/2;
+        }
+      }
+
   } // end compute collisions
 
   float accelerationValue(0);
@@ -1342,7 +1365,7 @@ void titleLoop(/*const LevelConfig& config*/const uint8_t* title, const uint16_t
   }
 }
 
-int gameLoop(const LevelConfig& config) noexcept
+int gameLoop(LevelConfig& config) noexcept
 {
   //gb.sound.fx(my_sfx);
   
@@ -1365,6 +1388,79 @@ int gameLoop(const LevelConfig& config) noexcept
   context.movingObstacles   = (MovingObstacle*)   mphAlloc(MAX_MOVING_OBSTACLES * sizeof(MovingObstacle));
   context.drawables         = (Drawable*)         mphAlloc(MAX_DRAWABLES * sizeof(Drawable));
 
+  if(config.level == Level::Arizona)
+  {
+    context.sprites[0].width = CACTUS_WIDTH;
+    context.sprites[0].height = CACTUS_HEIGHT;
+    context.sprites[0].buffer = CACTUS;
+  
+    context.sprites[1].width = BUSH_WIDTH;
+    context.sprites[1].height = BUSH_HEIGHT;
+    context.sprites[1].buffer = BUSH;
+  
+    context.sprites[2].width = BOULDER_WIDTH;
+    context.sprites[2].height = BOULDER_HEIGHT;
+    context.sprites[2].buffer = BOULDER;
+    
+    config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
+    config.sceneryObjectsIndexStart = 0;
+    config.sceneryObjectsIndexEnd = 3;
+    config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
+    config.staticObstaclesIndexStart = 2;
+    config.staticObstaclesIndexEnd = 3;
+    config.movingObstaclesCount = 0;
+    config.movingObstaclesIndexStart = 0;
+    config.movingObstaclesIndexEnd = 0;
+  }
+  else if(config.level == Level::Suburb)
+  {
+    context.sprites[0].width = TREE_WIDTH;
+    context.sprites[0].height = TREE_HEIGHT;
+    context.sprites[0].buffer = TREE;
+  
+    context.sprites[1].width = BUSH_WIDTH;
+    context.sprites[1].height = BUSH_HEIGHT;
+    context.sprites[1].buffer = BUSH;
+  
+    context.sprites[2].width = CAR_WIDTH;
+    context.sprites[2].height = CAR_HEIGHT;
+    context.sprites[2].buffer = CAR;
+    
+    config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
+    config.sceneryObjectsIndexStart = 0;
+    config.sceneryObjectsIndexEnd = 2;
+    config.staticObstaclesCount = 0;
+    config.staticObstaclesIndexStart = 0;
+    config.staticObstaclesIndexEnd = 2;
+    config.movingObstaclesCount = 2;
+    config.movingObstaclesIndexStart = 2;
+    config.movingObstaclesIndexEnd = 3;
+  }
+  else // Skyway
+  {
+    context.sprites[0].width = CACTUS_WIDTH;
+    context.sprites[0].height = CACTUS_HEIGHT;
+    context.sprites[0].buffer = CACTUS;
+  
+    context.sprites[1].width = BUSH_WIDTH;
+    context.sprites[1].height = BUSH_HEIGHT;
+    context.sprites[1].buffer = BUSH;
+  
+    context.sprites[2].width = BOULDER_WIDTH;
+    context.sprites[2].height = BOULDER_HEIGHT;
+    context.sprites[2].buffer = BOULDER;
+    
+    config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
+    config.sceneryObjectsIndexStart = 0;
+    config.sceneryObjectsIndexEnd = 3;
+    config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
+    config.staticObstaclesIndexStart = 2;
+    config.staticObstaclesIndexEnd = 3;
+    config.movingObstaclesCount = 0;
+    config.movingObstaclesIndexStart = 0;
+    config.movingObstaclesIndexEnd = 0;
+  }
+
   context.carSprites[0].width = CAR_WIDTH;
   context.carSprites[0].height = CAR_HEIGHT;
   context.carSprites[0].buffer = CAR;
@@ -1385,21 +1481,9 @@ int gameLoop(const LevelConfig& config) noexcept
   context.fuelSprites[1].height = FUELE_HEIGHT;
   context.fuelSprites[1].buffer = FUELE;
 
-  context.sprites[0].width = CACTUS_WIDTH;
-  context.sprites[0].height = CACTUS_HEIGHT;
-  context.sprites[0].buffer = CACTUS;
-
-  context.sprites[1].width = BUSH_WIDTH;
-  context.sprites[1].height = BUSH_HEIGHT;
-  context.sprites[1].buffer = BUSH;
-
-  context.sprites[2].width = BOULDER_WIDTH;
-  context.sprites[2].height = BOULDER_HEIGHT;
-  context.sprites[2].buffer = BOULDER;
-
-  context.sprites[3].width = CAR_WIDTH;
+  /*context.sprites[3].width = CAR_WIDTH;
   context.sprites[3].height = CAR_HEIGHT;
-  context.sprites[3].buffer = CAR;
+  context.sprites[3].buffer = CAR;*/
 
   context.speedSprites[0].width = SPEEDO0_WIDTH;
   context.speedSprites[0].height = SPEEDO0_HEIGHT;
@@ -1708,7 +1792,7 @@ void setup()
   nextAvailableSegment = memory;
 }
 
-int runLevel(const LevelConfig& config) noexcept
+int runLevel(LevelConfig& config) noexcept
 {
     const uint16_t * palette;
     uint16_t width, height;
