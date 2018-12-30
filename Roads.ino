@@ -1422,9 +1422,9 @@ int gameLoop(LevelConfig& config) noexcept
     context.sprites[1].height = BUSH_HEIGHT;
     context.sprites[1].buffer = BUSH;
   
-    context.sprites[2].width = CAR_WIDTH;
-    context.sprites[2].height = CAR_HEIGHT;
-    context.sprites[2].buffer = CAR;
+    context.sprites[2].width = CAR_SUBURB_WIDTH;
+    context.sprites[2].height = CAR_SUBURB_HEIGHT;
+    context.sprites[2].buffer = CAR_SUBURB;
     
     config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
     config.sceneryObjectsIndexStart = 0;
