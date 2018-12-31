@@ -1438,27 +1438,27 @@ int gameLoop(LevelConfig& config) noexcept
   }
   else // Skyway
   {
-    context.sprites[0].width = CACTUS_WIDTH;
-    context.sprites[0].height = CACTUS_HEIGHT;
-    context.sprites[0].buffer = CACTUS;
+    context.sprites[0].width = TREE_WIDTH;
+    context.sprites[0].height = TREE_HEIGHT;
+    context.sprites[0].buffer = TREE;
   
     context.sprites[1].width = BUSH_WIDTH;
     context.sprites[1].height = BUSH_HEIGHT;
     context.sprites[1].buffer = BUSH;
   
-    context.sprites[2].width = BOULDER_WIDTH;
-    context.sprites[2].height = BOULDER_HEIGHT;
-    context.sprites[2].buffer = BOULDER;
+    context.sprites[2].width = POLICE_WIDTH;
+    context.sprites[2].height = POLICE_HEIGHT;
+    context.sprites[2].buffer = POLICE;
     
-    config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
+    config.sceneryObjectsCount = 0;
     config.sceneryObjectsIndexStart = 0;
-    config.sceneryObjectsIndexEnd = 3;
-    config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
-    config.staticObstaclesIndexStart = 2;
-    config.staticObstaclesIndexEnd = 3;
-    config.movingObstaclesCount = 0;
-    config.movingObstaclesIndexStart = 0;
-    config.movingObstaclesIndexEnd = 0;
+    config.sceneryObjectsIndexEnd = 2;
+    config.staticObstaclesCount = 0;
+    config.staticObstaclesIndexStart = 0;
+    config.staticObstaclesIndexEnd = 2;
+    config.movingObstaclesCount = 2;
+    config.movingObstaclesIndexStart = 2;
+    config.movingObstaclesIndexEnd = 3;
   }
 
   context.carSprites[0].width = CAR_WIDTH;
