@@ -1,10 +1,10 @@
 #include "GraphicsManager.h"
 
-#include "CarSprites.h"
-#include "BackgroundWest.h"
-#include "BackgroundSuburb.h"
-#include "BackgroundSkyline.h"
-#include "Title.h"
+#include "Car.h"
+#include "WildWest.h"
+#include "Suburb.h"
+#include "SkyWay.h"
+#include "Titles.h"
 #include "Dashboard.h"
 #include "SoundEffects.h"
 
@@ -1509,9 +1509,9 @@ int gameLoop(LevelConfig& config) noexcept
   switch(config.level)
   {
     case Level::Arizona:
-      context.background = BACKGROUND_ARIZONA;
-      context.backgroundPalette = BACKGROUND_ARIZONA_PALETTE;
-      context.backgroundHeight = BACKGROUND_ARIZONA_HEIGHT;
+      context.background = BACKGROUND_WILDWEST;
+      context.backgroundPalette = BACKGROUND_WILDWEST_PALETTE;
+      context.backgroundHeight = BACKGROUND_WILDWEST_HEIGHT;
       break;
 
     case Level::Suburb:
@@ -1521,9 +1521,9 @@ int gameLoop(LevelConfig& config) noexcept
       break;
 
     default:
-      context.background = BACKGROUND_SKYLINE;
-      context.backgroundPalette = BACKGROUND_SKYLINE_PALETTE;
-      context.backgroundHeight = BACKGROUND_SKYLINE_HEIGHT;
+      context.background = BACKGROUND_SKYWAY;
+      context.backgroundPalette = BACKGROUND_SKYWAY_PALETTE;
+      context.backgroundHeight = BACKGROUND_SKYWAY_HEIGHT;
       break;
   }
 
@@ -1801,10 +1801,10 @@ int runLevel(LevelConfig& config) noexcept
     switch(config.level)
     {
       case Level::Arizona:
-        palette = TITLE_ARIZONA_PALETTE;
-        width = TITLE_ARIZONA_WIDTH;
-        height = TITLE_ARIZONA_HEIGHT;
-        title = TITLE_ARIZONA;
+        palette = TITLE_WILDWEST_PALETTE;
+        width = TITLE_WILDWEST_WIDTH;
+        height = TITLE_WILDWEST_HEIGHT;
+        title = TITLE_WILDWEST;
         break;
   
       case Level::Suburb:
