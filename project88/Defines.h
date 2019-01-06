@@ -2,6 +2,10 @@
 
 #include <Gamebuino-Meta.h>
 
+#define likely(x)       __builtin_expect((x),1)
+#define unlikely(x)     __builtin_expect((x),0)
+#define force_inline    __attribute__((always_inline))
+
 namespace Gamebuino_Meta
 {
   static SPISettings tftSPISettings = SPISettings(24000000, MSBFIRST, SPI_MODE0);

@@ -19,7 +19,7 @@ Z_POSITION remainingFuel;
 
 const Gamebuino_Meta::Sound_FX* currentFx;
 
-float accelFromSpeed(float speed)
+force_inline float accelFromSpeed(float speed) noexcept
 {
   // max speed : MAX_SPEED_Z
 
@@ -36,28 +36,7 @@ float accelFromSpeed(float speed)
   
 }
 
-void printDirectory(File dir, int numTabs) {
-  if(!dir)
-    return;
-  while (true)
-  {
-
-    File entry =  dir.openNextFile();
-    if (! entry) {
-      // no more files
-      return;
-    }
-    for (uint8_t i = 0; i < numTabs; i++) {
-      SerialUSB.printf("\t");
-    }
-    char name[20];
-    entry.getName(name, 20);
-    SerialUSB.printf("%s\n", name);
-    entry.close();
-  }
-}
-
-inline void* mphAlloc(uint16_t size)
+void* mphAlloc(uint16_t size) noexcept
 {
   if(nextAvailableSegment + size >= memory + MEMORY_SEGMENT_SIZE)
   {
@@ -70,104 +49,17 @@ inline void* mphAlloc(uint16_t size)
   return res;
 }
 
-void resetAlloc()
+void resetAlloc() noexcept
 {
   nextAvailableSegment = memory;
 }
 
-int32_t allocFreeRam()
+int32_t allocFreeRam() noexcept
 {
   return memory + MEMORY_SEGMENT_SIZE - (uint8_t*)nextAvailableSegment;
 }
 
 extern SdFat SD;
-
-void displayFile(const char* filename)
-{
-  resetAlloc();
-  uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
-  uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
-  GraphicsManager gm(strip1, strip2);
-
-SdFile rdfile(filename, O_READ);
-
-  // check for open error
-  if (!rdfile.isOpen())
-  {
-    SerialUSB.printf("Failed opening file %s\n", filename);
-    return;
-  }
-
-SerialUSB.printf("Size %i\n", rdfile.available());
-
-  uint16_t* strip = gm.StartFrame();
-  uint16_t* stripCursor = strip;
-
-  for(unsigned int y = 0; y < 2/*SCREEN_HEIGHT/8*/; ++y)
-  {
-    for(unsigned int index = 0; index < STRIP_SIZE_BYTES; ++index)
-    {
-      stripCursor[index] = rdfile.read();
-    }
-    strip = gm.CommitStrip();
-    stripCursor = strip;
-
-  }
-
-   gm.EndFrame();
-   
-  /*bool exists = SD.exists(filename);
-  
-  if(!exists)
-  {
-    SerialUSB.printf("Cannot find file %s\n", filename);
-    {
-      SerialUSB.printf("Content of /Roads\n");
-      File root = SD.open("/Roads");
-      printDirectory(root, 0);
-      root.close();
-    }
-    {
-      SerialUSB.printf("Content of /\n");
-      File root = SD.open("/");
-      printDirectory(root, 0);
-      root.close();
-    }
-    return;
-  }
-
-  File f = SD.open(filename, FILE_READ);
-  if(!f)
-  {
-        SerialUSB.printf("Failed opening file %s\n", filename);
-    return;
-  }
-
-  uint16_t* strip = gm.StartFrame();
-  uint16_t* stripCursor = strip;
-
-  for(unsigned int y = 0; y < SCREEN_HEIGHT/8; ++y)
-  {
-    for(unsigned int line = 0; line < 8; ++line)
-    {
-      
-      int size = f.read(stripCursor, 160);
-      SerialUSB.printf("size1: %i\n", size);
-      f.flush();
-      stripCursor+=160;
-      size = f.read(stripCursor, 160);
-      SerialUSB.printf("size2: %i\n", size);
-      f.flush();
-      stripCursor+=160;
-    }
-    strip = gm.CommitStrip();
-    stripCursor = strip;
-
-  }
-
-   gm.EndFrame();
-  f.close();*/
-}
 
 LevelConfig levelSelectionMenu(Level level) noexcept
 {
@@ -300,7 +192,7 @@ void initPalette(Level level, LevelContext& context) noexcept
   }
 }
 
-void computeTurns(CarInfo& carInfo, LevelContext& context) noexcept
+force_inline void computeTurns(CarInfo& carInfo, LevelContext& context) noexcept
 {
   context.depthLevelToX[0] = SCREEN_WIDTH / 2 + carInfo.posX;
   float x = context.depthLevelToX[0];
@@ -339,7 +231,7 @@ void computeTurns(CarInfo& carInfo, LevelContext& context) noexcept
   }
 }
 
-void computeHills(CarInfo& carInfo, LevelContext& context) noexcept
+force_inline void computeHills(CarInfo& carInfo, LevelContext& context) noexcept
 {
     float prevZ = 0.f;
     float totalOffset = 0.f;
@@ -384,7 +276,7 @@ void computeHills(CarInfo& carInfo, LevelContext& context) noexcept
     }
 }
 
-void createSceneryObject(LevelContext& context, SceneryObject& object, Z_POSITION zPos, const LevelConfig& config)
+void createSceneryObject(LevelContext& context, SceneryObject& object, Z_POSITION zPos, const LevelConfig& config) noexcept
 {
   int16_t posX = random(-30, 30);
   if(posX > 0)
@@ -399,7 +291,7 @@ void createSceneryObject(LevelContext& context, SceneryObject& object, Z_POSITIO
   object.sprite = context.sprites + random(config.sceneryObjectsIndexStart, config.sceneryObjectsIndexEnd);
 }
 
-void createSceneryObjects(LevelContext& context, const LevelConfig& config)
+void createSceneryObjects(LevelContext& context, const LevelConfig& config) noexcept
 {
   for(uint8_t index = 0; index < config.sceneryObjectsCount; ++index)
   {
@@ -408,19 +300,19 @@ void createSceneryObjects(LevelContext& context, const LevelConfig& config)
   }
 }
 
-void updateSceneryObjects(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config)
+void updateSceneryObjects(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
 {
   for(uint8_t index = 0; index < config.sceneryObjectsCount; ++index)
   {
     SceneryObject& object = context.sceneryObjects[index];
-    if(object.posZ < carInfo.posZ)
+    if(unlikely(object.posZ < carInfo.posZ))
     {
       createSceneryObject(context, object, carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-1].z, config);
     }
   }
 }
 
-void createStaticObstacle(LevelContext& context, StaticObstacle& object, Z_POSITION zPos, const LevelConfig& config)
+void createStaticObstacle(LevelContext& context, StaticObstacle& object, Z_POSITION zPos, const LevelConfig& config) noexcept
 {
   object.posX = random(- config.roadWidth/2, config.roadWidth/2);
   object.posZ = zPos + random(0, context.depthLevels[DEPTH_LEVEL_COUNT-1].z/2);
@@ -428,7 +320,7 @@ void createStaticObstacle(LevelContext& context, StaticObstacle& object, Z_POSIT
   object.validUntil = -1;
 }
 
-void createStaticObstacles(LevelContext& context, const LevelConfig& config)
+void createStaticObstacles(LevelContext& context, const LevelConfig& config) noexcept
 {
     for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
   {
@@ -437,19 +329,19 @@ void createStaticObstacles(LevelContext& context, const LevelConfig& config)
   }
 }
 
-void updateStaticObstacles(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config)
+void updateStaticObstacles(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
 {
   for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
   {
     StaticObstacle& object = context.staticObstacles[index];
-    if(object.posZ < carInfo.posZ || (object.validUntil != -1 && object.validUntil > gb.frameCount))
+    if(unlikely(object.posZ < carInfo.posZ || (object.validUntil != -1 && object.validUntil > gb.frameCount)))
     {
       createStaticObstacle(context, object, carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-5].z, config);
     }
   }
 }
 
-void createMovingObstacle(LevelContext& context, MovingObstacle& object, Z_POSITION zPos, const LevelConfig& config)
+void createMovingObstacle(LevelContext& context, MovingObstacle& object, Z_POSITION zPos, const LevelConfig& config) noexcept
 {
   object.posX = //random(- config.roadWidth/2, config.roadWidth/2);
                 //(random(0, 2)  ? -object.sprite->width : 0);
@@ -459,7 +351,7 @@ void createMovingObstacle(LevelContext& context, MovingObstacle& object, Z_POSIT
   object.sprite = context.sprites + random(config.movingObstaclesIndexStart, config.movingObstaclesIndexEnd);
 }
 
-void createMovingObstacles(LevelContext& context, const LevelConfig& config)
+void createMovingObstacles(LevelContext& context, const LevelConfig& config) noexcept
 {
     for(uint8_t index = 0; index < config.movingObstaclesCount; ++index)
   {
@@ -468,7 +360,7 @@ void createMovingObstacles(LevelContext& context, const LevelConfig& config)
   }
 }
 
-void updateMovingObstacles( LevelContext& context, const CarInfo& carInfo, const LevelConfig& config)
+void updateMovingObstacles( LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
 {
   Z_POSITION threshold;
   for(uint8_t index = 0; index < config.movingObstaclesCount; ++index)
@@ -476,7 +368,7 @@ void updateMovingObstacles( LevelContext& context, const CarInfo& carInfo, const
     MovingObstacle& object = context.movingObstacles[index];
     object.posZ += object.speedZ * 256;
     threshold = carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-5].z;
-    if(object.posZ < carInfo.posZ)
+    if(unlikely(object.posZ < carInfo.posZ))
     {
       createMovingObstacle(context, object, threshold, config);
     }
@@ -487,7 +379,7 @@ void updateMovingObstacles( LevelContext& context, const CarInfo& carInfo, const
   }
 }
 
-uint8_t computeDrawable(LevelContext& context, int16_t posX, Z_POSITION posZ, SpriteDefinition* sprite, const CarInfo& carInfo, uint8_t index)
+force_inline uint8_t computeDrawable(LevelContext& context, int16_t posX, Z_POSITION posZ, SpriteDefinition* sprite, const CarInfo& carInfo, uint8_t index) noexcept
 {
   uint8_t drawableLine = -1;
   Z_POSITION prevZ = Z_POSITION_MAX;
@@ -540,7 +432,7 @@ uint8_t computeDrawable(LevelContext& context, int16_t posX, Z_POSITION posZ, Sp
   return index;
 }
 
-uint8_t computeDrawables(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config)
+force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
 {
   uint8_t nextDrawableIndex = 0;
   for(uint8_t index = 0; index < config.sceneryObjectsCount; ++index)
@@ -579,13 +471,8 @@ uint8_t computeDrawables(LevelContext& context, const CarInfo& carInfo, const Le
  return nextDrawableIndex;
 }
 
-int8_t computeCollision(int16_t carXMin, int16_t carXMax, int16_t obstacleX, SpriteDefinition* obstacleSprite)
+force_inline int8_t computeCollision(int16_t carXMin, int16_t carXMax, int16_t obstacleX, SpriteDefinition* obstacleSprite) noexcept
 {
-  if(gb.buttons.repeat(BUTTON_MENU, 0))
-  {
-    SerialUSB.printf("carXMin %i carXMax %i obstacleX %i obstacleWidth %i\n", carXMin, carXMax, obstacleX, obstacleSprite->width);
-  }
-  
   if(carXMin > (obstacleX))
   {
     return 0;
@@ -609,7 +496,7 @@ int8_t computeCollision(int16_t carXMin, int16_t carXMax, int16_t obstacleX, Spr
   return COLLISION_FRONT;
 }
 
-void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelConfig& config)
+force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelConfig& config) noexcept
 {
   currentFx = nullptr;
   const RoadSegment& segment = context.segments[0];
@@ -637,7 +524,7 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
         diffZ = -diffZ;
       }
     
-      if(diffZ <= (1 << Z_POSITION_SHIFT))
+      if(unlikely(diffZ <= (1 << Z_POSITION_SHIFT)))
       {
         collision = collision | computeCollision(carXMin, carXMax, object.posX, object.sprite);
       }
@@ -722,7 +609,7 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
   {
     accelX = 0.3;
   }
-  if(accelX < -0.3)
+  else if(accelX < -0.3)
   {
     accelX = -0.3;
   }
@@ -840,22 +727,6 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
     }
   }
 
-/*if(!currentFx)
-{
-  if(carInfo.speedZ <= 0.7)
-  {
-    currentFx = engineLow;
-  }
-  else if(carInfo.speedZ <= 1.3)
-  {
-    currentFx = engineMid;
-  }
-  else
-  {
-    currentFx = engineHigh;
-  }
-} */
-
   carInfo.posX += carInfo.speedX;
   carInfo.posZ += carInfo.speedZ * 256;
   remainingFuel -= carInfo.speedZ * 256;
@@ -863,7 +734,6 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
   if(lightPattern)
   {
     carInfo.lights = lightPattern;
-    //gb.lights.drawImage(0, 0, lightPattern);
   }
   else
   {
@@ -920,17 +790,16 @@ void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelCon
   }
 
   if(capacitorCharge >= 300)
-    {
-      SerialUSB.printf("FLUXING\n");
-      carInfo.fluxed = true;
-      capacitorCharge = 0;
-    }
+  {
+    carInfo.fluxed = true;
+    capacitorCharge = 0;
+  }
 
   gb.sound.fx(currentFx);
 
 }
 
-void drawSprites(uint16_t y, uint16_t* stripLine,  unsigned int drawableCount, LevelContext& context) noexcept
+force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  unsigned int drawableCount, LevelContext& context) noexcept
 {
     for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
     {
@@ -959,12 +828,12 @@ void drawSprites(uint16_t y, uint16_t* stripLine,  unsigned int drawableCount, L
 
 
 
-void drawFrame(GraphicsManager& gm,
-                LevelContext& context,
-                unsigned int drawableCount,
-                const CarInfo& carInfo,
-                int16_t backgroundShift
-                ) noexcept
+force_inline void drawFrame(GraphicsManager& gm,
+                            LevelContext& context,
+                            unsigned int drawableCount,
+                            const CarInfo& carInfo,
+                            int16_t backgroundShift
+                            ) noexcept
 {
     uint16_t* strip = gm.StartFrame();
   uint16_t* stripLine;
@@ -1092,12 +961,12 @@ void drawFrame(GraphicsManager& gm,
   gm.EndFrame();
 }
 
-void drawFrameSkyway(GraphicsManager& gm,
-                      LevelContext& context,
-                      unsigned int drawableCount,
-                      const CarInfo& carInfo,
-                      int16_t backgroundShift
-                      ) noexcept
+force_inline void drawFrameSkyway(GraphicsManager& gm,
+                                  LevelContext& context,
+                                  unsigned int drawableCount,
+                                  const CarInfo& carInfo,
+                                  int16_t backgroundShift
+                                  ) noexcept
 {
     uint16_t* strip = gm.StartFrame();
   uint16_t* stripLine;
@@ -1228,15 +1097,7 @@ uint8_t pulse = gb.frameCount << 3;
   gm.EndFrame();
 }
 
-/*const uint16_t startSound[] = {0x0005,0x338,0x3FC,0x254,0x1FC,0x25C,0x3FC,0x368,0x123};
-
-const Gamebuino_Meta::Sound_FX my_sfx[] = {
-  {Gamebuino_Meta::Sound_FX_Wave::NOISE,1,70,0,0,240,1},
-  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,0,0,-3,50,5},
-  {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,70,0,0,224,1},
-};*/
-
-void titleLoop(/*const LevelConfig& config*/const uint8_t* title, const uint16_t* palette, uint16_t width, uint16_t height) noexcept
+void titleLoop(const uint8_t* title, const uint16_t* palette, uint16_t width, uint16_t height) noexcept
 {
   resetAlloc();
   uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
@@ -1367,8 +1228,6 @@ void titleLoop(/*const LevelConfig& config*/const uint8_t* title, const uint16_t
 
 int gameLoop(LevelConfig& config) noexcept
 {
-  //gb.sound.fx(my_sfx);
-  
   resetAlloc();
   uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
   uint16_t* strip2 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
@@ -1575,34 +1434,9 @@ int gameLoop(LevelConfig& config) noexcept
 
     updateCarInfo(context, carInfo, config);
 
-    /*switch((gb.frameCount >> 3) % 5)
-    {
-      case 0:
-        gb.lights.drawImage(0, 0, LIGHT_NONE);
-        break;
-
-      case 1:
-        gb.lights.drawImage(0, 0, LIGHT_1);
-        break;
-
-      case 2:
-        gb.lights.drawImage(0, 0, LIGHT_2);
-        break;
-
-      case 3:
-        gb.lights.drawImage(0, 0, LIGHT_3);
-        break;
-
-      case 4:
-      default:
-        gb.lights.drawImage(0, 0, LIGHT_4);
-        break;
-        
-    }*/
-
 // Update environment wrt to new car position
 
-    if(carInfo.posZ > context.segments[1].segmentStartZ)
+    if(unlikely(carInfo.posZ > context.segments[1].segmentStartZ))
     {
       context.segments[0] = context.segments[1];
       context.segments[1] = context.segments[2];
@@ -1738,31 +1572,11 @@ int gameLoop(LevelConfig& config) noexcept
     return 0;
   }
   
-
-/*if(carInfo.posZ > zCactus)
-{
-  zCactus += (400 << Z_POSITION_SHIFT);
-}*/
-
     if(gb.buttons.repeat(BUTTON_MENU, 0))
     {
       SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
-    SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
-    SerialUSB.printf("REMAIN: %i\n", allocFreeRam());
-/*    SerialUSB.printf("Coin coin: %i\n", memory);
-    for(unsigned int ii = 0; ii < DEPTH_LEVEL_COUNT; ++ii)
-    {
-      SerialUSB.printf("depth: %i %i\n", ii, (int32_t)(depthLevels[ii].scaleFactor * 16384));
-    }*/
-    /*for(unsigned int ii = 0; ii < 2 * COLOR_TRACK_SIZE; ++ii)
-    {
-      SerialUSB.printf("palette: %i %i\n", ii, trackPalette[ii]);
-    }*/
-
-/*File root;
-root = SD.open("/Roads");
-
-  printDirectory(root, 0);*/
+      SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
+      SerialUSB.printf("REMAIN: %i\n", allocFreeRam());
     }
   }
 

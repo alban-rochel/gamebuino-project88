@@ -32,7 +32,7 @@ uint16_t counter = 0;
 File* wfile;
 #endif
 
-      static inline void WaitForDescAvailable(const uint32_t min_desc_num)
+      static force_inline void WaitForDescAvailable(const uint32_t min_desc_num) noexcept
       {
 #ifdef DEBUG_PERF
         int count = 0;
@@ -49,7 +49,7 @@ File* wfile;
 #endif
       }
       
-      static inline void WaitForTransfersDone(void)
+      static force_inline void WaitForTransfersDone(void) noexcept
       {
         WaitForDescAvailable(DMA_DESC_COUNT);
       }
