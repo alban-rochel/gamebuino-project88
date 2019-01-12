@@ -258,6 +258,6 @@ struct LevelContext
   MovingObstacle* movingObstacles;
   Drawable* drawables;
   const uint8_t* background;
-  const uint16_t* backgroundPalette;
+  const uint32_t* backgroundPalette;
   uint16_t backgroundHeight;
 };

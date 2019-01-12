@@ -867,7 +867,7 @@ force_inline void drawFrame(GraphicsManager& gm,
       uint32_t* stripCursor32 = (uint32_t*)stripCursor;
       for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
       {
-        color32 = context.backgroundPalette[(*colorIndexes) >> 4] | ((uint32_t)context.backgroundPalette[(*colorIndexes) & 0x0F]) << 16;
+        color32 = context.backgroundPalette[*colorIndexes];
         (*stripCursor32++) = color32;
         ++colorIndexes;
       }
@@ -997,7 +997,7 @@ uint8_t pulse = gb.frameCount << 3;
       uint32_t* stripCursor32 = (uint32_t*)stripCursor;
       for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
       {
-        color32 = context.backgroundPalette[(*colorIndexes) >> 4] | ((uint32_t)context.backgroundPalette[(*colorIndexes) & 0x0F]) << 16;
+        color32 = context.backgroundPalette[*colorIndexes];
         (*stripCursor32++) = color32;
         ++colorIndexes;
       }
@@ -1099,7 +1099,7 @@ uint8_t pulse = gb.frameCount << 3;
   gm.EndFrame();
 }
 
-void titleLoop(const uint8_t* title, const uint16_t* palette, uint16_t width, uint16_t height) noexcept
+void titleLoop(const uint8_t* title, const uint32_t* palette, uint16_t width, uint16_t height) noexcept
 {
   resetAlloc();
   uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
@@ -1143,7 +1143,7 @@ void titleLoop(const uint8_t* title, const uint16_t* palette, uint16_t width, ui
               colorIndexes -= offset/2;
               for(uint16_t ii = 0; ii < SCREEN_WIDTH + offset; ii+=2)
               {
-                color32 = palette[(*colorIndexes) >> 4] | ((uint32_t)palette[(*colorIndexes) & 0x0F]) << 16;
+                color32 = palette[*colorIndexes];
                 (*stripCursor32++) = color32;
                 ++colorIndexes;
               }
@@ -1162,7 +1162,7 @@ void titleLoop(const uint8_t* title, const uint16_t* palette, uint16_t width, ui
               }
               for(uint16_t ii = offset; ii < SCREEN_WIDTH; ii+=2)
               {
-                color32 = palette[(*colorIndexes) >> 4] | ((uint32_t)palette[(*colorIndexes) & 0x0F]) << 16;
+                color32 = palette[*colorIndexes];
                 (*stripCursor32++) = color32;
                 ++colorIndexes;
               }
@@ -1173,7 +1173,7 @@ void titleLoop(const uint8_t* title, const uint16_t* palette, uint16_t width, ui
             {
               for(uint16_t ii = 0; ii < SCREEN_WIDTH; ii+=2)
               {
-                color32 = palette[(*colorIndexes) >> 4] | ((uint32_t)palette[(*colorIndexes) & 0x0F]) << 16;
+                color32 = palette[*colorIndexes];
                 (*stripCursor32++) = color32;
                 ++colorIndexes;
               }
@@ -1611,7 +1611,7 @@ void setup()
 
 int runLevel(LevelConfig& config) noexcept
 {
-    const uint16_t * palette;
+    const uint32_t * palette;
     uint16_t width, height;
     const uint8_t* title;
   
