@@ -1,3 +1,6 @@
+//C:\Users\<User>\AppData\Local\Arduino15\packages\gamebuino\hardware\samd\1.2.1\platform.txt
+//compiler.c.flags=-mcpu={build.mcu} -mthumb -c -O3 {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -nostdlib --param max-inline-insns-single=500 -MMD -D__SKETCH_NAME__="""{build.project_name}"""
+//compiler.cpp.flags=-mcpu={build.mcu} -mthumb -c -O3 {compiler.warning_flags} -std=gnu++11 -ffunction-sections -fdata-sections -fno-threadsafe-statics -nostdlib --param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD -D__SKETCH_NAME__="""{build.project_name}"""
 #include "GraphicsManager.h"
 
 #include "Car.h"
@@ -803,7 +806,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
 
 force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  unsigned int drawableCount, LevelContext& context) noexcept
 {
-    for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
+for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
     {
       const Drawable& drawable = context.drawables[drawableIndex];
       if(unlikely(y >= drawable.yStart && y <= drawable.yEnd))
