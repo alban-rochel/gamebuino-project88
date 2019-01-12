@@ -19,15 +19,15 @@ Z_POSITION remainingFuel;
 
 const Gamebuino_Meta::Sound_FX* currentFx;
 
-force_inline float accelFromSpeed(float speed) noexcept
+force_inline float accelFromSpeed(Z_SPEED speed) noexcept
 {
   // max speed : MAX_SPEED_Z
 
-  if(speed < 0.5)
+  if(speed < /*0.5*/ (1 << (Z_SPEED_SHIFT - 1)))
   {
     return 0.01;
   }
-  else if(speed < 1.)
+  else if(speed < /* 1. */ (1 << Z_SPEED_SHIFT))
   {
     return 0.005;
   }
@@ -603,7 +603,8 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
     accelerationValue = -0.005;
   }
 
-  float accelX(segment.xCurvature * carInfo.speedZ / 200.), accelZ(0.f);
+  //float accelX(segment.xCurvature * carInfo.speedZ / 200.), accelZ(0.f);
+  float accelX((segment.xCurvature * carInfo.speedZ) / (200*256.f)), accelZ(0.f);
   //SerialUSB.printf("AccelX1 %i\n", accelX*10000);
   if(accelX > 0.3)
   {
@@ -617,12 +618,12 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
   {
     if(turningLeft)
     {
-      accelX += carInfo.speedZ / 2;
+      accelX += (carInfo.speedZ / 512.f); // /2.f
       accelZ = accelerationValue * 0.8f;
     }
     else if(turningRight)
     {
-      accelX += -carInfo.speedZ  / 2;
+      accelX += -(carInfo.speedZ / 512.f); // /2.f
       accelZ = accelerationValue * 0.8f;
     }
     else
@@ -635,12 +636,12 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
   {
     if(turningLeft)
     {
-      accelX += carInfo.speedZ / 2;
+      accelX += (carInfo.speedZ >> 1);
       accelZ = accelerationValue * 0.8f;
     }
     else if(turningRight)
     {
-     accelX += -carInfo.speedZ / 2;
+     accelX += -(carInfo.speedZ >> 1);
       accelZ = accelerationValue * 0.8f;
     }
     else
@@ -669,13 +670,15 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
   {
     case COLLISION_LEFT:
         lightPattern = LIGHT_COLLISION_LEFT;
-        carInfo.speedZ /= 2;
+        //carInfo.speedZ /= 2;
+        carInfo.speedZ = (carInfo.speedZ >> 1);
         carInfo.speedX += 0.5;
         break;
 
     case COLLISION_RIGHT:
         lightPattern = LIGHT_COLLISION_RIGHT;
-        carInfo.speedZ /= 2;
+        //carInfo.speedZ /= 2;
+        carInfo.speedZ = (carInfo.speedZ >> 1);
         carInfo.speedX -= 0.5;
         break;
 
@@ -694,17 +697,16 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
   }
 
   carInfo.speedX += accelX;
-  carInfo.speedZ += accelZ;
+  carInfo.speedZ += (accelZ * 256);
   
   if(offRoad)
   {
-    if(carInfo.speedZ > 0.7)
+    if(carInfo.speedZ > /*0.7*/ 180)
     {
-      carInfo.speedZ = 0.7;
+      carInfo.speedZ = /*0.7*/ 180;
     }
   }
 
-  float maxSpeedZ = (offRoad ? MAX_SPEED_Z/5 : MAX_SPEED_Z);
   if(carInfo.speedZ <= 0)
   {
     carInfo.speedZ = 0;
@@ -728,8 +730,8 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
   }
 
   carInfo.posX += carInfo.speedX;
-  carInfo.posZ += carInfo.speedZ * 256;
-  remainingFuel -= carInfo.speedZ * 256;
+  carInfo.posZ += carInfo.speedZ;
+  remainingFuel -= carInfo.speedZ;
 
   if(lightPattern)
   {
@@ -804,7 +806,7 @@ force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  unsigned int dra
     for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
     {
       const Drawable& drawable = context.drawables[drawableIndex];
-      if(y >= drawable.yStart && y <= drawable.yEnd)
+      if(unlikely(y >= drawable.yStart && y <= drawable.yEnd))
       {
         //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
         const uint16_t* spriteBufferWithOffset = drawable.sprite->buffer + (drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern);
@@ -812,7 +814,7 @@ force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  unsigned int dra
         uint16_t color;
         for(int16_t x = 0; x < drawable.sprite->width && xIndex < SCREEN_WIDTH; x+=drawable.zoomPattern, ++xIndex)
         {
-          if(xIndex >= 0)
+          if(likely(xIndex >= 0))
           {
             color = (*spriteBufferWithOffset);
             spriteBufferWithOffset += drawable.zoomPattern;
@@ -1400,7 +1402,7 @@ int gameLoop(LevelConfig& config) noexcept
   carInfo.sprite = CarSprite::Front;
   carInfo.posX = 0;
   carInfo.posZ = 0;
-  carInfo.speedZ = 0.f;
+  carInfo.speedZ = 0;
   carInfo.speedX = 0.f;
   carInfo.fluxed = false;
 
@@ -1444,7 +1446,8 @@ int gameLoop(LevelConfig& config) noexcept
       context.segments[2].zCurvature = random(-150, 400)/1000.f;
       context.segments[2].segmentStartZ = context.segments[1].segmentStartZ + random(minSegmentSize, maxSegmentSize);
     }
-        backgroundShift += (context.segments[0].xCurvature * carInfo.speedZ) / 4;
+        //backgroundShift += (context.segments[0].xCurvature * carInfo.speedZ) / 4;
+        backgroundShift += (context.segments[0].xCurvature * carInfo.speedZ) >> (Z_SPEED_SHIFT + 2);
 
 // Compute environment geometry
 
@@ -1472,11 +1475,11 @@ int gameLoop(LevelConfig& config) noexcept
 
     {
 
-    float speedStep = MAX_SPEED_Z / SPEED_STEP_COUNT;
+    float speedStep = (float)(MAX_SPEED_Z) / SPEED_STEP_COUNT;
     int actualSpeedStep = 100;
     for(unsigned int step = 1; step <= SPEED_STEP_COUNT && actualSpeedStep == 100; ++step)
     {
-      if((step * speedStep) > carInfo.speedZ)
+      if((step * speedStep) > carInfo.speedZ) // TODO?
       {
         actualSpeedStep = step;
       }
