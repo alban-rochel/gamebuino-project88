@@ -88,10 +88,6 @@ const uint16_t LIGHT_NONE[] {
 #define Z_POSITION_SHIFT 8
 #define Z_POSITION_MAX 0x7FFFFFFF
 
-#define Z_SPEED int32_t /* sign.23.8 */
-#define Z_SPEED_SHIFT 8
-#define Z_SPEED_MAX 0x7FFFFFFF
-
 #define ROAD_CURVATURE_X int8_t /* sign.3.4 */
 #define ROAD_CURVATURE_X_SHIFT 4
 
@@ -166,7 +162,7 @@ enum class CarSprite
 #define COLLISION_FRONT (COLLISION_RIGHT | COLLISION_LEFT)
 
 // 88 mph is ~40 m/s = 1 m/frame. Make 1.5 to make things more dramatic
-#define MAX_SPEED_Z /*1.5f*/ 384
+#define MAX_SPEED_Z 1.5f
 #define MAX_SPEED_X 2.f
 
 struct SpriteDefinition
@@ -182,8 +178,9 @@ struct CarInfo
 {
   CarSprite sprite;
   int16_t posX; // 0 is the center of the road
+  //float posZ;
   Z_POSITION posZ; // meters
-  Z_SPEED speedZ; // meters / frame
+  float speedZ; // meters / frame. Max 1
   float speedX;
 //  float accelZ; // meters / frame / frame
 //  float accelX;
