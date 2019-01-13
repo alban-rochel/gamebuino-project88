@@ -400,6 +400,25 @@ force_inline void insertDrawableIntoSortedList(Drawable& drawable, Drawable*& dr
     {
       // insert
       drawable.next = current->next;
+      drawable.removable = true;
+      current->next = & drawable;
+      return;
+    }
+    current = current->next;
+  }
+}
+
+force_inline void insertDrawableAtEndOfList(Drawable& drawable, Drawable*& drawableList)
+{
+  Drawable* current = drawableList;
+
+  while(current)
+  {
+    if(current->next == nullptr)
+    {
+      // insert
+      drawable.next = nullptr;
+      drawable.removable = false;
       current->next = & drawable;
       return;
     }
@@ -861,11 +880,11 @@ force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  /*unsigned int d
   Drawable* current = drawableList;
     while(current)
     {
-      if(y > current->yEnd) // we'll never draw this one any more, pop from sorted list
+      if(y > current->yEnd && current->removable) // we'll never draw this one any more, pop from sorted list
       {
         drawableList = current;
       }
-      else if(y >= current->yStart)
+      else if(y >= current->yStart && y <= current->yEnd)
       {
         //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
         const uint16_t* spriteBufferWithOffset = current->sprite->buffer + (current->sprite->width * (y - current->yStart) * current->zoomPattern);
@@ -1524,6 +1543,29 @@ int gameLoop(LevelConfig& config) noexcept
 Drawable* drawableList = nullptr;
     uint8_t drawableCount = computeDrawables(context, carInfo, drawableList, config);
 
+    {
+    Drawable& drawable = context.drawables[drawableCount];
+    switch(carInfo.sprite)
+    {
+      case CarSprite::Left:
+        drawable.sprite = &context.carSprites[1];
+        break;
+      case CarSprite::Right:
+        drawable.sprite = &context.carSprites[2];
+        break;
+      case CarSprite::Front:
+      default:
+        drawable.sprite = &context.carSprites[0];
+        break;
+    }
+  
+    drawable.xStart = SCREEN_WIDTH/2 - drawable.sprite->width/2;
+    drawable.yStart = 120 - drawable.sprite->height;
+    drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
+    drawable.zoomPattern = 1;
+    insertDrawableIntoSortedList(drawable, drawableList);
+  }
+  ++drawableCount;
 
   {
     Drawable& drawable = context.drawables[drawableCount];
@@ -1532,7 +1574,7 @@ Drawable* drawableList = nullptr;
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 1;
-    insertDrawableIntoSortedList(drawable, drawableList);
+    insertDrawableAtEndOfList(drawable, drawableList);
   }
   ++drawableCount;
 
@@ -1558,7 +1600,7 @@ Drawable* drawableList = nullptr;
     drawable.yStart = SPEEDOMETER_Y[actualSpeedStep-1] - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 1;
-    insertDrawableIntoSortedList(drawable, drawableList);
+    insertDrawableAtEndOfList(drawable, drawableList);
   }
   ++drawableCount;
 
@@ -1569,7 +1611,7 @@ Drawable* drawableList = nullptr;
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 1;
-    insertDrawableIntoSortedList(drawable, drawableList);
+    insertDrawableAtEndOfList(drawable, drawableList);
   }
   ++drawableCount;
 
@@ -1583,7 +1625,6 @@ Drawable* drawableList = nullptr;
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height - 4;
     drawable.yEnd = drawable.yStart + fuelOffset - 1;
     drawable.zoomPattern = 1;
-    insertDrawableIntoSortedList(drawable, drawableList);
             if(fuelOffset >= drawable.sprite->height - 4) // blink
         {
           if((gb.frameCount >> 4) & 0x01)
@@ -1600,31 +1641,8 @@ Drawable* drawableList = nullptr;
         {
           return 1; // game over
         }
+            insertDrawableAtEndOfList(drawable, drawableList);
   }
-
-    {
-    Drawable& drawable = context.drawables[drawableCount];
-    switch(carInfo.sprite)
-    {
-      case CarSprite::Left:
-        drawable.sprite = &context.carSprites[1];
-        break;
-      case CarSprite::Right:
-        drawable.sprite = &context.carSprites[2];
-        break;
-      case CarSprite::Front:
-      default:
-        drawable.sprite = &context.carSprites[0];
-        break;
-    }
-  
-    drawable.xStart = SCREEN_WIDTH/2 - drawable.sprite->width/2;
-    drawable.yStart = 120 - drawable.sprite->height;
-    drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
-    drawable.zoomPattern = 1;
-    insertDrawableIntoSortedList(drawable, drawableList);
-  }
-  ++drawableCount;
 
   gb.lights.drawImage(0, 0, carInfo.lights);
 
