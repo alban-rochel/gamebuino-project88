@@ -237,6 +237,7 @@ struct Drawable
   uint16_t yEnd;
   uint16_t zoomPattern;
   SpriteDefinition* sprite; 
+  Drawable* next; // for Drawable sorting
 };
 
 struct LevelContext

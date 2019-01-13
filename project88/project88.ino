@@ -382,7 +382,32 @@ void updateMovingObstacles( LevelContext& context, const CarInfo& carInfo, const
   }
 }
 
-force_inline uint8_t computeDrawable(LevelContext& context, int16_t posX, Z_POSITION posZ, SpriteDefinition* sprite, const CarInfo& carInfo, uint8_t index) noexcept
+force_inline void insertDrawableIntoSortedList(Drawable& drawable, Drawable*& drawableList)
+{
+  Drawable* current = drawableList;
+
+  if(unlikely(current == nullptr || current->yEnd > drawable.yEnd))
+  {
+    drawable.next = current;
+    drawableList = &drawable;
+    return;
+  }
+
+  while(current)
+  {
+    // precondition: current->yEnd <= drawable.yEnd
+    if(current->next == nullptr || current->next->yEnd > drawable.yEnd)
+    {
+      // insert
+      drawable.next = current->next;
+      current->next = & drawable;
+      return;
+    }
+    current = current->next;
+  }
+}
+
+force_inline uint8_t computeDrawable(LevelContext& context, int16_t posX, Z_POSITION posZ, SpriteDefinition* sprite, const CarInfo& carInfo, Drawable*& drawableList, uint8_t index) noexcept
 {
   uint8_t drawableLine = -1;
   Z_POSITION prevZ = Z_POSITION_MAX;
@@ -429,13 +454,15 @@ force_inline uint8_t computeDrawable(LevelContext& context, int16_t posX, Z_POSI
     drawable.yStart = (drawableLine >= actualHeight) ? drawableLine - actualHeight : 0;
     drawable.yEnd = drawable.yStart + actualHeight - 1;
 
-    ++index;
+    insertDrawableIntoSortedList(drawable, drawableList);
+
+    ++index;    
   }
 
   return index;
 }
 
-force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
+force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carInfo, Drawable*& drawableList, const LevelConfig& config) noexcept
 {
   uint8_t nextDrawableIndex = 0;
   for(uint8_t index = 0; index < config.sceneryObjectsCount; ++index)
@@ -446,6 +473,7 @@ force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carI
                                         object.posZ,
                                         object.sprite,
                                         carInfo,
+                                        drawableList,
                                         nextDrawableIndex);
   }
 
@@ -457,6 +485,7 @@ force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carI
                                         object.posZ,
                                         object.sprite,
                                         carInfo,
+                                        drawableList,
                                         nextDrawableIndex);
   }
 
@@ -468,6 +497,7 @@ force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carI
                                         object.posZ,
                                         object.sprite,
                                         carInfo,
+                                        drawableList,
                                         nextDrawableIndex);
   }
 
@@ -802,9 +832,9 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
 
 }
 
-force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  unsigned int drawableCount, LevelContext& context) noexcept
+force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  /*unsigned int drawableCount*/Drawable*& drawableList, LevelContext& context) noexcept
 {
-for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
+    /*for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
     {
       const Drawable& drawable = context.drawables[drawableIndex];
       if(y >= drawable.yStart && y <= drawable.yEnd)
@@ -826,6 +856,35 @@ for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableInd
           }
         }
       }
+    }*/
+
+  Drawable* current = drawableList;
+    while(current)
+    {
+      if(y > current->yEnd) // we'll never draw this one any more, pop from sorted list
+      {
+        drawableList = current;
+      }
+      else if(y >= current->yStart)
+      {
+        //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
+        const uint16_t* spriteBufferWithOffset = current->sprite->buffer + (current->sprite->width * (y - current->yStart) * current->zoomPattern);
+        int16_t xIndex = current->xStart;
+        uint16_t color;
+        for(int16_t x = 0; x < current->sprite->width && xIndex < SCREEN_WIDTH; x+=current->zoomPattern, ++xIndex)
+        {
+          if(xIndex >= 0)
+          {
+            color = (*spriteBufferWithOffset);
+            spriteBufferWithOffset += current->zoomPattern;
+            if(color != COLOR_565(0xFF, 0x00, 0xFF))
+            {
+              stripLine[xIndex] = color;
+            }
+          }
+        }
+      }
+      current = current->next;
     }
 }
 
@@ -833,7 +892,8 @@ for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableInd
 
 force_inline void drawFrame(GraphicsManager& gm,
                             LevelContext& context,
-                            unsigned int drawableCount,
+                            //unsigned int drawableCount,
+                            Drawable*& drawableList,
                             const CarInfo& carInfo,
                             int16_t backgroundShift
                             ) noexcept
@@ -950,7 +1010,7 @@ force_inline void drawFrame(GraphicsManager& gm,
       }
     }
 
-    drawSprites(y, stripLine, drawableCount, context);
+    drawSprites(y, stripLine, /*drawableCount*/drawableList, context);
 
     if(yStrip == STRIP_HEIGHT)
     {
@@ -966,7 +1026,8 @@ force_inline void drawFrame(GraphicsManager& gm,
 
 force_inline void drawFrameSkyway(GraphicsManager& gm,
                                   LevelContext& context,
-                                  unsigned int drawableCount,
+                                  //unsigned int drawableCount,
+                                  Drawable*& drawableList,
                                   const CarInfo& carInfo,
                                   int16_t backgroundShift
                                   ) noexcept
@@ -1086,7 +1147,7 @@ uint8_t pulse = gb.frameCount << 3;
       }
     }
 
-    drawSprites(y, stripLine, drawableCount, context);
+    drawSprites(y, stripLine, /*drawableCount*/drawableList, context);
 
     if(yStrip == STRIP_HEIGHT)
     {
@@ -1460,7 +1521,8 @@ int gameLoop(LevelConfig& config) noexcept
     updateStaticObstacles(context, carInfo, config);
     updateMovingObstacles(context, carInfo, config);
 
-    uint8_t drawableCount = computeDrawables(context, carInfo, config);
+Drawable* drawableList = nullptr;
+    uint8_t drawableCount = computeDrawables(context, carInfo, drawableList, config);
 
 
   {
@@ -1470,6 +1532,7 @@ int gameLoop(LevelConfig& config) noexcept
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 1;
+    insertDrawableIntoSortedList(drawable, drawableList);
   }
   ++drawableCount;
 
@@ -1495,6 +1558,7 @@ int gameLoop(LevelConfig& config) noexcept
     drawable.yStart = SPEEDOMETER_Y[actualSpeedStep-1] - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 1;
+    insertDrawableIntoSortedList(drawable, drawableList);
   }
   ++drawableCount;
 
@@ -1505,6 +1569,7 @@ int gameLoop(LevelConfig& config) noexcept
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 1;
+    insertDrawableIntoSortedList(drawable, drawableList);
   }
   ++drawableCount;
 
@@ -1518,6 +1583,7 @@ int gameLoop(LevelConfig& config) noexcept
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height - 4;
     drawable.yEnd = drawable.yStart + fuelOffset - 1;
     drawable.zoomPattern = 1;
+    insertDrawableIntoSortedList(drawable, drawableList);
             if(fuelOffset >= drawable.sprite->height - 4) // blink
         {
           if((gb.frameCount >> 4) & 0x01)
@@ -1556,6 +1622,7 @@ int gameLoop(LevelConfig& config) noexcept
     drawable.yStart = 120 - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 1;
+    insertDrawableIntoSortedList(drawable, drawableList);
   }
   ++drawableCount;
 
@@ -1563,11 +1630,11 @@ int gameLoop(LevelConfig& config) noexcept
 
   if(config.level == Level::Skyway)
   {
-    drawFrameSkyway(gm, context, drawableCount, carInfo, backgroundShift);
+    drawFrameSkyway(gm, context, drawableList, carInfo, backgroundShift);
   }
   else
   {
-    drawFrame(gm, context, drawableCount, carInfo, backgroundShift);
+    drawFrame(gm, context, drawableList, carInfo, backgroundShift);
   }
 
   if(carInfo.fluxed)
