@@ -449,24 +449,29 @@ force_inline uint8_t computeDrawable(LevelContext& context, int16_t posX, Z_POSI
     SCALE_FACTOR scale = ScaleFactor[context.lineToDepthLevel[drawableLine]];
     if(scale <= SCALE_FACTOR_EIGHTH)
     {
-      drawable.zoomPattern = 8;
+      drawable.yZoomPattern = 8;
     }
     else if(scale <= SCALE_FACTOR_QUARTER)
     {
-      drawable.zoomPattern = 4;
+      drawable.yZoomPattern = 4;
     }
     else if(scale <= SCALE_FACTOR_HALF)
     {
-      drawable.zoomPattern = 2;
+      drawable.yZoomPattern = 2;
     }
     else
     {
-      drawable.zoomPattern = 1;
+      drawable.yZoomPattern = 1;
+    }
+    drawable.zoomPattern = (scale + (1 <<11 )-1) >> (SCALE_FACTOR_SHIFT - 3);
+    if(drawable.zoomPattern > 8)
+    {
+      drawable.zoomPattern = 8;
     }
 
     drawable.xStart = context.depthLevelToX[context.lineToDepthLevel[drawableLine]] - ((scale * posX) >> SCALE_FACTOR_SHIFT);
     
-    uint16_t actualHeight = drawable.sprite->height / drawable.zoomPattern;
+    uint16_t actualHeight = ((drawable.sprite->height * drawable.zoomPattern) >> 3);
     drawable.yStart = (drawableLine >= actualHeight) ? drawableLine - actualHeight : 0;
     drawable.yEnd = drawable.yStart + actualHeight - 1;
 
@@ -850,29 +855,6 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
 
 force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  /*unsigned int drawableCount*/Drawable*& drawableList, LevelContext& context) noexcept
 {
-    /*for(unsigned int drawableIndex = 0; drawableIndex < drawableCount; ++drawableIndex)
-    {
-      const Drawable& drawable = context.drawables[drawableIndex];
-      if(y >= drawable.yStart && y <= drawable.yEnd)
-      {
-        //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
-        const uint16_t* spriteBufferWithOffset = drawable.sprite->buffer + (drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern);
-        int16_t xIndex = drawable.xStart;
-        uint16_t color;
-        for(int16_t x = 0; x < drawable.sprite->width && xIndex < SCREEN_WIDTH; x+=drawable.zoomPattern, ++xIndex)
-        {
-          if(xIndex >= 0)
-          {
-            color = (*spriteBufferWithOffset);
-            spriteBufferWithOffset += drawable.zoomPattern;
-            if(color != COLOR_565(0xFF, 0x00, 0xFF))
-            {
-              stripLine[xIndex] = color;
-            }
-          }
-        }
-      }
-    }*/
 
   Drawable* current = drawableList;
     while(current)
@@ -884,15 +866,27 @@ force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  /*unsigned int d
       else if(y >= current->yStart && y <= current->yEnd)
       {
         //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
-        const uint16_t* spriteBufferWithOffset = current->sprite->buffer + (current->sprite->width * (y - current->yStart) * current->zoomPattern);
+        const uint16_t* spriteBufferWithOffset = current->sprite->buffer + (current->sprite->width * ((y - current->yStart) * 8 / current->zoomPattern));
         int16_t xIndex = current->xStart;
         uint16_t color;
-        for(int16_t x = 0; x < current->sprite->width && xIndex < SCREEN_WIDTH; x+=current->zoomPattern, ++xIndex)
+        /*for(int16_t x = 0; x < current->sprite->width && xIndex < SCREEN_WIDTH; x+=current->zoomPattern, ++xIndex)
         {
           if(xIndex >= 0)
           {
             color = (*spriteBufferWithOffset);
             spriteBufferWithOffset += current->zoomPattern;
+            if(color != COLOR_565(0xFF, 0x00, 0xFF))
+            {
+              stripLine[xIndex] = color;
+            }
+          }
+        }*/
+        for(int16_t coordInSprite = 0; coordInSprite<current->sprite->width; ++coordInSprite)
+        {
+          xIndex = current->xStart + ((coordInSprite * current->zoomPattern) >> 3);
+          if(xIndex >= 0 && xIndex < SCREEN_WIDTH)
+          {
+            color = (spriteBufferWithOffset[coordInSprite]);
             if(color != COLOR_565(0xFF, 0x00, 0xFF))
             {
               stripLine[xIndex] = color;
@@ -1559,7 +1553,8 @@ Drawable* drawableList = nullptr;
     drawable.xStart = SCREEN_WIDTH/2 - drawable.sprite->width/2;
     drawable.yStart = 120 - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
-    drawable.zoomPattern = 1;
+    drawable.zoomPattern = 8;
+    drawable.yZoomPattern = 1;
     insertDrawableIntoSortedList(drawable, drawableList);
   }
   ++drawableCount;
@@ -1570,7 +1565,8 @@ Drawable* drawableList = nullptr;
     drawable.xStart = SCREEN_WIDTH - drawable.sprite->width;
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
-    drawable.zoomPattern = 1;
+    drawable.zoomPattern = 8;
+    drawable.yZoomPattern = 1;
     insertDrawableAtEndOfList(drawable, drawableList);
   }
   ++drawableCount;
@@ -1596,7 +1592,8 @@ Drawable* drawableList = nullptr;
     drawable.xStart = SPEEDOMETER_X[actualSpeedStep-1] - drawable.sprite->width;
     drawable.yStart = SPEEDOMETER_Y[actualSpeedStep-1] - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
-    drawable.zoomPattern = 1;
+    drawable.zoomPattern = 8;
+    drawable.yZoomPattern = 1;
     insertDrawableAtEndOfList(drawable, drawableList);
   }
   ++drawableCount;
@@ -1607,7 +1604,8 @@ Drawable* drawableList = nullptr;
     drawable.xStart = 0;
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
-    drawable.zoomPattern = 1;
+    drawable.zoomPattern = 8;
+    drawable.yZoomPattern = 1;
     insertDrawableAtEndOfList(drawable, drawableList);
   }
   ++drawableCount;
@@ -1621,7 +1619,8 @@ Drawable* drawableList = nullptr;
     drawable.xStart = 0;
     drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height - 4;
     drawable.yEnd = drawable.yStart + fuelOffset - 1;
-    drawable.zoomPattern = 1;
+    drawable.zoomPattern = 8;
+    drawable.yZoomPattern = 1;
             if(fuelOffset >= drawable.sprite->height - 4) // blink
         {
           if((gb.frameCount >> 4) & 0x01)

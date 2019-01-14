@@ -236,6 +236,7 @@ struct Drawable
   int16_t yStart;
   uint16_t yEnd;
   uint16_t zoomPattern;
+  uint8_t yZoomPattern;
   SpriteDefinition* sprite; 
   Drawable* next; // for Drawable sorting
   bool removable;
