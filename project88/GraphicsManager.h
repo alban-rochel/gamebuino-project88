@@ -4,9 +4,25 @@
 
 namespace  roads
 {
+  
   class GraphicsManager
   {
     public:
+
+      struct Task
+      {
+        void (*function)(void*);
+        void* param;
+      };
+
+      struct TaskSet
+      {
+        Task* tasks;
+        uint8_t taskCount;
+        uint8_t currentTask;
+      };
+
+      
 
       GraphicsManager(uint16_t* strip1,
                       uint16_t* strip2) noexcept;
@@ -17,7 +33,7 @@ namespace  roads
       void EndFrame() noexcept;
 
       // returns the buffer for the next strip
-      uint16_t* CommitStrip() noexcept;
+      uint16_t* CommitStrip(TaskSet* taskSet) noexcept;
 
     private:
      uint16_t* strip1;

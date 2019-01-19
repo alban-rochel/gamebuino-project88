@@ -938,7 +938,8 @@ force_inline void drawFrame(GraphicsManager& gm,
                             //unsigned int drawableCount,
                             Drawable*& drawableList,
                             const CarInfo& carInfo,
-                            int16_t backgroundShift
+                            int16_t backgroundShift,
+                            GraphicsManager::TaskSet* taskSet
                             ) noexcept
 {
     uint16_t* strip = gm.StartFrame();
@@ -1057,7 +1058,8 @@ force_inline void drawFrame(GraphicsManager& gm,
 
     if(yStrip == STRIP_HEIGHT)
     {
-      strip = gm.CommitStrip();
+            SerialUSB.printf("taskSet %i\n", taskSet->currentTask);
+      strip = gm.CommitStrip(taskSet);
       stripCursor = strip;
       yStrip = 0;
     }
@@ -1072,7 +1074,8 @@ force_inline void drawFrameSkyway(GraphicsManager& gm,
                                   //unsigned int drawableCount,
                                   Drawable*& drawableList,
                                   const CarInfo& carInfo,
-                                  int16_t backgroundShift
+                                  int16_t backgroundShift,
+                                  GraphicsManager::TaskSet* taskSet
                                   ) noexcept
 {
     uint16_t* strip = gm.StartFrame();
@@ -1194,7 +1197,7 @@ uint8_t pulse = gb.frameCount << 3;
 
     if(yStrip == STRIP_HEIGHT)
     {
-      strip = gm.CommitStrip();
+      strip = gm.CommitStrip(taskSet);
       stripCursor = strip;
       yStrip = 0;
     }
@@ -1301,7 +1304,7 @@ void titleLoop(const uint8_t* title, const uint32_t* palette, uint16_t width, ui
         
       if(yStrip == STRIP_HEIGHT)
       {
-        strip = gm.CommitStrip();
+        strip = gm.CommitStrip(nullptr);
         stripCursor = strip;
         yStrip = 0;
       }
@@ -1330,6 +1333,34 @@ void titleLoop(const uint8_t* title, const uint32_t* palette, uint16_t width, ui
       default:
         break;
     }
+  }
+}
+
+void lightUpdateTask(void* carInfo)
+{
+    gb.lights.drawImage(0, 0, ((CarInfo*)carInfo)->lights);
+}
+
+void soundPlaybackTask(void*)
+{
+  if(collisionFx)
+  {
+    gb.sound.fx(collisionSfx);
+  }
+  else
+  {
+    if(engineFx)
+    {
+      gb.sound.fx(engineFx);
+    }
+  }
+  if(collisionFxDuration)
+  {
+    --collisionFxDuration;
+  }
+  if(engineFxDuration)
+  {
+    --engineFxDuration;
   }
 }
 
@@ -1536,10 +1567,19 @@ int gameLoop(LevelConfig& config) noexcept
   capacitorCharge = 0;
 
   engineFx = nullptr;
-    
+  
+  GraphicsManager::TaskSet taskSet;
+  taskSet.tasks = (GraphicsManager::Task*)malloc(2 * sizeof(GraphicsManager::Task));
+  taskSet.tasks[0].function = &soundPlaybackTask;
+  taskSet.tasks[0].param = nullptr;
+  taskSet.tasks[1].function = &lightUpdateTask;
+  taskSet.tasks[1].param = &carInfo;
+  taskSet.taskCount = 2;
+  
   while(true)
   { 
     while (!gb.update());
+    taskSet.currentTask = 0;
     collisionFx = nullptr;
 
     updateCarInfo(context, carInfo, config);
@@ -1650,14 +1690,15 @@ Drawable* drawableList = nullptr;
 
       {
         uint16_t fuelOffset = ((MAX_FUEL - remainingFuel) >> 17);
-    Drawable& drawable = context.drawables[drawableCount];
-    drawable.sprite = &context.fuelSprites[1];
-    drawable.xStart = 0;
-    drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height - 4;
-    drawable.yEnd = drawable.yStart + fuelOffset - 1;
-    drawable.zoomPattern = 8;
-    drawable.yZoomPattern = 1;
-            if(fuelOffset >= drawable.sprite->height - 4) // blink
+        Drawable& drawable = context.drawables[drawableCount];
+        drawable.sprite = &context.fuelSprites[1];
+        drawable.xStart = 0;
+        drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height - 4;
+        drawable.yEnd = drawable.yStart + fuelOffset - 1;
+        drawable.zoomPattern = 8;
+        drawable.yZoomPattern = 1;
+        
+        if(fuelOffset >= drawable.sprite->height - 4) // blink
         {
           if((gb.frameCount >> 4) & 0x01)
           {
@@ -1671,45 +1712,26 @@ Drawable* drawableList = nullptr;
 
         if(fuelOffset >= drawable.sprite->height)
         {
+          free taskSet.tasks;
           return 1; // game over
         }
-            insertDrawableAtEndOfList(drawable, drawableList);
-  }
-
-  gb.lights.drawImage(0, 0, carInfo.lights);
+        insertDrawableAtEndOfList(drawable, drawableList);
+    }
 
   if(config.level == Level::Skyway)
   {
-    drawFrameSkyway(gm, context, drawableList, carInfo, backgroundShift);
+    drawFrameSkyway(gm, context, drawableList, carInfo, backgroundShift, &taskSet);
   }
   else
   {
-    drawFrame(gm, context, drawableList, carInfo, backgroundShift);
+    drawFrame(gm, context, drawableList, carInfo, backgroundShift, &taskSet);
   }
 
+  
   if(carInfo.fluxed)
   {
+    free taskSet.tasks;
     return 0;
-  }
-
-  if(collisionFx)
-  {
-    gb.sound.fx(collisionSfx);
-  }
-  else
-  {
-    if(engineFx)
-    {
-      gb.sound.fx(engineFx);
-    }
-  }
-  if(collisionFxDuration)
-  {
-    --collisionFxDuration;
-  }
-  if(engineFxDuration)
-  {
-    --engineFxDuration;
   }
   
     if(gb.buttons.repeat(BUTTON_MENU, 0))

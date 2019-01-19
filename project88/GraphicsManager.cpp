@@ -20,36 +20,26 @@ namespace Gamebuino_Meta
 
 namespace roads
 {
-#ifdef DEBUG_PERF
-  int minCount = 32000;
-  int totalCount = 0;
-#endif
-
 #ifdef SCREENSHOT_MODE
 uint16_t counter = 0;
 File* wfile;
 #endif
 
-      static force_inline void WaitForDescAvailable(const uint32_t min_desc_num) noexcept
+      static force_inline void WaitForDescAvailable(const uint32_t min_desc_num, GraphicsManager::TaskSet* taskSet) noexcept
       {
-#ifdef DEBUG_PERF
-        int count = 0;
-        while (Gamebuino_Meta::dma_desc_free_count < min_desc_num){
-          ++count;
-        }
-        if(count < minCount)
+        while (Gamebuino_Meta::dma_desc_free_count < min_desc_num)
         {
-          minCount = count;
+          if(taskSet && taskSet->currentTask < taskSet->taskCount) // perform short tasks instead of losing CPU cycles
+          {
+            (*(taskSet->tasks[taskSet->currentTask].function))(taskSet->tasks[taskSet->currentTask].param);
+            ++taskSet->currentTask;
+          }
         }
-        totalCount += count;
-#else
-        while (Gamebuino_Meta::dma_desc_free_count < min_desc_num);
-#endif
       }
       
-      static force_inline void WaitForTransfersDone(void) noexcept
+      static force_inline void WaitForTransfersDone() noexcept
       {
-        WaitForDescAvailable(DMA_DESC_COUNT);
+        WaitForDescAvailable(DMA_DESC_COUNT, nullptr);
       }
 }
 
@@ -76,15 +66,10 @@ void GraphicsManager::EndFrame() noexcept
   WaitForTransfersDone();
   gb.tft.idleMode();
   SPI.endTransaction();
-#ifdef DEBUG_PERF
-  SerialUSB.printf("Min Count %i / %i\n", minCount, totalCount);
-    roads::minCount = 32000;
-    roads::totalCount = 0;
-#endif
 
 }
 
-uint16_t* GraphicsManager::CommitStrip() noexcept
+uint16_t* GraphicsManager::CommitStrip(GraphicsManager::TaskSet* taskSet) noexcept
 {
     uint16_t *temp = currentStrip;
     currentStrip = sentStrip;
@@ -92,7 +77,7 @@ uint16_t* GraphicsManager::CommitStrip() noexcept
 
     gb.tft.sendBuffer(sentStrip, STRIP_SIZE_PIX);
 
-    WaitForDescAvailable(2);
+    WaitForDescAvailable(2, taskSet);
 
     return currentStrip;
 }
