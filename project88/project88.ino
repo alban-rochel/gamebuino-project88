@@ -17,7 +17,10 @@ void* nextAvailableSegment;
 int16_t capacitorCharge;
 Z_POSITION remainingFuel;
 
-const Gamebuino_Meta::Sound_FX* currentFx;
+const Gamebuino_Meta::Sound_FX* collisionFx;
+uint8_t collisionFxDuration;
+const Gamebuino_Meta::Sound_FX* engineFx;
+uint8_t engineFxDuration;
 
 force_inline float accelFromSpeed(float speed) noexcept
 {
@@ -552,7 +555,6 @@ force_inline int8_t computeCollision(int16_t carXMin, int16_t carXMax, int16_t o
 
 force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, const LevelConfig& config) noexcept
 {
-  currentFx = nullptr;
   const RoadSegment& segment = context.segments[0];
   
   bool accelerating   = gb.buttons.repeat(BUTTON_A, 0);
@@ -604,7 +606,6 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
       }
     }
 
-   
 
     for(uint8_t objectIndex = 0; objectIndex < config.movingObstaclesCount && collision != COLLISION_FRONT; ++objectIndex)
     {
@@ -642,6 +643,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
       }
 
   } // end compute collisions
+
 
   float accelerationValue(0);
   if(accelerating)
@@ -741,11 +743,13 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
     default:
       break;
   }
-
-  if(collision)
+  
+  if(collision && (collisionFxDuration == 0))
   {
-    currentFx = collisionSfx;
+    collisionFx = collisionSfx;
+    collisionFxDuration = collisionSfxDuration;
   }
+
 
   carInfo.speedX += accelX;
   carInfo.speedZ += accelZ;
@@ -778,6 +782,38 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
     if(capacitorCharge < 0)
     {
       capacitorCharge = 0;
+    }
+  }
+
+  // Handle engine sound
+  if(engineFxDuration == 0)
+  {
+    if(likely(carInfo.speedZ > 0.2))
+    {
+      if(carInfo.speedZ > 0.7)
+      {
+        if(engineFx != engineHigh)
+        {
+          engineFx = engineHigh;
+          engineFxDuration = engineHighDuration;
+        }
+      }
+      else
+      {
+        if(engineFx != engineMid)
+        {
+          engineFx = engineMid;
+          engineFxDuration = engineMidDuration;
+        }
+      }
+    }
+    else
+    {
+      if(engineFx != engineLow)
+      {
+        engineFx = engineLow;
+        engineFxDuration = engineLowDuration;
+      }
     }
   }
 
@@ -848,9 +884,6 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
     carInfo.fluxed = true;
     capacitorCharge = 0;
   }
-
-  gb.sound.fx(currentFx);
-
 }
 
 force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  /*unsigned int drawableCount*/Drawable*& drawableList, LevelContext& context) noexcept
@@ -1502,9 +1535,12 @@ int gameLoop(LevelConfig& config) noexcept
 
   capacitorCharge = 0;
 
+  engineFx = nullptr;
+    
   while(true)
   { 
     while (!gb.update());
+    collisionFx = nullptr;
 
     updateCarInfo(context, carInfo, config);
 
@@ -1654,6 +1690,26 @@ Drawable* drawableList = nullptr;
   if(carInfo.fluxed)
   {
     return 0;
+  }
+
+  if(collisionFx)
+  {
+    gb.sound.fx(collisionSfx);
+  }
+  else
+  {
+    if(engineFx)
+    {
+      gb.sound.fx(engineFx);
+    }
+  }
+  if(collisionFxDuration)
+  {
+    --collisionFxDuration;
+  }
+  if(engineFxDuration)
+  {
+    --engineFxDuration;
   }
   
     if(gb.buttons.repeat(BUTTON_MENU, 0))
