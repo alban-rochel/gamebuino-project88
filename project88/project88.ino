@@ -19,8 +19,6 @@ Z_POSITION remainingFuel;
 
 const Gamebuino_Meta::Sound_FX* collisionFx;
 uint8_t collisionFxDuration;
-const Gamebuino_Meta::Sound_FX* engineFx;
-uint8_t engineFxDuration;
 
 force_inline float accelFromSpeed(float speed) noexcept
 {
@@ -107,7 +105,7 @@ LevelConfig levelSelectionMenu(Level level) noexcept
   }
   else // Skyway
   {
-    config.xCurvature = 8;
+    config.xCurvature = 7;
     config.zCurvatureMin = -200;
     config.zCurvatureMax = 600;
     config.bumperWidth  = 8;
@@ -310,7 +308,7 @@ void updateSceneryObjects(LevelContext& context, const CarInfo& carInfo, const L
     SceneryObject& object = context.sceneryObjects[index];
     if(unlikely(object.posZ < carInfo.posZ))
     {
-      createSceneryObject(context, object, carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-1].z, config);
+      createSceneryObject(context, object, carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-1].z/2, config);
     }
   }
 }
@@ -339,7 +337,7 @@ void updateStaticObstacles(LevelContext& context, const CarInfo& carInfo, const 
     StaticObstacle& object = context.staticObstacles[index];
     if(unlikely(object.posZ < carInfo.posZ || (object.validUntil != -1 && object.validUntil > gb.frameCount)))
     {
-      createStaticObstacle(context, object, carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-5].z, config);
+      createStaticObstacle(context, object, carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-5].z/2, config);
     }
   }
 }
@@ -786,35 +784,10 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
   }
 
   // Handle engine sound
-  if(engineFxDuration == 0)
+  if(carInfo.engineFxDuration == 0)
   {
-    if(likely(carInfo.speedZ > 0.2))
-    {
-      if(carInfo.speedZ > 0.7)
-      {
-        if(engineFx != engineHigh)
-        {
-          engineFx = engineHigh;
-          engineFxDuration = engineHighDuration;
-        }
-      }
-      else
-      {
-        if(engineFx != engineMid)
-        {
-          engineFx = engineMid;
-          engineFxDuration = engineMidDuration;
-        }
-      }
-    }
-    else
-    {
-      if(engineFx != engineLow)
-      {
-        engineFx = engineLow;
-        engineFxDuration = engineLowDuration;
-      }
-    }
+    carInfo.engineFx[0].period_start = 1000 - (carInfo.speedZ*500);
+    carInfo.engineFxDuration = 8;
   }
 
   carInfo.posX += carInfo.speedX;
@@ -1054,11 +1027,10 @@ force_inline void drawFrame(GraphicsManager& gm,
       }
     }
 
-    drawSprites(y, stripLine, /*drawableCount*/drawableList, context);
+    drawSprites(y, stripLine, drawableList, context);
 
     if(yStrip == STRIP_HEIGHT)
     {
-            SerialUSB.printf("taskSet %i\n", taskSet->currentTask);
       strip = gm.CommitStrip(taskSet);
       stripCursor = strip;
       yStrip = 0;
@@ -1341,7 +1313,7 @@ void lightUpdateTask(void* carInfo)
     gb.lights.drawImage(0, 0, ((CarInfo*)carInfo)->lights);
 }
 
-void soundPlaybackTask(void*)
+void soundPlaybackTask(void* carInfo)
 {
   if(collisionFx)
   {
@@ -1349,18 +1321,18 @@ void soundPlaybackTask(void*)
   }
   else
   {
-    if(engineFx)
+    if(((CarInfo*)carInfo)->engineFxDuration)
     {
-      gb.sound.fx(engineFx);
+      gb.sound.fx(((CarInfo*)carInfo)->engineFx);
     }
   }
   if(collisionFxDuration)
   {
     --collisionFxDuration;
   }
-  if(engineFxDuration)
+  if(((CarInfo*)carInfo)->engineFxDuration)
   {
-    --engineFxDuration;
+    --((CarInfo*)carInfo)->engineFxDuration;
   }
 }
 
@@ -1435,27 +1407,23 @@ int gameLoop(LevelConfig& config) noexcept
   }
   else // Skyway
   {
-    context.sprites[0].width = TREE_WIDTH;
-    context.sprites[0].height = TREE_HEIGHT;
-    context.sprites[0].buffer = TREE;
+    context.sprites[0].width = LIGHTBULB_WIDTH;
+    context.sprites[0].height = LIGHTBULB_HEIGHT;
+    context.sprites[0].buffer = LIGHTBULB;
   
-    context.sprites[1].width = BUSH_WIDTH;
-    context.sprites[1].height = BUSH_HEIGHT;
-    context.sprites[1].buffer = BUSH;
-  
-    context.sprites[2].width = POLICE_WIDTH;
-    context.sprites[2].height = POLICE_HEIGHT;
-    context.sprites[2].buffer = POLICE;
+    context.sprites[1].width = POLICE_WIDTH;
+    context.sprites[1].height = POLICE_HEIGHT;
+    context.sprites[1].buffer = POLICE;
     
-    config.sceneryObjectsCount = 0;
+    config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
     config.sceneryObjectsIndexStart = 0;
-    config.sceneryObjectsIndexEnd = 2;
+    config.sceneryObjectsIndexEnd = 1;
     config.staticObstaclesCount = 0;
     config.staticObstaclesIndexStart = 0;
     config.staticObstaclesIndexEnd = 2;
     config.movingObstaclesCount = 2;
-    config.movingObstaclesIndexStart = 2;
-    config.movingObstaclesIndexEnd = 3;
+    config.movingObstaclesIndexStart = 1;
+    config.movingObstaclesIndexEnd = 1;
   }
 
   context.carSprites[0].width = CAR_WIDTH;
@@ -1541,6 +1509,14 @@ int gameLoop(LevelConfig& config) noexcept
   carInfo.speedZ = 0.f;
   carInfo.speedX = 0.f;
   carInfo.fluxed = false;
+  carInfo.engineFx[0].type = Gamebuino_Meta::Sound_FX_Wave::SQUARE;
+  carInfo.engineFx[0].continue_flag = 0;
+  carInfo.engineFx[0].volume_start = 100;
+  carInfo.engineFx[0].volume_sweep = 0;
+  carInfo.engineFx[0].period_sweep = 0;
+  carInfo.engineFx[0].period_start = 1000;
+  carInfo.engineFx[0].length = 10;
+  carInfo.engineFxDuration = 0;
 
   initDepthInfo(config, context, minSegmentSize, maxSegmentSize);
   initPalette(config.level, context);
@@ -1566,12 +1542,10 @@ int gameLoop(LevelConfig& config) noexcept
 
   capacitorCharge = 0;
 
-  engineFx = nullptr;
-  
   GraphicsManager::TaskSet taskSet;
   taskSet.tasks = (GraphicsManager::Task*)malloc(2 * sizeof(GraphicsManager::Task));
   taskSet.tasks[0].function = &soundPlaybackTask;
-  taskSet.tasks[0].param = nullptr;
+  taskSet.tasks[0].param = &carInfo;
   taskSet.tasks[1].function = &lightUpdateTask;
   taskSet.tasks[1].param = &carInfo;
   taskSet.taskCount = 2;
@@ -1712,7 +1686,7 @@ Drawable* drawableList = nullptr;
 
         if(fuelOffset >= drawable.sprite->height)
         {
-          free taskSet.tasks;
+          free(taskSet.tasks);
           return 1; // game over
         }
         insertDrawableAtEndOfList(drawable, drawableList);
@@ -1730,7 +1704,7 @@ Drawable* drawableList = nullptr;
   
   if(carInfo.fluxed)
   {
-    free taskSet.tasks;
+    free(taskSet.tasks);
     return 0;
   }
   
@@ -1753,7 +1727,7 @@ void setup()
   gb.display.init(0, 0, ColorMode::rgb565);
 
   // Just to push things to the limit for this example, increase to 40fps.
-  gb.setFrameRate(40);
+  gb.setFrameRate(35);
 
   // Init speedometer "hand" coordinates
   for(uint8_t index = 0; index < SPEED_STEP_COUNT; ++index)

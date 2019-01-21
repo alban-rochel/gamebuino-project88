@@ -178,14 +178,13 @@ struct CarInfo
 {
   CarSprite sprite;
   int16_t posX; // 0 is the center of the road
-  //float posZ;
   Z_POSITION posZ; // meters
   float speedZ; // meters / frame. Max 1
   float speedX;
-//  float accelZ; // meters / frame / frame
-//  float accelX;
   const uint16_t* lights;
   SpriteDefinition* fluxSprite;
+  Gamebuino_Meta::Sound_FX engineFx[1];
+  uint8_t engineFxDuration;
   bool fluxed; // goal reached
 };
 
