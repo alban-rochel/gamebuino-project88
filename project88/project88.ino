@@ -184,7 +184,7 @@ void initPalette(Level level, LevelContext& context) noexcept
   }
   else if(level == Level::Suburb)
   {
-    context.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(/*93, 130, 37*/133, 136, 73); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(/*118, 160, 54*/142, 147, 43);
+    context.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(/*93, 130, 37*/113, 133, 54); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(/*118, 160, 54*/130, 154, 49);
     context.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(100, 100, 100); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = context.trackPalette[COLOR_TRACK_BUMPER_INDEX];
     context.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(186, 186, 186);
     context.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
@@ -1828,21 +1828,21 @@ void loop()
         config = levelSelectionMenu(Level::Skyway);
         if(runLevel(config) == 0) // level successful
         {
-          titleLoop(SUCCESS, SUCCESS_PALETTE, SUCCESS_WIDTH, SUCCESS_HEIGHT, nullptr);
+          titleLoop(SUCCESS, SUCCESS_PALETTE, SUCCESS_WIDTH, SUCCESS_HEIGHT, successMusic);
         }
         else
         {
-          titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT, nullptr);
+          titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT, gameOverMusic);
         }
       }
       else
       {
-        titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT, nullptr);
+        titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT, gameOverMusic);
       }
     }
     else
     {
-      titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT, nullptr);
+      titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT, gameOverMusic);
     }
       
   }

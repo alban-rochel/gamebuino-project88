@@ -12,9 +12,29 @@ const Gamebuino_Meta::Sound_FX titleMusic[] = {
 };
 
 const Gamebuino_Meta::Sound_FX titleJingle[] = {
-  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,63,6},
-  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,95,6},
-  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,255,0,0,89,18},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,63,10},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,95,3},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,71,10},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,255,5,0,67,15},
+};
+
+const Gamebuino_Meta::Sound_FX gameOverMusic[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,126,10},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,189,10},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,200,20},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,5,0,253,10},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,255,0,0,357,10},
+};
+
+const Gamebuino_Meta::Sound_FX successMusic[] = {
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,32,10},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,47,10},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,75,10},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,5,0,63,10},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,63,5},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,47,5},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,63,10},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,255,0,0,33,15},
 };
 
 const uint32_t TITLE_PALETTE[] = {0x40004000,  0x40f90049, 0x40f940f9, 0x20b140f9, 0x40000049, 0x494000, 0x400020b1, 0x20b14000, 0x40f920b1, 0x4940f9, 0x7a4000, 0x40f94000, 0x400040f9, 0x40f9007a, 0x4000007a, 0xc0fb0049, 0xc0fb40f9, 0x7a40f9, 0xc0fb20b1, 0xc0fbc0fb, 0x49c0fb, 0x4000c0fb, 0x40f9c0fb, 0x20b10049, 0x20b1c0fb, 0xc0fb4000, 0x7ac0fb, 0xc0fb007a, 0xc0fb00f5, 0x4900f5, 0x7a00f5, 0xc0fbc529, 0xf5007a, 0xf5c0fb, 0xf50049, 0xf54000, 0xc529007a, 0xf500f5, 0x400000f5, 0xf5c529, 0xf50062, 0x4000e0a4, 0x6200f5, 0xe0a400f5, 0xf521f6, 0x400021f6, 0x6221f6, 0xe0a44000, 0x4000c529, 0xe0a421f6, 0x21f60049, 0x21f600f5, 0x21f64000, 0x21f6e0a4, 0xc79400f5, 0xc52900f5, 0x92944000, 0x92949294, 0xc94a9294, 0xc5294000, 0x4000c94a, 0xc94ac529, 0x9294d9ce, 0xc94ad9ce, 0xc5299294, 0xc529d9ce, 0x40009294, 0xc94a4000, 0x9294c94a, 0xc529c94a, 0xc529c529, 0x9294c529, 0x4000d9ce, 0xc94ac94a, 0x20b120b1, 0x49007a, 0x4920b1, 0xd9ced9ce, 0x20b100f5, 0xd9cec94a, 0xd9ce9294, 0xa7f9d9ce, 0xc5290049, 0x9294007a, 0xc794c94a, 0xc5290062, 0x499294, 0x9294a7f9, 0x92940062, 0xc7940062, 0x620062, 0x20b1c794, 0x20b19294, 0x624000, 0xc794c794, 0xc794e0a4, 0x62e0a4, 0x62c94a, 0x620049, 0xe0a4c794, 0x21f6c794, 0xe0a4e0a4, 0x7a0062, 0x40000062, 0xc94a0062, 0xc7949294, 0x21f621f6, 0xc94ac794, 0x49c529, 0x21f6d9ce, 0x21f60062, 0x62c794, 0x21f6c529, 0x49c94a, 0xe0a40062, 0xc94ae0a4, 0x62c529, 0x490062, 0xe0a40049, 0x7a21f6, 0xf5c794, 0xc7944000, 0x4000c794, 0xa7f920b1, 0x490049, 0xa7f9a7f9, 0x7aa7f9, 0xc79421f6, 0x4000a7f9, 0xd9cec529, 0x7a9294, 0x7a007a, 0x7a0049, 0xc94a0049};
