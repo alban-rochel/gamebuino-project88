@@ -21,3 +21,11 @@ const Gamebuino_Meta::Sound_FX engineHigh[] = {
 }; /* 40 ms = 1.6 frame */
 
 uint8_t engineHighDuration = 8;
+
+const Gamebuino_Meta::Sound_FX swoosh[] = {
+   {Gamebuino_Meta::Sound_FX_Wave::NOISE,1,100,0,0,192,2},
+   {Gamebuino_Meta::Sound_FX_Wave::NOISE,1,70,0,0,128,1},
+   {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,50,0,0,80,1}
+}; /* 80 ms = 3.2 frames */
+
+uint8_t swooshDuration = 4;

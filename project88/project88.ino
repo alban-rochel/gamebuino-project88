@@ -19,6 +19,8 @@ Z_POSITION remainingFuel;
 
 const Gamebuino_Meta::Sound_FX* collisionFx;
 uint8_t collisionFxDuration;
+const Gamebuino_Meta::Sound_FX* swooshFx;
+uint8_t swooshFxDuration;
 
 force_inline float accelFromSpeed(float speed) noexcept
 {
@@ -182,7 +184,7 @@ void initPalette(Level level, LevelContext& context) noexcept
   }
   else if(level == Level::Suburb)
   {
-    context.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(93, 130, 37); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(118, 160, 54);
+    context.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(/*93, 130, 37*/133, 136, 73); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(/*118, 160, 54*/142, 147, 43);
     context.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(100, 100, 100); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = context.trackPalette[COLOR_TRACK_BUMPER_INDEX];
     context.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(186, 186, 186);
     context.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
@@ -820,6 +822,11 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
         if(!lightPattern)
           carInfo.lights = LIGHT_1;
         carInfo.fluxSprite = &context.speedSprites[1];
+        if(swooshFxDuration == 0)
+        {
+          swooshFx = swoosh;
+          swooshFxDuration = swooshDuration;
+        }
         break;
 
       case 2:
@@ -1179,7 +1186,7 @@ uint8_t pulse = gb.frameCount << 3;
   gm.EndFrame();
 }
 
-void titleLoop(const uint8_t* title, const uint32_t* palette, uint16_t width, uint16_t height) noexcept
+void titleLoop(const uint8_t* title, const uint32_t* palette, uint16_t width, uint16_t height, const Gamebuino_Meta::Sound_FX* music) noexcept
 {
   resetAlloc();
   uint16_t* strip1 = (uint16_t*) mphAlloc(STRIP_SIZE_BYTES);
@@ -1197,7 +1204,7 @@ void titleLoop(const uint8_t* title, const uint32_t* palette, uint16_t width, ui
 
    if(gb.buttons.repeat(BUTTON_A, 0) && animationPhase == 1)
    {
-     animationPhase = 2;
+      animationPhase = 2;
    }
 
     uint32_t color32;
@@ -1291,6 +1298,11 @@ void titleLoop(const uint8_t* title, const uint32_t* palette, uint16_t width, ui
         if(offset == 0)
         {
           animationPhase = 1;
+          if(music)
+          {
+            gb.sound.fx(music);
+          }
+
         }
         break;
 
@@ -1321,14 +1333,22 @@ void soundPlaybackTask(void* carInfo)
   }
   else
   {
-    if(((CarInfo*)carInfo)->engineFxDuration)
+    if(swooshFx)
+    {
+      gb.sound.fx(swooshFx);
+    }
+    /*if(((CarInfo*)carInfo)->engineFxDuration)
     {
       gb.sound.fx(((CarInfo*)carInfo)->engineFx);
-    }
+    }*/
   }
   if(collisionFxDuration)
   {
     --collisionFxDuration;
+  }
+  if(swooshDuration)
+  {
+    --swooshDuration;
   }
   if(((CarInfo*)carInfo)->engineFxDuration)
   {
@@ -1555,6 +1575,7 @@ int gameLoop(LevelConfig& config) noexcept
     while (!gb.update());
     taskSet.currentTask = 0;
     collisionFx = nullptr;
+    swooshFx = nullptr;
 
     updateCarInfo(context, carInfo, config);
 
@@ -1727,7 +1748,7 @@ void setup()
   gb.display.init(0, 0, ColorMode::rgb565);
 
   // Just to push things to the limit for this example, increase to 40fps.
-  gb.setFrameRate(35);
+  gb.setFrameRate(40);
 
   // Init speedometer "hand" coordinates
   for(uint8_t index = 0; index < SPEED_STEP_COUNT; ++index)
@@ -1772,7 +1793,7 @@ int runLevel(LevelConfig& config) noexcept
         break;
     }
   
-    titleLoop(title, palette, width, height);
+    titleLoop(title, palette, width, height, titleJingle);
 
   return gameLoop(config);
 }
@@ -1781,7 +1802,7 @@ void loop()
 {
   while(true)
   {
-    titleLoop(TITLE, TITLE_PALETTE, TITLE_WIDTH, TITLE_HEIGHT);
+    titleLoop(TITLE, TITLE_PALETTE, TITLE_WIDTH, TITLE_HEIGHT, titleMusic);
 
     remainingFuel = MAX_FUEL;
     
@@ -1807,21 +1828,21 @@ void loop()
         config = levelSelectionMenu(Level::Skyway);
         if(runLevel(config) == 0) // level successful
         {
-          titleLoop(SUCCESS, SUCCESS_PALETTE, SUCCESS_WIDTH, SUCCESS_HEIGHT);
+          titleLoop(SUCCESS, SUCCESS_PALETTE, SUCCESS_WIDTH, SUCCESS_HEIGHT, nullptr);
         }
         else
         {
-          titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT);
+          titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT, nullptr);
         }
       }
       else
       {
-        titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT);
+        titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT, nullptr);
       }
     }
     else
     {
-      titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT);
+      titleLoop(GAME_OVER, GAME_OVER_PALETTE, GAME_OVER_WIDTH, GAME_OVER_HEIGHT, nullptr);
     }
       
   }
