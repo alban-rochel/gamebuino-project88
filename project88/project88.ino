@@ -4,6 +4,7 @@
 #include "WildWest.h"
 #include "Suburb.h"
 #include "SkyWay.h"
+#include "Pinpin.h"
 #include "Titles.h"
 #include "Dashboard.h"
 #include "SoundEffects.h"
@@ -21,6 +22,8 @@ const Gamebuino_Meta::Sound_FX* collisionFx;
 uint8_t collisionFxDuration;
 const Gamebuino_Meta::Sound_FX* swooshFx;
 uint8_t swooshFxDuration;
+
+bool bonusLevelAvailable;
 
 force_inline float accelFromSpeed(float speed) noexcept
 {
@@ -105,9 +108,9 @@ LevelConfig levelSelectionMenu(Level level) noexcept
     config.movingObstaclesIndexStart = 3;
     config.movingObstaclesIndexEnd = 4;
   }
-  else // Skyway
+  else if(level == Level::Skyway)
   {
-    config.xCurvature = 7;
+    config.xCurvature = 6;
     config.zCurvatureMin = -200;
     config.zCurvatureMax = 600;
     config.bumperWidth  = 8;
@@ -120,6 +123,24 @@ LevelConfig levelSelectionMenu(Level level) noexcept
     config.staticObstaclesIndexStart = 2;
     config.staticObstaclesIndexEnd = 3;
     config.movingObstaclesCount = MAX_MOVING_OBSTACLES;
+    config.movingObstaclesIndexStart = 3;
+    config.movingObstaclesIndexEnd = 4;
+  }
+  else // Bonus
+  {
+    config.xCurvature = 6;
+    config.zCurvatureMin = -200;
+    config.zCurvatureMax = 600;
+    config.bumperWidth  = 8;
+    config.roadWidth    = 160;
+    config.lineWidth    = 8;
+    config.sceneryObjectsCount = MAX_SCENERY_OBJECTS / 2;
+    config.sceneryObjectsIndexStart = 0;
+    config.sceneryObjectsIndexEnd = 3;
+    config.staticObstaclesCount = MAX_STATIC_OBSTACLES / 2;
+    config.staticObstaclesIndexStart = 2;
+    config.staticObstaclesIndexEnd = 3;
+    config.movingObstaclesCount = MAX_MOVING_OBSTACLES / 2;
     config.movingObstaclesIndexStart = 3;
     config.movingObstaclesIndexEnd = 4;
   }
@@ -188,6 +209,13 @@ void initPalette(Level level, LevelContext& context) noexcept
     context.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(100, 100, 100); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = context.trackPalette[COLOR_TRACK_BUMPER_INDEX];
     context.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(142, 142, 142); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(186, 186, 186);
     context.trackPalette[COLOR_TRACK_LINE_INDEX]   = COLOR_565(255, 255, 255); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
+  }
+  else if(level == Level::Bonus)
+  {
+    context.trackPalette[COLOR_TRACK_GRASS_INDEX]  = COLOR_565(254, 191, 16); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_GRASS_INDEX]  = COLOR_565(254, 138, 16);
+    context.trackPalette[COLOR_TRACK_BUMPER_INDEX] = COLOR_565(83, 94, 187); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_BUMPER_INDEX] = COLOR_565(199, 202, 233);
+    context.trackPalette[COLOR_TRACK_ROAD_INDEX]   = COLOR_565(254, 207, 219); context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX] = COLOR_565(254, 162, 123);
+    context.trackPalette[COLOR_TRACK_LINE_INDEX]   =  context.trackPalette[COLOR_TRACK_ROAD_INDEX]; context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_LINE_INDEX] = context.trackPalette[COLOR_TRACK_SIZE + COLOR_TRACK_ROAD_INDEX];
   }
   else // Skyway
   {
@@ -748,6 +776,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
   {
     collisionFx = collisionSfx;
     collisionFxDuration = collisionSfxDuration;
+    bonusLevelAvailable = false;
   }
 
 
@@ -1425,7 +1454,7 @@ int gameLoop(LevelConfig& config) noexcept
     config.movingObstaclesIndexStart = 2;
     config.movingObstaclesIndexEnd = 3;
   }
-  else // Skyway
+  else if(config.level == Level::Skyway)
   {
     context.sprites[0].width = LIGHTBULB_WIDTH;
     context.sprites[0].height = LIGHTBULB_HEIGHT;
@@ -1444,6 +1473,34 @@ int gameLoop(LevelConfig& config) noexcept
     config.movingObstaclesCount = 2;
     config.movingObstaclesIndexStart = 1;
     config.movingObstaclesIndexEnd = 1;
+  }
+  else // Bonus
+  {
+    context.sprites[0].width = CARROT_WIDTH;
+    context.sprites[0].height = CARROT_HEIGHT;
+    context.sprites[0].buffer = CARROT;
+  
+    context.sprites[1].width = RAINBOW_WIDTH;
+    context.sprites[1].height = RAINBOW_HEIGHT;
+    context.sprites[1].buffer = RAINBOW;
+  
+    context.sprites[2].width = PINPIN_STATIC_WIDTH;
+    context.sprites[2].height = PINPIN_STATIC_HEIGHT;
+    context.sprites[2].buffer = PINPIN_STATIC;
+
+    context.sprites[3].width = PINPIN_CAR_WIDTH;
+    context.sprites[3].height = PINPIN_CAR_HEIGHT;
+    context.sprites[3].buffer = PINPIN_CAR;
+    
+    config.sceneryObjectsCount = MAX_SCENERY_OBJECTS / 2;
+    config.sceneryObjectsIndexStart = 0;
+    config.sceneryObjectsIndexEnd = 3;
+    config.staticObstaclesCount = MAX_STATIC_OBSTACLES /2 ;
+    config.staticObstaclesIndexStart = 2;
+    config.staticObstaclesIndexEnd = 3;
+    config.movingObstaclesCount = MAX_MOVING_OBSTACLES / 2;
+    config.movingObstaclesIndexStart = 3;
+    config.movingObstaclesIndexEnd = 4;
   }
 
   context.carSprites[0].width = CAR_WIDTH;
@@ -1505,10 +1562,16 @@ int gameLoop(LevelConfig& config) noexcept
       context.backgroundHeight = BACKGROUND_SUBURB_HEIGHT;
       break;
 
-    default:
+    case Level::Skyway:
       context.background = BACKGROUND_SKYWAY;
       context.backgroundPalette = BACKGROUND_SKYWAY_PALETTE;
       context.backgroundHeight = BACKGROUND_SKYWAY_HEIGHT;
+      break;
+
+    default:
+      context.background = BACKGROUND_PINPIN;
+      context.backgroundPalette = BACKGROUND_PINPIN_PALETTE;
+      context.backgroundHeight = BACKGROUND_PINPIN_HEIGHT;
       break;
   }
 
@@ -1784,12 +1847,19 @@ int runLevel(LevelConfig& config) noexcept
         height = TITLE_SUBURB_HEIGHT;
         title = TITLE_SUBURB;
         break;
-  
-      default:
+
+      case Level::Skyway:
         palette = TITLE_SKYWAY_PALETTE;
         width = TITLE_SKYWAY_WIDTH;
         height = TITLE_SKYWAY_HEIGHT;
         title = TITLE_SKYWAY;
+        break;
+  
+      default:
+        palette = TITLE_PINPIN_PALETTE;
+        width = TITLE_PINPIN_WIDTH;
+        height = TITLE_PINPIN_HEIGHT;
+        title = TITLE_PINPIN;
         break;
     }
   
@@ -1805,15 +1875,20 @@ void loop()
     titleLoop(TITLE, TITLE_PALETTE, TITLE_WIDTH, TITLE_HEIGHT, titleMusic);
 
     remainingFuel = MAX_FUEL;
+    bonusLevelAvailable = true;
     
     LevelConfig config;
-    if(gb.buttons.repeat(BUTTON_UP, 0))
+    if(gb.buttons.repeat(BUTTON_UP, 0) && gb.buttons.repeat(BUTTON_B,0))
     {
       config = levelSelectionMenu(Level::Suburb);
     }
-    else if(gb.buttons.repeat(BUTTON_DOWN, 0))
+    else if(gb.buttons.repeat(BUTTON_DOWN, 0) && gb.buttons.repeat(BUTTON_B,0))
     {
       config = levelSelectionMenu(Level::Skyway);
+    }
+    else if(gb.buttons.repeat(BUTTON_RIGHT, 0) && gb.buttons.repeat(BUTTON_B,0))
+    {
+      config = levelSelectionMenu(Level::Bonus);
     }
     else
     {
@@ -1829,6 +1904,11 @@ void loop()
         if(runLevel(config) == 0) // level successful
         {
           titleLoop(SUCCESS, SUCCESS_PALETTE, SUCCESS_WIDTH, SUCCESS_HEIGHT, successMusic);
+          if(bonusLevelAvailable)
+          {
+            config = levelSelectionMenu(Level::Bonus);
+            runLevel(config);
+          }
         }
         else
         {

@@ -16,9 +16,244 @@
    version="1.1"
    id="svg8"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   sodipodi:docname="arizona.svg">
+   sodipodi:docname="arizona.svg"
+   inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96">
   <defs
      id="defs2">
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2050">
+      <stop
+         style="stop-color:#fdff90;stop-opacity:1"
+         offset="0"
+         id="stop2046" />
+      <stop
+         style="stop-color:#e5e3af;stop-opacity:1"
+         offset="1"
+         id="stop2048" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2028">
+      <stop
+         style="stop-color:#ff9090;stop-opacity:1"
+         offset="0"
+         id="stop2024" />
+      <stop
+         style="stop-color:#ff1313;stop-opacity:1"
+         offset="1"
+         id="stop2026" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient2014">
+      <stop
+         style="stop-color:#a8a8a8;stop-opacity:1"
+         offset="0"
+         id="stop2010" />
+      <stop
+         style="stop-color:#000000;stop-opacity:1"
+         offset="1"
+         id="stop2012" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient1994"
+       inkscape:collect="always">
+      <stop
+         id="stop1990"
+         offset="0"
+         style="stop-color:#ffe74c;stop-opacity:1" />
+      <stop
+         style="stop-color:#ffe74c;stop-opacity:1;"
+         offset="0.16113782"
+         id="stop1996" />
+      <stop
+         id="stop1998"
+         offset="0.30585134"
+         style="stop-color:#fff7c3;stop-opacity:1" />
+      <stop
+         style="stop-color:#ffe32b;stop-opacity:1"
+         offset="0.44566819"
+         id="stop2000" />
+      <stop
+         id="stop1992"
+         offset="1"
+         style="stop-color:#ffe74c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1978">
+      <stop
+         style="stop-color:#e8e8e8;stop-opacity:1"
+         offset="0"
+         id="stop1974" />
+      <stop
+         style="stop-color:#b0b0b0;stop-opacity:1"
+         offset="1"
+         id="stop1976" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1823">
+      <stop
+         style="stop-color:#fff9e9;stop-opacity:1"
+         offset="0"
+         id="stop1819" />
+      <stop
+         id="stop1827"
+         offset="0.65596735"
+         style="stop-color:#ffe6c6;stop-opacity:1" />
+      <stop
+         style="stop-color:#fc8a00;stop-opacity:1"
+         offset="0.82798368"
+         id="stop1829" />
+      <stop
+         style="stop-color:#ffa439;stop-opacity:1"
+         offset="1"
+         id="stop1821" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1651">
+      <stop
+         style="stop-color:#7e00a0;stop-opacity:1"
+         offset="0"
+         id="stop1647" />
+      <stop
+         style="stop-color:#5456ff;stop-opacity:1"
+         offset="1"
+         id="stop1649" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1068">
+      <stop
+         style="stop-color:#ffd47d;stop-opacity:1"
+         offset="0"
+         id="stop1064" />
+      <stop
+         style="stop-color:#f79e00;stop-opacity:1"
+         offset="1"
+         id="stop1066" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1037">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop1033" />
+      <stop
+         style="stop-color:#b7e3ed;stop-opacity:1"
+         offset="1"
+         id="stop1035" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient1001">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1"
+         offset="0"
+         id="stop997" />
+      <stop
+         id="stop1005"
+         offset="0.5"
+         style="stop-color:#ffffff;stop-opacity:1" />
+      <stop
+         style="stop-color:#ff7ffa;stop-opacity:1"
+         offset="0.54510051"
+         id="stop1007" />
+      <stop
+         id="stop1009"
+         offset="0.64183855"
+         style="stop-color:#3f66ff;stop-opacity:1" />
+      <stop
+         style="stop-color:#01d131;stop-opacity:1"
+         offset="0.73613328"
+         id="stop1011" />
+      <stop
+         id="stop1015"
+         offset="0.80447716"
+         style="stop-color:#eaf61f;stop-opacity:1" />
+      <stop
+         style="stop-color:#ff0000;stop-opacity:1"
+         offset="1"
+         id="stop999" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient960">
+      <stop
+         style="stop-color:#c3e2fa;stop-opacity:1"
+         offset="0"
+         id="stop956" />
+      <stop
+         style="stop-color:#188eec;stop-opacity:1"
+         offset="1"
+         id="stop958" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient940">
+      <stop
+         style="stop-color:#b7c9ed;stop-opacity:1"
+         offset="0"
+         id="stop936" />
+      <stop
+         style="stop-color:#567eea;stop-opacity:1"
+         offset="1"
+         id="stop938" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient930"
+       inkscape:collect="always">
+      <stop
+         id="stop926"
+         offset="0"
+         style="stop-color:#666666;stop-opacity:1" />
+      <stop
+         id="stop928"
+         offset="1"
+         style="stop-color:#a0a0a0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient914">
+      <stop
+         style="stop-color:#c3c3c3;stop-opacity:1;"
+         offset="0"
+         id="stop910" />
+      <stop
+         style="stop-color:#a0a0a0;stop-opacity:1"
+         offset="1"
+         id="stop912" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient4611">
+      <stop
+         style="stop-color:#8dffff;stop-opacity:1"
+         offset="0"
+         id="stop4607" />
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1"
+         offset="1"
+         id="stop4609" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient909">
+      <stop
+         style="stop-color:#fbf3f3;stop-opacity:1"
+         offset="0"
+         id="stop905" />
+      <stop
+         style="stop-color:#abffff;stop-opacity:1"
+         offset="1"
+         id="stop907" />
+    </linearGradient>
     <linearGradient
        inkscape:collect="always"
        id="linearGradient890">
@@ -205,7 +440,380 @@
        x2="11.363825"
        y2="259.16449"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(7.7034174,0,0,7.7034174,-74.909693,-1746.1546)" />
+       gradientTransform="matrix(7.7034174,0,0,7.7034174,-75.845136,-1741.1968)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient909"
+       id="radialGradient911"
+       cx="54.629871"
+       cy="244.22255"
+       fx="54.629871"
+       fy="244.22253"
+       r="10.262385"
+       gradientTransform="matrix(1.8659557,0.05469213,-0.03029268,1.0335086,-39.908879,-11.152947)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient4611"
+       id="radialGradient4613"
+       cx="53.413811"
+       cy="243.67972"
+       fx="53.413811"
+       fy="243.67972"
+       r="10.262385"
+       gradientTransform="matrix(1,0,0,1.0338574,0,-8.2503546)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient914"
+       id="radialGradient916"
+       cx="57.778385"
+       cy="259.42917"
+       fx="57.778385"
+       fy="259.42917"
+       r="10.054167"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(1.096098e-5)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient930"
+       id="radialGradient924"
+       cx="48.716408"
+       cy="270.27707"
+       fx="48.716408"
+       fy="270.27707"
+       r="8.2020836"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.0887097,0,0,1.0887097,-4.7323609,-23.606522)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient940"
+       id="radialGradient934"
+       gradientUnits="userSpaceOnUse"
+       cx="55.58992"
+       cy="264.2872"
+       fx="55.58992"
+       fy="264.2872"
+       r="8.2020836"
+       gradientTransform="matrix(0.94354837,0,0,0.94354837,3.0115022,15.022332)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient964"
+       cx="11.827824"
+       cy="286.21292"
+       fx="11.827824"
+       fy="286.21292"
+       r="8.7267447"
+       gradientTransform="matrix(0.99997244,0.00742405,-0.01071927,1.4438181,3.0683197,-127.94759)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient974"
+       cx="9.9432364"
+       cy="273.76129"
+       fx="9.9432364"
+       fy="273.76129"
+       r="3.404181"
+       gradientTransform="matrix(1.2262133,0,0,1.7378877,-3.4476899,-202.51207)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient988"
+       cx="10.472489"
+       cy="289.70953"
+       fx="10.472489"
+       fy="289.70953"
+       r="2.8734205"
+       gradientTransform="matrix(1.3331782,0,0,1.1974524,-3.1271569,-57.336137)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient942"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-1.3331782,0,0,1.1974524,35.181129,-57.071554)"
+       cx="10.472489"
+       cy="289.70953"
+       fx="10.472489"
+       fy="289.70953"
+       r="2.8734205" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient956"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.2262133,0,0,1.7378877,-3.4476899,-202.51207)"
+       cx="9.9432364"
+       cy="273.76129"
+       fx="9.9432364"
+       fy="273.76129"
+       r="3.404181" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1001"
+       id="radialGradient1003"
+       cx="42.622616"
+       cy="288.58099"
+       fx="42.622616"
+       fy="288.58099"
+       r="13.239585"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(3.7795274,0,0,3.7795274,0,-622.51962)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1001"
+       id="radialGradient1029"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(-13.522193,-28.334244)"
+       cx="42.622616"
+       cy="288.58099"
+       fx="42.622616"
+       fy="288.58099"
+       r="13.239585" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1037"
+       id="radialGradient1039"
+       cx="16.486849"
+       cy="260.85379"
+       fx="16.486849"
+       fy="260.85379"
+       r="1.6218958"
+       gradientTransform="matrix(6.0916569,-0.1541317,0.17065005,6.7445015,-82.634453,-1393.5377)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1037"
+       id="radialGradient1060"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.6117509,-0.04078068,0.04515116,1.7844827,-1.2174147,-203.80009)"
+       cx="16.486849"
+       cy="260.85379"
+       fx="16.486849"
+       fy="260.85379"
+       r="1.6218958" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1068"
+       id="linearGradient1070"
+       x1="8.6705751"
+       y1="288.7681"
+       x2="15.426967"
+       y2="288.58326"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1037"
+       id="radialGradient1076"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.6117509,-0.04078068,0.04515116,1.7844827,-30.214287,-167.70203)"
+       cx="16.486849"
+       cy="260.85379"
+       fx="16.486849"
+       fy="260.85379"
+       r="1.6218958" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1651"
+       id="linearGradient1653"
+       x1="106.89167"
+       y1="255.4604"
+       x2="106.89167"
+       y2="231.7802"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient1691"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.3331782,0,0,1.1974524,-3.1271569,-57.336137)"
+       cx="10.472489"
+       cy="289.70953"
+       fx="10.472489"
+       fy="289.70953"
+       r="2.8734205" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient1693"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-1.3331782,0,0,1.1974524,35.181129,-57.071554)"
+       cx="10.472489"
+       cy="289.70953"
+       fx="10.472489"
+       fy="289.70953"
+       r="2.8734205" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient1695"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.2262133,0,0,1.7378877,-3.4476899,-202.51207)"
+       cx="9.9432364"
+       cy="273.76129"
+       fx="9.9432364"
+       fy="273.76129"
+       r="3.404181" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient1697"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(1.2262133,0,0,1.7378877,-3.4476899,-202.51207)"
+       cx="9.9432364"
+       cy="273.76129"
+       fx="9.9432364"
+       fy="273.76129"
+       r="3.404181" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient1699"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.99997244,0.00742405,-0.01071927,1.4438181,3.0683197,-127.94759)"
+       cx="11.827824"
+       cy="286.21292"
+       fx="11.827824"
+       fy="286.21292"
+       r="8.7267447" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1001"
+       id="radialGradient1703"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="translate(42.001407,-30.121274)"
+       cx="42.622616"
+       cy="288.58099"
+       fx="42.622616"
+       fy="288.58099"
+       r="13.239585" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1823"
+       id="radialGradient1825"
+       cx="119.40922"
+       cy="247.14078"
+       fx="119.40922"
+       fy="247.14078"
+       r="14.155089"
+       gradientTransform="matrix(0.88487665,-0.46582542,0.13237485,0.25145775,-18.968434,240.61916)"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient1924"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.91503397,0,0,1.2968594,-29.291675,-65.99549)"
+       cx="9.9432364"
+       cy="273.76129"
+       fx="9.9432364"
+       fy="273.76129"
+       r="3.404181" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient1926"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(-0.91503397,0,0,1.2968594,-1.1997463,-65.748691)"
+       cx="9.9432364"
+       cy="273.76129"
+       fx="9.9432364"
+       fy="273.76129"
+       r="3.404181" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient960"
+       id="radialGradient1928"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.74620684,0.00554003,-0.00799901,1.0774166,-24.42925,-10.353432)"
+       cx="11.827824"
+       cy="286.21292"
+       fx="11.827824"
+       fy="286.21292"
+       r="8.7267447" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1978"
+       id="linearGradient1980"
+       x1="-15.013865"
+       y1="306.49475"
+       x2="-14.920321"
+       y2="309.5817"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient1994"
+       id="linearGradient1988"
+       x1="-25.737411"
+       y1="305.33145"
+       x2="-5.5191159"
+       y2="300.22726"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2014"
+       id="linearGradient2016"
+       x1="-21.894272"
+       y1="312.47812"
+       x2="-21.828125"
+       y2="308.77396"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2014"
+       id="linearGradient2020"
+       gradientUnits="userSpaceOnUse"
+       x1="-21.894272"
+       y1="312.47812"
+       x2="-21.828125"
+       y2="308.77396"
+       gradientTransform="translate(14.921899,0.01135381)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2028"
+       id="radialGradient2030"
+       cx="-22.820312"
+       cy="304.27603"
+       fx="-22.820312"
+       fy="304.27603"
+       r="1.6715052"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2050"
+       id="radialGradient2044"
+       gradientUnits="userSpaceOnUse"
+       cx="-22.820312"
+       cy="304.27603"
+       fx="-22.820312"
+       fy="304.27603"
+       r="1.6715052"
+       gradientTransform="matrix(0.70320537,0,0,0.70320537,-6.3429979,92.2588)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2028"
+       id="radialGradient2056"
+       gradientUnits="userSpaceOnUse"
+       cx="-22.820312"
+       cy="304.27603"
+       fx="-22.820312"
+       fy="304.27603"
+       r="1.6715052"
+       gradientTransform="translate(30.294782)" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2050"
+       id="radialGradient2058"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.70320537,0,0,0.70320537,23.951784,92.2588)"
+       cx="-22.820312"
+       cy="304.27603"
+       fx="-22.820312"
+       fy="304.27603"
+       r="1.6715052" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -214,9 +822,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="15.839192"
-     inkscape:cx="31.437772"
-     inkscape:cy="190.76374"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="182.43699"
+     inkscape:cy="-5.9417865"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -252,7 +860,7 @@
        id="guide4549"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="4.209495,87.296912"
+       position="0,50.046219"
        orientation="1,0"
        id="guide4620"
        inkscape:locked="false" />
@@ -265,6 +873,21 @@
        position="6.8487815,89.936198"
        orientation="0,1"
        id="guide4624"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="53.346614,39.654428"
+       orientation="1,0"
+       id="guide904"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="54.504166,30.890105"
+       orientation="0,1"
+       id="guide906"
+       inkscape:locked="false" />
+    <sodipodi:guide
+       position="42.333331,8.2319017"
+       orientation="0,1"
+       id="guide995"
        inkscape:locked="false" />
   </sodipodi:namedview>
   <metadata
@@ -306,19 +929,19 @@
        x="-0.094494052"
        y="214.12871" />
     <rect
-       style="fill:#bb7e53;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#febf10;fill-opacity:1;stroke:none;stroke-width:0.74781233;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4529"
-       width="68.130211"
+       width="38.100002"
        height="18.728729"
-       x="-0.094494052"
-       y="195.39998" />
+       x="71.683945"
+       y="255.4962" />
     <rect
-       style="fill:#93341c;fill-opacity:1;stroke:none;stroke-width:1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#fe8a10;fill-opacity:1;stroke:none;stroke-width:0.74781233;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="rect4539"
-       width="68.130211"
+       width="38.100002"
        height="15.497024"
-       x="-0.094494052"
-       y="214.12871" />
+       x="71.683945"
+       y="274.22491" />
     <g
        id="g4596"
        transform="translate(2.271791,-29.934187)">
@@ -435,46 +1058,882 @@
            style="fill:url(#linearGradient6197);fill-opacity:1;stroke:none;stroke-width:0.08454549;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
       </g>
     </g>
+    <g
+       id="g914"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
+      <path
+         inkscape:connector-curvature="0"
+         id="path882"
+         d="m 8.0545795,265.67975 h 0.8582904 v -2.94432 h -0.81891 z"
+         style="fill:#eec286;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="czzzzzzzzzzzzzzzzc"
+         inkscape:connector-curvature="0"
+         id="path884"
+         d="m 8.3669299,247.63096 c 0,0 -1.2278862,1.25943 -1.4103574,1.86539 -0.1825006,0.60626 0.2181503,0.87356 0.090983,1.45578 -0.1271942,0.58237 -0.7794172,1.09535 -1.0009051,1.86531 -0.2214665,0.77033 -0.023,1.79165 -0.1819657,2.68426 -0.1591532,0.89258 -0.7713058,1.71485 -0.7734239,2.63872 -0.00212,0.92387 0.6564085,1.92425 0.7734239,2.68426 0.1170047,0.76033 -0.4227628,1.34377 0.045438,1.81979 0.4682114,0.47607 1.6831268,0.0808 2.1837786,0.0909 0.5006464,0.008 0.3644503,0.0618 0.8189126,0 0.4544248,-0.0615 1.5263091,-0.0615 1.8653201,-0.49995 0.339028,-0.44216 -0.113849,-0.69791 0,-1.41034 0.113849,-0.71257 1.005066,-1.88909 0.909906,-2.77522 -0.09513,-0.88614 -1.043235,-1.32292 -1.228381,-2.09279 -0.185121,-0.76956 0.206223,-1.55356 0.136501,-2.32028 -0.0701,-0.76648 -0.501724,-1.51989 -0.545942,-2.2293 -0.04391,-0.70946 0.488627,-1.23391 0.227484,-1.95626 -0.261155,-0.7226 -1.9107933,-1.82025 -1.9107933,-1.82025 z"
+         style="fill:url(#linearGradient892);fill-opacity:1;stroke:#319628;stroke-width:0.23800001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="cccccc"
+         inkscape:connector-curvature="0"
+         id="path894"
+         d="m 7.7597594,249.14626 c 0.6369201,0.95548 0.4095138,1.18294 0.4095138,1.18294 l 0.8644174,0.54619 -1.5923445,0.22732 -0.4094362,-0.72797 z"
+         style="opacity:0.21300001;fill:#2b6017;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         style="opacity:0.21300001;fill:#2b6017;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 10.077476,256.99457 c 0.31846,0.47774 0.174043,0.88589 0.409513,1.18294 0.23547,0.29705 0.956196,0.1174 0.864418,0.54619 -0.09178,0.42879 -1.227096,0.40752 -1.5923453,0.22732 -0.365249,-0.1802 -0.413685,-0.35081 -0.409436,-0.72797 0.0043,-0.37716 0.40939,-1.70622 0.7278503,-1.22848 z"
+         id="path896"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="zzzzzz" />
+      <path
+         sodipodi:nodetypes="zzzzzz"
+         inkscape:connector-curvature="0"
+         id="path898"
+         d="m 7.4413461,251.10271 c 0.3184601,0.47773 0.3463139,0.5484 0.6824464,0.77349 0.3361325,0.22509 0.017654,0.0639 1.3193722,0.45529 1.3017183,0.39135 0.159055,0.94473 -0.318459,1.22838 -0.4775141,0.28365 -1.6310375,0.0625 -2.0017782,-0.50073 -0.3707407,-0.5632 -4.15e-5,-2.43416 0.3184186,-1.95643 z"
+         style="opacity:0.21300001;fill:#2b6017;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         style="opacity:0.21300001;fill:#2b6017;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 6.2142331,252.44013 c -0.018176,0.0525 0.2251815,1.07287 0.55426,1.48044 0.3290785,0.40757 1.5096335,0.25194 1.314796,0.84375 -0.1948375,0.59181 -1.6161635,0.77426 -1.9709547,0.39199 -0.3547912,-0.38227 -0.1845371,-1.19457 -0.1918921,-1.48769 -0.00735,-0.29311 0.3529705,-1.32851 0.2935762,-1.22833 -0.059394,0.10018 2.146e-4,-1.6e-4 2.146e-4,-1.6e-4 z"
+         id="path900"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="szzzzzs" />
+      <path
+         sodipodi:nodetypes="zzzzzz"
+         inkscape:connector-curvature="0"
+         id="path902"
+         d="m 8.8206945,254.51862 c 0.3184592,0.47772 0.3499822,0.84585 0.6142712,1.16023 0.264289,0.31438 1.0599443,0.22931 0.9099113,0.70561 -0.150033,0.4763 -1.4515592,0.30684 -1.8425637,0.0909 -0.3910045,-0.21594 -1.0733043,0.51083 -1.0690781,0.13363 0.00423,-0.3772 1.0690008,-2.5681 1.3874593,-2.09037 z"
+         style="opacity:0.21300001;fill:#2b6017;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="szzzzzs"
+         inkscape:connector-curvature="0"
+         id="path904"
+         d="m 6.2917051,257.73328 c 0.2774828,0.28418 1.2969118,0.44222 1.5337452,0.76461 0.2368333,0.32239 0.8909456,0.97944 0.7507233,1.44757 -0.1402216,0.46812 -2.7272712,0.31346 -2.9826096,0.0111 -0.2553385,-0.30238 -0.2348181,-1.5055 -0.2401114,-1.73736 -0.00529,-0.23185 0.313688,-1.14909 0.2709427,-1.06985 -0.042745,0.0793 0.6673098,0.58395 0.6673098,0.58395 z"
+         style="opacity:0.21300001;fill:#2b6017;fill-opacity:1;stroke:none;stroke-width:1.53782618px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
     <path
-       style="fill:#eec286;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 8.9900228,260.7219 h 0.8582904 v -2.94432 h -0.81891 z"
-       id="path882"
+       sodipodi:type="star"
+       style="opacity:1;fill:url(#radialGradient911);fill-opacity:1;stroke:url(#radialGradient4613);stroke-width:1.438;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path895"
+       sodipodi:sides="10"
+       sodipodi:cx="53.413812"
+       sodipodi:cy="243.67972"
+       sodipodi:r1="8.0800867"
+       sodipodi:r2="4.0400434"
+       sodipodi:arg1="-0.26179939"
+       sodipodi:arg2="0.052359875"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 61.218575,241.58844 -3.770258,2.30272 3.508905,2.6842 -4.403708,-0.35316 1.261027,4.23405 -3.35509,-2.87415 -1.468519,4.16663 -1.024943,-4.29731 -3.637142,2.5077 1.696698,-4.07904 -4.416499,-0.10908 3.770258,-2.30272 -3.508904,-2.68421 4.403707,0.35317 -1.261027,-4.23405 3.355091,2.87415 1.468519,-4.16664 1.024943,4.29731 3.637141,-2.5077 -1.696698,4.07904 z"
+       inkscape:transform-center-x="-0.1306761"
+       inkscape:transform-center-y="-0.64624218"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\light.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <circle
+       style="opacity:1;fill:url(#radialGradient916);fill-opacity:1;stroke:none;stroke-width:1.43800008;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path908"
+       cx="53.346615"
+       cy="266.10989"
+       r="10.054167"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\light.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <circle
+       r="8.9296875"
+       cy="266.10989"
+       cx="53.346615"
+       id="circle918"
+       style="opacity:1;fill:url(#radialGradient924);fill-opacity:1;stroke:none;stroke-width:1.27717113;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\light.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <circle
+       style="opacity:1;fill:url(#radialGradient934);fill-opacity:1;stroke:none;stroke-width:1.10688162;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle932"
+       cx="53.346615"
+       cy="266.10989"
+       r="7.7390628"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\light.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:0.5585104;stroke:none;stroke-width:1.2314297;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect942"
+       width="2.5466146"
+       height="2.3151128"
+       x="54.702602"
+       y="265.05154"
+       ry="0.92604166"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\light.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       ry="0.92604166"
+       y="265.05154"
+       x="51.229946"
+       height="2.3151128"
+       width="3.4726562"
+       id="rect944"
+       style="opacity:1;fill:#ffffff;fill-opacity:0.5585104;stroke:none;stroke-width:1.43800008;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\light.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       ry="0.71437579"
+       y="267.36667"
+       x="54.702602"
+       height="1.7859461"
+       width="2.5466146"
+       id="rect946"
+       style="opacity:1;fill:#ffffff;fill-opacity:0.5585104;stroke:none;stroke-width:1.08157766;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\light.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:0.5585104;stroke:none;stroke-width:1.26301062;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect948"
+       width="3.4726562"
+       height="1.7859461"
+       x="51.229946"
+       y="267.36667"
+       ry="0.71437579"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\light.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <g
+       id="g991"
+       transform="matrix(0.74622741,0,0,0.74622741,-23.912584,53.787215)"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
+      <path
+         sodipodi:nodetypes="czzzzzzzzzc"
+         inkscape:connector-curvature="0"
+         id="path980"
+         d="m 10.528726,286.32674 c -1.1107685,0.10266 -1.9470068,0.86386 -2.494224,1.55889 -0.5472173,0.69501 -1.088395,1.61356 -0.7482677,2.24481 0.3401274,0.63123 1.4669389,0.0465 1.8706691,0.49884 0.4037301,0.45238 -0.1950073,1.28707 0.2494221,1.6836 0.44443,0.39654 1.6388165,-0.27196 2.2448035,-0.18717 0.605987,0.0849 0.786722,0.88508 1.371824,0.68592 0.585103,-0.19916 0.904479,-0.61849 1.184757,-1.49653 0.280277,-0.87806 0.531016,-2.6194 -0.187066,-3.61663 -0.718083,-0.99722 -2.381149,-1.47441 -3.491918,-1.37177 z"
+         style="fill:url(#radialGradient988);fill-opacity:1;stroke:#0e45b6;stroke-width:0.35273671px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         style="fill:url(#radialGradient942);fill-opacity:1;stroke:#0e45b6;stroke-width:0.35273671px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 21.525246,286.59132 c 1.110768,0.10266 1.947007,0.86386 2.494224,1.55889 0.547217,0.69501 1.088395,1.61356 0.748268,2.24481 -0.340128,0.63123 -1.466939,0.0465 -1.87067,0.49884 -0.40373,0.45238 0.195008,1.28707 -0.249422,1.6836 -0.44443,0.39654 -1.638816,-0.27196 -2.244803,-0.18717 -0.605987,0.0849 -0.786722,0.88508 -1.371824,0.68592 -0.585103,-0.19916 -0.904479,-0.61849 -1.184757,-1.49653 -0.280277,-0.87806 -0.531016,-2.6194 0.187066,-3.61663 0.718083,-0.99722 2.381149,-1.47441 3.491918,-1.37177 z"
+         id="path940"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="czzzzzzzzzc" />
+      <g
+         id="g948">
+        <path
+           style="fill:url(#radialGradient974);fill-opacity:1;stroke:#0e45b6;stroke-width:0.32443559px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 12.152233,277.37124 c 2.338257,-1.12014 1.617851,-4.11255 0.211424,-6.61734 -1.406426,-2.5048 -5.8200091,-5.40573 -6.7496324,-4.47683 -0.7194956,0.71893 -0.3734186,4.85271 0.838504,7.35285 1.2119225,2.50015 3.361445,4.86146 5.6997044,3.74132 z"
+           id="path966"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="zzszz" />
+        <path
+           sodipodi:nodetypes="zzszz"
+           inkscape:connector-curvature="0"
+           id="path944"
+           d="m 11.623066,277.37124 c 1.78368,-0.87077 1.234135,-3.19698 0.161279,-5.14414 -1.072855,-1.94716 -4.439644,-4.20226 -5.1487833,-3.48015 -0.5488482,0.55887 -0.2848527,3.77236 0.6396321,5.71589 0.9244833,1.94355 2.5641925,3.77916 4.3478722,2.9084 z"
+           style="fill:#ffffff;fill-opacity:0.51063831;stroke:none;stroke-width:0.24983607px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      </g>
+      <g
+         transform="matrix(-1,0,0,1,30.749885,0.33072917)"
+         id="g954">
+        <path
+           sodipodi:nodetypes="zzszz"
+           inkscape:connector-curvature="0"
+           id="path950"
+           d="m 12.152233,277.37124 c 2.338257,-1.12014 1.617851,-4.11255 0.211424,-6.61734 -1.406426,-2.5048 -5.8200091,-5.40573 -6.7496324,-4.47683 -0.7194956,0.71893 -0.3734186,4.85271 0.838504,7.35285 1.2119225,2.50015 3.361445,4.86146 5.6997044,3.74132 z"
+           style="fill:url(#radialGradient956);fill-opacity:1;stroke:#0e45b6;stroke-width:0.32443559px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+        <path
+           style="fill:#ffffff;fill-opacity:0.51063831;stroke:none;stroke-width:0.24983607px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 11.623066,277.37124 c 1.78368,-0.87077 1.234135,-3.19698 0.161279,-5.14414 -1.072855,-1.94716 -4.439644,-4.20226 -5.1487833,-3.48015 -0.5488482,0.55887 -0.2848527,3.77236 0.6396321,5.71589 0.9244833,1.94355 2.5641925,3.77916 4.3478722,2.9084 z"
+           id="path952"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="zzszz" />
+      </g>
+      <path
+         sodipodi:nodetypes="zzzz"
+         inkscape:connector-curvature="0"
+         id="path954"
+         d="m 15.575132,275.48479 c 4.685353,-0.056 10.581073,9.22814 8.091584,11.5995 -2.489489,2.37135 -12.84638,2.73234 -15.8089919,0.0468 -2.9626124,-2.68554 3.0320549,-11.59034 7.7174079,-11.6463 z"
+         style="fill:url(#radialGradient964);fill-opacity:1;stroke:#0e45b6;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <g
+         transform="translate(0,1.0583333)"
+         id="g962">
+        <ellipse
+           style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.73405898;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           id="path932"
+           cx="13.62896"
+           cy="280.76117"
+           rx="0.59823072"
+           ry="1.3559896" />
+        <ellipse
+           ry="0.67799479"
+           rx="0.29911536"
+           cy="281.4061"
+           cx="13.594424"
+           id="ellipse958"
+           style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.86702949;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      </g>
+      <g
+         transform="translate(3.7041667,1.0583333)"
+         id="g968">
+        <ellipse
+           ry="1.3559896"
+           rx="0.59823072"
+           cy="280.76117"
+           cx="13.62896"
+           id="ellipse964"
+           style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.73405898;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+        <ellipse
+           style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.86702949;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           id="ellipse966"
+           cx="13.594424"
+           cy="281.4061"
+           rx="0.29911536"
+           ry="0.67799479" />
+      </g>
+      <path
+         sodipodi:nodetypes="zzzz"
+         inkscape:connector-curvature="0"
+         id="path970"
+         d="m 14.882813,283.37395 c -0.190022,0.3304 0.226616,0.96092 0.595312,0.95911 0.368696,-0.002 0.740775,-0.5979 0.56224,-0.92604 -0.178535,-0.32814 -0.96753,-0.36347 -1.157552,-0.0331 z"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="czczczczcc"
+         inkscape:connector-curvature="0"
+         id="path972"
+         d="m 15.487867,284.14971 c 0,0 0.553232,0.80031 1.117759,0.79463 0.564528,-0.005 1.5968,-0.41624 1.5968,-0.41624 0,0 -0.947269,0.79494 -1.5968,0.79463 -0.64953,-3e-4 -1.117759,-0.75679 -1.117759,-0.75679 0,0 -0.406699,0.62696 -0.944774,0.74418 -0.538074,0.11721 -1.543573,-0.49191 -1.543573,-0.49191 0,0 0.93048,0.18585 1.410506,0.0631 0.480026,-0.12278 1.077841,-0.73156 1.077841,-0.73156 z"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.20728384px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+    <path
+       style="opacity:1;fill:url(#radialGradient1003);fill-opacity:1;stroke:none;stroke-width:5.43496084;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 161.09375 418.14062 A 50.039375 50.039375 0 0 0 111.05469 468.17969 A 50.039375 50.039375 0 0 0 111.08984 468.88672 L 134.41406 468.88672 A 26.704851 26.704851 0 0 1 134.38867 468.17969 A 26.704851 26.704851 0 0 1 161.09375 441.47461 A 26.704851 26.704851 0 0 1 187.79883 468.17969 A 26.704851 26.704851 0 0 1 187.76367 468.88672 L 211.10742 468.88672 A 50.039375 50.039375 0 0 0 211.13281 468.17969 A 50.039375 50.039375 0 0 0 161.09375 418.14062 z "
+       transform="matrix(0.26458333,0,0,0.26458333,0,164.70832)"
+       id="path993" />
+    <path
+       id="path1027"
+       d="m 29.100528,247.0071 a 13.239584,13.239584 0 0 0 -13.239501,13.23951 13.239584,13.239584 0 0 0 0.0093,0.18706 h 6.1712 a 7.0656584,7.0656584 0 0 1 -0.0067,-0.18706 7.0656584,7.0656584 0 0 1 7.065719,-7.06572 7.0656584,7.0656584 0 0 1 7.065719,7.06572 7.0656584,7.0656584 0 0 1 -0.0093,0.18706 h 6.176367 a 13.239584,13.239584 0 0 0 0.0067,-0.18706 13.239584,13.239584 0 0 0 -13.239501,-13.23951 z"
+       style="opacity:1;fill:url(#radialGradient1029);fill-opacity:1;stroke:none;stroke-width:1.43800008;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="opacity:1;fill:url(#radialGradient1039);fill-opacity:1;stroke:#39d6dc;stroke-width:0.63499999;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 76.1875 353.625 A 5.8124999 5.3749999 0 0 0 70.375 359 A 5.8124999 5.3749999 0 0 1 70.375 359.00195 A 5.8124999 5.3749999 0 0 0 69.615234 359.05859 A 5.8124999 5.3749999 0 0 0 64.4375 356.125 A 5.8124999 5.3749999 0 0 0 58.625 361.5 A 5.8124999 5.3749999 0 0 0 64.4375 366.875 A 5.8124999 5.3749999 0 0 0 65.259766 366.81641 A 5.8124999 5.3749999 0 0 0 70.4375 369.75 A 5.8124999 5.3749999 0 0 0 75.517578 366.98242 A 5.8124999 5.3749999 0 0 0 79.9375 368.875 A 5.8124999 5.3749999 0 0 0 85.75 363.5 A 5.8124999 5.3749999 0 0 0 81.966797 358.4707 A 5.8124999 5.3749999 0 0 0 76.1875 353.625 z "
+       transform="matrix(0.26458333,0,0,0.26458333,0,164.70832)"
+       id="path1031"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       id="path1058"
+       d="m 40.804226,258.47004 a 1.5378906,1.4221354 0 0 0 -1.53789,1.42213 1.5378906,1.4221354 0 0 1 0,5.2e-4 1.5378906,1.4221354 0 0 0 -0.201022,0.015 1.5378906,1.4221354 0 0 0 -1.369942,-0.77617 1.5378906,1.4221354 0 0 0 -1.53789,1.42213 1.5378906,1.4221354 0 0 0 1.53789,1.42214 1.5378906,1.4221354 0 0 0 0.217558,-0.0155 1.5378906,1.4221354 0 0 0 1.369942,0.77618 1.5378906,1.4221354 0 0 0 1.344104,-0.73225 1.5378906,1.4221354 0 0 0 1.169438,0.50074 1.5378906,1.4221354 0 0 0 1.53789,-1.42213 1.5378906,1.4221354 0 0 0 -1.000972,-1.33067 1.5378906,1.4221354 0 0 0 -1.529106,-1.28209 z"
+       style="opacity:1;fill:url(#radialGradient1060);fill-opacity:1;stroke:#39d6dc;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <g
+       id="g1710">
+      <path
+         inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\carrot.png"
+         inkscape:export-ydpi="96"
+         inkscape:export-xdpi="96"
+         style="fill:#08a000;fill-opacity:1;stroke:#034400;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 10.995642,280.72811 c 0,0 0.505018,-1.52706 1.653646,-1.78593 1.148629,-0.25887 3.464076,0.52773 4.299479,1.71979 0.835403,1.19206 0.132292,4.10104 0.132292,4.10104 0,0 1.46049,-0.90096 1.852083,-2.11667 0.391593,-1.21571 0.849598,-3.49153 -0.463021,-4.82864 -1.312618,-1.33711 -4.926671,-1.65701 -6.349999,-0.72761 -1.423328,0.9294 -1.12448,3.63802 -1.12448,3.63802 z"
+         id="path1080"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="czzczzzc" />
+      <path
+         inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\carrot.png"
+         inkscape:export-ydpi="96"
+         inkscape:export-xdpi="96"
+         sodipodi:nodetypes="czzczzzc"
+         inkscape:connector-curvature="0"
+         id="path1078"
+         d="m 10.318754,279.93436 c 0,0 -0.5050177,-1.52706 -1.6536459,-1.78593 -1.1486286,-0.25887 -3.4640762,0.52773 -4.2994791,1.71979 -0.8354029,1.19206 -0.1322916,4.10104 -0.1322916,4.10104 0,0 -1.4604904,-0.90096 -1.8520834,-2.11667 -0.3915931,-1.21571 -0.8495972,-3.49153 0.4630209,-4.82864 1.3126181,-1.33711 4.9266718,-1.65701 6.3499997,-0.72761 1.4233284,0.9294 1.1244794,3.63802 1.1244794,3.63802 z"
+         style="fill:#08a000;fill-opacity:1;stroke:#034400;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\carrot.png"
+         inkscape:export-ydpi="96"
+         inkscape:export-xdpi="96"
+         sodipodi:nodetypes="czzczzzc"
+         inkscape:connector-curvature="0"
+         id="path1082"
+         d="m 10.847917,280.46353 c 0,0 0.0073,-0.99741 0.929126,-1.698 0.921832,-0.7006 3.148603,-1.47461 4.207808,-1.31082 1.0592,0.16378 1.269553,1.93434 1.269553,1.93434 0,0 1.011081,-1.16973 1.007826,-1.95856 -0.0033,-0.78881 -0.247557,-2.12797 -1.760888,-2.1239 -1.513336,0.004 -4.733292,1.65504 -5.704181,2.82007 -0.9708893,1.16503 0.05076,2.33687 0.05076,2.33687 z"
+         style="fill:#08a000;fill-opacity:1;stroke:#034400;stroke-width:0.19857247px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\carrot.png"
+         inkscape:export-ydpi="96"
+         inkscape:export-xdpi="96"
+         sodipodi:nodetypes="czzzzcc"
+         inkscape:connector-curvature="0"
+         id="path1062"
+         d="m 7.8577241,296.99999 c 0,0 -1.8762908,-12.70057 -1.683798,-14.40583 0.1924928,-1.70526 0.6723366,-2.23381 1.8708867,-2.77991 1.1985501,-0.5461 3.8573562,-0.4417 5.0513942,0 1.194038,0.4417 1.762318,0.82196 1.964431,2.31219 0.202113,1.49023 -1.870887,14.96709 -1.870887,14.96709 z"
+         style="fill:url(#linearGradient1070);fill-opacity:1;stroke:#dc7e00;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\carrot.png"
+         inkscape:export-ydpi="96"
+         inkscape:export-xdpi="96"
+         sodipodi:nodetypes="czzczzzzczzzzczzzczzzc"
+         inkscape:connector-curvature="0"
+         id="path1072"
+         d="m 12.534941,279.78783 c 0,0 0.271005,1.06754 0.04677,1.59025 -0.224235,0.52271 -0.501524,0.79061 -1.356393,1.21608 -0.854869,0.42547 -3.8353176,0.74835 -3.8353176,0.74835 0,0 2.9255246,-0.25006 3.8353176,-0.0935 0.909793,0.15656 1.276751,0.16699 1.590254,0.60804 0.313503,0.44105 0.130966,1.05887 0.04677,1.54348 -0.0842,0.48461 0.0064,0.85399 -0.514494,1.30962 -0.520902,0.45563 -2.6660135,0.65481 -2.6660135,0.65481 0,0 2.0491905,-0.38595 2.6192455,0 0.570055,0.38595 0.450707,0.73093 0.561266,1.40316 0.110559,0.67223 0.0731,2.04056 -0.140316,2.57247 -0.213412,0.53191 -0.03593,0.3623 -0.561267,0.65481 -0.525334,0.29251 -2.7127852,0.42095 -2.7127852,0.42095 0,0 2.2723972,-0.2212 2.7595582,0.23386 0.487161,0.45506 0.139625,0.67781 0.187088,1.21608 0.04746,0.53827 -0.115759,1.46145 0.04677,2.0112 0.162529,0.54975 0.748355,1.21608 0.748355,1.21608 0,0 1.031082,-5.88313 1.356393,-8.32545 0.325311,-2.44232 0.788881,-4.94469 0.65481,-6.31424 -0.134071,-1.36955 -0.08978,-1.31227 -0.561266,-1.82411 -0.471487,-0.51184 -2.104745,-0.84194 -2.104745,-0.84194 z"
+         style="fill:#d18d00;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:0.39893618" />
+    </g>
+    <path
+       inkscape:export-ydpi="96"
+       inkscape:export-xdpi="96"
+       id="path1074"
+       d="m 11.807354,294.5681 a 1.5378906,1.4221354 0 0 0 -1.537891,1.42214 1.5378906,1.4221354 0 0 1 0,5.1e-4 1.5378906,1.4221354 0 0 0 -0.201021,0.015 1.5378906,1.4221354 0 0 0 -1.3699424,-0.77618 1.5378906,1.4221354 0 0 0 -1.5378906,1.42214 1.5378906,1.4221354 0 0 0 1.5378906,1.42213 1.5378906,1.4221354 0 0 0 0.2175579,-0.0155 1.5378906,1.4221354 0 0 0 1.3699425,0.77618 1.5378906,1.4221354 0 0 0 1.344104,-0.73226 1.5378906,1.4221354 0 0 0 1.169438,0.50075 1.5378906,1.4221354 0 0 0 1.53789,-1.42214 1.5378906,1.4221354 0 0 0 -1.000972,-1.33067 1.5378906,1.4221354 0 0 0 -1.529106,-1.28209 z"
+       style="opacity:1;fill:url(#radialGradient1076);fill-opacity:1;stroke:#39d6dc;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\carrot.png" />
+    <rect
+       style="opacity:1;fill:url(#linearGradient1653);fill-opacity:1;stroke:none;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1635"
+       width="67.73333"
+       height="23.8125"
+       x="71.683945"
+       y="231.6837"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       inkscape:transform-center-y="0.20631549"
+       inkscape:transform-center-x="-0.17673804"
+       d="m 101.93073,242.89269 -1.43083,-0.6164 -1.318925,0.82924 0.144077,-1.55128 -1.196223,-0.99812 1.519872,-0.34235 0.579619,-1.44611 0.79526,1.33969 1.55445,0.10438 -1.02838,1.17032 z"
+       inkscape:randomized="0"
+       inkscape:rounded="0"
+       inkscape:flatsided="false"
+       sodipodi:arg2="1.4935467"
+       sodipodi:arg1="0.86522815"
+       sodipodi:r2="1.17304"
+       sodipodi:r1="2.3460801"
+       sodipodi:cy="241.10675"
+       sodipodi:cx="100.40938"
+       sodipodi:sides="5"
+       id="path1810"
+       style="opacity:1;fill:#eeff39;fill-opacity:0.45744707;stroke:none;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       sodipodi:type="star"
+       transform="rotate(24.666468,115.84597,263.22556)"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <g
+       inkscape:export-ydpi="96"
+       inkscape:export-xdpi="96"
+       transform="matrix(0.78597562,-0.44402364,0.44402364,0.78597562,-18.603563,31.097442)"
+       id="g1689">
+      <path
+         style="fill:url(#radialGradient1691);fill-opacity:1;stroke:#0e45b6;stroke-width:0.35273671px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 10.528726,286.32674 c -1.1107685,0.10266 -1.9470068,0.86386 -2.494224,1.55889 -0.5472173,0.69501 -1.088395,1.61356 -0.7482677,2.24481 0.3401274,0.63123 1.4669389,0.0465 1.8706691,0.49884 0.4037301,0.45238 -0.1950073,1.28707 0.2494221,1.6836 0.44443,0.39654 1.6388165,-0.27196 2.2448035,-0.18717 0.605987,0.0849 0.786722,0.88508 1.371824,0.68592 0.585103,-0.19916 0.904479,-0.61849 1.184757,-1.49653 0.280277,-0.87806 0.531016,-2.6194 -0.187066,-3.61663 -0.718083,-0.99722 -2.381149,-1.47441 -3.491918,-1.37177 z"
+         id="path1655"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="czzzzzzzzzc" />
+      <path
+         sodipodi:nodetypes="czzzzzzzzzc"
+         inkscape:connector-curvature="0"
+         id="path1657"
+         d="m 21.525246,286.59132 c 1.110768,0.10266 1.947007,0.86386 2.494224,1.55889 0.547217,0.69501 1.088395,1.61356 0.748268,2.24481 -0.340128,0.63123 -1.466939,0.0465 -1.87067,0.49884 -0.40373,0.45238 0.195008,1.28707 -0.249422,1.6836 -0.44443,0.39654 -1.638816,-0.27196 -2.244803,-0.18717 -0.605987,0.0849 -0.786722,0.88508 -1.371824,0.68592 -0.585103,-0.19916 -0.904479,-0.61849 -1.184757,-1.49653 -0.280277,-0.87806 -0.531016,-2.6194 0.187066,-3.61663 0.718083,-0.99722 2.381149,-1.47441 3.491918,-1.37177 z"
+         style="fill:url(#radialGradient1693);fill-opacity:1;stroke:#0e45b6;stroke-width:0.35273671px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <g
+         id="g1663">
+        <path
+           sodipodi:nodetypes="zzszz"
+           inkscape:connector-curvature="0"
+           id="path1659"
+           d="m 12.152233,277.37124 c 2.338257,-1.12014 1.617851,-4.11255 0.211424,-6.61734 -1.406426,-2.5048 -5.8200091,-5.40573 -6.7496324,-4.47683 -0.7194956,0.71893 -0.3734186,4.85271 0.838504,7.35285 1.2119225,2.50015 3.361445,4.86146 5.6997044,3.74132 z"
+           style="fill:url(#radialGradient1695);fill-opacity:1;stroke:#0e45b6;stroke-width:0.32443559px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+        <path
+           style="fill:#ffffff;fill-opacity:0.51063831;stroke:none;stroke-width:0.24983607px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 11.623066,277.37124 c 1.78368,-0.87077 1.234135,-3.19698 0.161279,-5.14414 -1.072855,-1.94716 -4.439644,-4.20226 -5.1487833,-3.48015 -0.5488482,0.55887 -0.2848527,3.77236 0.6396321,5.71589 0.9244833,1.94355 2.5641925,3.77916 4.3478722,2.9084 z"
+           id="path1661"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="zzszz" />
+      </g>
+      <g
+         id="g1669"
+         transform="matrix(-1,0,0,1,30.749885,0.33072917)">
+        <path
+           style="fill:url(#radialGradient1697);fill-opacity:1;stroke:#0e45b6;stroke-width:0.32443559px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 12.152233,277.37124 c 2.338257,-1.12014 1.617851,-4.11255 0.211424,-6.61734 -1.406426,-2.5048 -5.8200091,-5.40573 -6.7496324,-4.47683 -0.7194956,0.71893 -0.3734186,4.85271 0.838504,7.35285 1.2119225,2.50015 3.361445,4.86146 5.6997044,3.74132 z"
+           id="path1665"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="zzszz" />
+        <path
+           sodipodi:nodetypes="zzszz"
+           inkscape:connector-curvature="0"
+           id="path1667"
+           d="m 11.623066,277.37124 c 1.78368,-0.87077 1.234135,-3.19698 0.161279,-5.14414 -1.072855,-1.94716 -4.439644,-4.20226 -5.1487833,-3.48015 -0.5488482,0.55887 -0.2848527,3.77236 0.6396321,5.71589 0.9244833,1.94355 2.5641925,3.77916 4.3478722,2.9084 z"
+           style="fill:#ffffff;fill-opacity:0.51063831;stroke:none;stroke-width:0.24983607px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      </g>
+      <path
+         style="fill:url(#radialGradient1699);fill-opacity:1;stroke:#0e45b6;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 15.575132,275.48479 c 4.685353,-0.056 10.581073,9.22814 8.091584,11.5995 -2.489489,2.37135 -12.84638,2.73234 -15.8089919,0.0468 -2.9626124,-2.68554 3.0320549,-11.59034 7.7174079,-11.6463 z"
+         id="path1671"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="zzzz" />
+      <g
+         id="g1677"
+         transform="translate(0,1.0583333)">
+        <ellipse
+           ry="1.3559896"
+           rx="0.59823072"
+           cy="280.76117"
+           cx="13.62896"
+           id="ellipse1673"
+           style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.73405898;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+        <ellipse
+           style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.86702949;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           id="ellipse1675"
+           cx="13.594424"
+           cy="281.4061"
+           rx="0.29911536"
+           ry="0.67799479" />
+      </g>
+      <g
+         id="g1683"
+         transform="translate(3.7041667,1.0583333)">
+        <ellipse
+           style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.73405898;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           id="ellipse1679"
+           cx="13.62896"
+           cy="280.76117"
+           rx="0.59823072"
+           ry="1.3559896" />
+        <ellipse
+           ry="0.67799479"
+           rx="0.29911536"
+           cy="281.4061"
+           cx="13.594424"
+           id="ellipse1681"
+           style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.86702949;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      </g>
+      <path
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 14.882813,283.37395 c -0.190022,0.3304 0.226616,0.96092 0.595312,0.95911 0.368696,-0.002 0.740775,-0.5979 0.56224,-0.92604 -0.178535,-0.32814 -0.96753,-0.36347 -1.157552,-0.0331 z"
+         id="path1685"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="zzzz" />
+      <path
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.20728384px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 15.487867,284.14971 c 0,0 0.553232,0.80031 1.117759,0.79463 0.564528,-0.005 1.5968,-0.41624 1.5968,-0.41624 0,0 -0.947269,0.79494 -1.5968,0.79463 -0.64953,-3e-4 -1.117759,-0.75679 -1.117759,-0.75679 0,0 -0.406699,0.62696 -0.944774,0.74418 -0.538074,0.11721 -1.543573,-0.49191 -1.543573,-0.49191 0,0 0.93048,0.18585 1.410506,0.0631 0.480026,-0.12278 1.077841,-0.73156 1.077841,-0.73156 z"
+         id="path1687"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="czczczczcc" />
+    </g>
+    <path
+       id="path1798"
+       d="m 77.238979,244.54329 a 1.5378906,1.4221354 0 0 0 -1.53789,1.42213 1.5378906,1.4221354 0 0 1 0,5.2e-4 1.5378906,1.4221354 0 0 0 -0.201022,0.015 1.5378906,1.4221354 0 0 0 -1.369942,-0.77617 1.5378906,1.4221354 0 0 0 -1.53789,1.42213 1.5378906,1.4221354 0 0 0 1.53789,1.42214 1.5378906,1.4221354 0 0 0 0.217558,-0.0155 1.5378906,1.4221354 0 0 0 1.369942,0.77618 1.5378906,1.4221354 0 0 0 1.344104,-0.73225 1.5378906,1.4221354 0 0 0 1.16944,0.50074 1.5378906,1.4221354 0 0 0 1.53789,-1.42213 1.5378906,1.4221354 0 0 0 -1.00097,-1.33067 1.5378906,1.4221354 0 0 0 -1.52911,-1.28209 z"
+       style="opacity:1;fill:#0d009b;fill-opacity:1;stroke:#4231ff;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png" />
+    <path
+       id="path1701"
+       d="m 84.624128,245.22008 a 13.239584,13.239584 0 0 0 -13.239502,13.23951 13.239584,13.239584 0 0 0 0.0093,0.18706 h 6.171199 a 7.0656584,7.0656584 0 0 1 -0.0067,-0.18706 7.0656584,7.0656584 0 0 1 7.065719,-7.06572 7.0656584,7.0656584 0 0 1 7.065719,7.06572 7.0656584,7.0656584 0 0 1 -0.0093,0.18706 h 6.176367 a 13.239584,13.239584 0 0 0 0.0067,-0.18706 13.239584,13.239584 0 0 0 -13.239502,-13.23951 z"
+       style="opacity:1;fill:url(#radialGradient1703);fill-opacity:1;stroke:none;stroke-width:1.43800008;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        inkscape:connector-curvature="0" />
     <path
-       style="fill:url(#linearGradient892);fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 9.3023732,242.67311 c 0,0 -1.2278862,1.25943 -1.4103574,1.86539 -0.1825006,0.60626 0.2181503,0.87356 0.090983,1.45578 -0.1271942,0.58237 -0.7794172,1.09535 -1.0009051,1.86531 -0.2214665,0.77033 -0.023,1.79165 -0.1819657,2.68426 -0.1591532,0.89258 -0.7713058,1.71485 -0.7734239,2.63872 -0.00212,0.92387 0.6564085,1.92425 0.7734239,2.68426 0.1170047,0.76033 -0.4227628,1.34377 0.045438,1.81979 0.4682114,0.47607 1.6831268,0.0808 2.1837786,0.0909 0.5006464,0.008 0.3644503,0.0618 0.8189126,0 0.4544248,-0.0615 1.5263088,-0.0615 1.8653198,-0.49995 0.339028,-0.44216 -0.113849,-0.69791 0,-1.41034 0.113849,-0.71257 1.005066,-1.88909 0.909906,-2.77522 -0.09513,-0.88614 -1.043235,-1.32292 -1.228381,-2.09279 -0.185121,-0.76956 0.206223,-1.55356 0.136501,-2.32028 -0.0701,-0.76648 -0.501724,-1.51989 -0.545942,-2.2293 -0.04391,-0.70946 0.488627,-1.23391 0.227484,-1.95626 -0.261155,-0.7226 -1.910793,-1.82025 -1.910793,-1.82025 z"
-       id="path884"
+       style="fill:#0d009b;fill-opacity:1;stroke:none;stroke-width:0.03632785px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 87.510399,245.23657 c -0.112656,-0.0225 -0.217571,0.0281 -0.292013,0.0806 -0.07444,0.0525 -0.154859,0.12728 -0.139842,0.19958 0.01502,0.0723 0.143426,0.0477 0.16998,0.10423 0.02655,0.0565 -0.05708,0.12131 -0.02487,0.17351 0.03221,0.0522 0.169752,0.0213 0.227074,0.0475 0.05732,0.0262 0.05164,0.11049 0.115243,0.10804 0.06361,-0.002 0.107457,-0.0345 0.160931,-0.11289 0.05348,-0.0784 0.129408,-0.24295 0.08784,-0.36248 -0.04157,-0.11954 -0.191692,-0.21552 -0.304347,-0.23804 z"
+       id="path1726"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="czzzzzzzzzzzzzzzzc" />
+       sodipodi:nodetypes="czzzzzzzzzc"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <path
-       style="fill:#2b6017;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 8.4379558,243.674 c 0.6369201,0.95548 0.4095138,1.18294 0.4095138,1.18294 l 0.8644174,0.54619 -1.5923445,0.22732 -0.4094362,-0.72797 z"
-       id="path894"
+       sodipodi:nodetypes="czzzzzzzzzc"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cccccc" />
+       id="path1728"
+       d="m 88.588031,245.58592 c 0.106621,0.0428 0.166786,0.14249 0.20037,0.22718 0.03358,0.0847 0.06,0.19126 0.0079,0.24357 -0.05212,0.0523 -0.14616,-0.0385 -0.199306,-0.006 -0.05315,0.0328 -0.01858,0.13277 -0.07411,0.15885 -0.05552,0.0261 -0.153765,-0.075 -0.216071,-0.0845 -0.06231,-0.009 -0.103669,0.0642 -0.155568,0.0274 -0.0519,-0.0368 -0.0711,-0.0876 -0.07295,-0.18254 -0.0019,-0.0949 0.02458,-0.27416 0.124772,-0.35148 0.10019,-0.0773 0.27837,-0.0755 0.38499,-0.0327 z"
+       style="fill:#0d009b;fill-opacity:1;stroke:none;stroke-width:0.03632785px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <g
+       style="fill:#0d009b;fill-opacity:1;stroke:none;stroke-opacity:1"
+       id="g1734"
+       transform="matrix(0.09870476,0.0293941,-0.0293941,0.09870476,94.887481,216.66528)"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
+      <path
+         sodipodi:nodetypes="zzszz"
+         inkscape:connector-curvature="0"
+         id="path1730"
+         d="m 12.152233,277.37124 c 2.338257,-1.12014 1.617851,-4.11255 0.211424,-6.61734 -1.406426,-2.5048 -5.8200091,-5.40573 -6.7496324,-4.47683 -0.7194956,0.71893 -0.3734186,4.85271 0.838504,7.35285 1.2119225,2.50015 3.361445,4.86146 5.6997044,3.74132 z"
+         style="fill:#0d009b;fill-opacity:1;stroke:none;stroke-width:0.32443559px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         style="fill:#0d009b;fill-opacity:1;stroke:none;stroke-width:0.24983607px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 11.623066,277.37124 c 1.78368,-0.87077 1.234135,-3.19698 0.161279,-5.14414 -1.072855,-1.94716 -4.439644,-4.20226 -5.1487833,-3.48015 -0.5488482,0.55887 -0.2848527,3.77236 0.6396321,5.71589 0.9244833,1.94355 2.5641925,3.77916 4.3478722,2.9084 z"
+         id="path1732"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="zzszz" />
+    </g>
+    <g
+       style="fill:#0d009b;fill-opacity:1;stroke:none;stroke-opacity:1"
+       id="g1740"
+       transform="matrix(-0.09870476,-0.0293941,-0.0293941,0.09870476,97.91292,217.60179)"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
+      <path
+         style="fill:#0d009b;fill-opacity:1;stroke:none;stroke-width:0.32443559px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 12.152233,277.37124 c 2.338257,-1.12014 1.617851,-4.11255 0.211424,-6.61734 -1.406426,-2.5048 -5.8200091,-5.40573 -6.7496324,-4.47683 -0.7194956,0.71893 -0.3734186,4.85271 0.838504,7.35285 1.2119225,2.50015 3.361445,4.86146 5.6997044,3.74132 z"
+         id="path1736"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="zzszz" />
+      <path
+         sodipodi:nodetypes="zzszz"
+         inkscape:connector-curvature="0"
+         id="path1738"
+         d="m 11.623066,277.37124 c 1.78368,-0.87077 1.234135,-3.19698 0.161279,-5.14414 -1.072855,-1.94716 -4.439644,-4.20226 -5.1487833,-3.48015 -0.5488482,0.55887 -0.2848527,3.77236 0.6396321,5.71589 0.9244833,1.94355 2.5641925,3.77916 4.3478722,2.9084 z"
+         style="fill:#0d009b;fill-opacity:1;stroke:none;stroke-width:0.24983607px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
     <path
-       sodipodi:nodetypes="zzzzzz"
+       style="fill:#0d009b;fill-opacity:1;stroke:none;stroke-width:0.02724906px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 88.327193,244.31475 c 0.464113,0.1322 0.773149,1.22188 0.457721,1.38277 -0.315428,0.16089 -1.348314,-0.10791 -1.561799,-0.46007 -0.213484,-0.35216 0.639966,-1.0549 1.104078,-0.9227 z"
+       id="path1742"
        inkscape:connector-curvature="0"
-       id="path896"
-       d="m 8.4379558,243.674 c 0.31846,0.47774 0.1740437,0.88589 0.4095138,1.18294 0.2354701,0.29705 0.9561953,0.1174 0.8644174,0.54619 -0.091778,0.42879 -1.2270954,0.40752 -1.5923445,0.22732 -0.3652491,-0.1802 -0.4136853,-0.35081 -0.4094362,-0.72797 0.00425,-0.37716 0.4093895,-1.70622 0.7278495,-1.22848 z"
-       style="fill:#2b6017;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+       sodipodi:nodetypes="zzzz"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <path
-       style="fill:#2b6017;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 8.1195425,245.63037 c 0.3184601,0.47773 0.3463139,0.5484 0.6824464,0.77349 0.3361325,0.22509 0.017654,0.0639 1.3193721,0.45529 1.301718,0.39135 0.159055,0.94473 -0.318459,1.22838 -0.477514,0.28365 -1.6310374,0.0625 -2.0017781,-0.50073 -0.3707407,-0.5632 -4.15e-5,-2.43416 0.3184186,-1.95643 z"
-       id="path898"
+       inkscape:export-ydpi="96"
+       inkscape:export-xdpi="96"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="zzzzzz" />
+       style="opacity:1;fill:#0d009b;fill-opacity:1;stroke:#4231ff;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 101.5145,244.34485 a 1.5378906,1.4221354 0 0 0 -1.53789,1.42213 1.5378906,1.4221354 0 0 1 0,5.2e-4 1.5378906,1.4221354 0 0 0 -0.201022,0.015 1.5378906,1.4221354 0 0 0 -1.369942,-0.77617 1.5378906,1.4221354 0 0 0 -1.53789,1.42213 1.5378906,1.4221354 0 0 0 1.53789,1.42214 1.5378906,1.4221354 0 0 0 0.217558,-0.0155 1.5378906,1.4221354 0 0 0 1.369942,0.77618 1.5378906,1.4221354 0 0 0 1.344104,-0.73225 1.5378906,1.4221354 0 0 0 1.16944,0.50074 1.5378906,1.4221354 0 0 0 1.53789,-1.42213 1.5378906,1.4221354 0 0 0 -1.00097,-1.33067 1.5378906,1.4221354 0 0 0 -1.52911,-1.28209 z"
+       id="path1772"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png" />
     <path
-       sodipodi:nodetypes="szzzzzs"
+       inkscape:export-ydpi="96"
+       inkscape:export-xdpi="96"
        inkscape:connector-curvature="0"
-       id="path900"
-       d="m 7.1496764,247.48228 c -0.018176,0.0525 0.2251815,1.07287 0.55426,1.48044 0.3290785,0.40757 1.5096335,0.25194 1.314796,0.84375 -0.1948375,0.59181 -1.6161635,0.77426 -1.9709547,0.39199 -0.3547912,-0.38227 -0.1845371,-1.19457 -0.1918921,-1.48769 -0.00735,-0.29311 0.3529705,-1.32851 0.2935762,-1.22833 -0.059394,0.10018 2.146e-4,-1.6e-4 2.146e-4,-1.6e-4 z"
-       style="fill:#2b6017;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+       style="opacity:1;fill:#0d009b;fill-opacity:1;stroke:#4231ff;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 134.05825,235.41516 a 1.5378906,1.4221354 0 0 0 -1.53789,1.42213 1.5378906,1.4221354 0 0 1 0,5.2e-4 1.5378906,1.4221354 0 0 0 -0.20102,0.015 1.5378906,1.4221354 0 0 0 -1.36994,-0.77617 1.5378906,1.4221354 0 0 0 -1.53789,1.42213 1.5378906,1.4221354 0 0 0 1.53789,1.42214 1.5378906,1.4221354 0 0 0 0.21755,-0.0155 1.5378906,1.4221354 0 0 0 1.36995,0.77618 1.5378906,1.4221354 0 0 0 1.3441,-0.73225 1.5378906,1.4221354 0 0 0 1.16944,0.50074 1.5378906,1.4221354 0 0 0 1.53789,-1.42213 1.5378906,1.4221354 0 0 0 -1.00097,-1.33067 1.5378906,1.4221354 0 0 0 -1.52911,-1.28209 z"
+       id="path1800"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png" />
     <path
-       style="fill:#2b6017;fill-opacity:1;stroke:none;stroke-width:2.03819585px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m 9.80291,248.08745 c 0.318459,0.47772 0.349982,0.84585 0.614271,1.16023 0.264289,0.31438 1.059944,0.22931 0.909911,0.70561 -0.150033,0.4763 -1.4515587,0.30684 -1.8425632,0.0909 -0.3910045,-0.21594 -1.0733043,0.51083 -1.0690781,0.13363 0.00423,-0.3772 1.0690008,-2.5681 1.3874593,-2.09037 z"
-       id="path902"
+       sodipodi:type="star"
+       style="opacity:1;fill:#eeff39;fill-opacity:0.45744683;stroke:none;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path1808"
+       sodipodi:sides="5"
+       sodipodi:cx="80.433335"
+       sodipodi:cy="236.14582"
+       sodipodi:r1="2.3460801"
+       sodipodi:r2="1.17304"
+       sodipodi:arg1="0.86522815"
+       sodipodi:arg2="1.4935467"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 81.954689,237.93175 -1.430828,-0.6164 -1.31893,0.82924 0.144077,-1.55127 -1.196223,-0.99813 1.519872,-0.34235 0.579624,-1.44611 0.795255,1.33969 1.55445,0.10438 -1.028377,1.17033 z"
+       inkscape:transform-center-x="1.2583594e-006"
+       inkscape:transform-center-y="-1.0846875e-006"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       transform="rotate(16.422624,89.927527,368.31748)"
+       sodipodi:type="star"
+       style="opacity:1;fill:#eeff39;fill-opacity:0.45744707;stroke:none;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path1812"
+       sodipodi:sides="5"
+       sodipodi:cx="100.40938"
+       sodipodi:cy="241.10675"
+       sodipodi:r1="2.3460801"
+       sodipodi:r2="1.17304"
+       sodipodi:arg1="0.86522815"
+       sodipodi:arg2="1.4935467"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 101.93073,242.89269 -1.43083,-0.6164 -1.318925,0.82924 0.144077,-1.55128 -1.196223,-0.99812 1.519872,-0.34235 0.579619,-1.44611 0.79526,1.33969 1.55445,0.10438 -1.02838,1.17032 z"
+       inkscape:transform-center-x="25.903867"
+       inkscape:transform-center-y="-8.6195353"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="opacity:1;fill:url(#radialGradient1825);fill-opacity:1;stroke:none;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 117.53544,243.58137 a 4.0224064,15.855764 62.236257 0 0 -12.1567,10.9455 4.0224064,15.855764 62.236257 0 0 15.90427,-3.82669 4.0224064,15.855764 62.236257 0 0 12.1567,-10.94549 4.0224064,15.855764 62.236257 0 0 -15.90427,3.82668 z m 0.6538,1.24195 a 2.6192414,10.324684 62.236257 0 1 10.35629,-2.49218 2.6192414,10.324684 62.236257 0 1 -7.91608,7.12755 2.6192414,10.324684 62.236257 0 1 -10.35607,2.49149 2.6192414,10.324684 62.236257 0 1 7.91586,-7.12686 z"
+       id="path1814"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="zzzzzz" />
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_2.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <g
+       id="g1865"
+       transform="matrix(0.78597562,-0.44402364,0.44402364,0.78597562,-18.603563,31.097442)"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
+      <path
+         sodipodi:nodetypes="czzzzzzzzzc"
+         inkscape:connector-curvature="0"
+         id="path1831"
+         d="m 10.528726,286.32674 c -1.1107685,0.10266 -1.9470068,0.86386 -2.494224,1.55889 -0.5472173,0.69501 -1.088395,1.61356 -0.7482677,2.24481 0.3401274,0.63123 1.4669389,0.0465 1.8706691,0.49884 0.4037301,0.45238 -0.1950073,1.28707 0.2494221,1.6836 0.44443,0.39654 1.6388165,-0.27196 2.2448035,-0.18717 0.605987,0.0849 0.786722,0.88508 1.371824,0.68592 0.585103,-0.19916 0.904479,-0.61849 1.184757,-1.49653 0.280277,-0.87806 0.531016,-2.6194 -0.187066,-3.61663 -0.718083,-0.99722 -2.381149,-1.47441 -3.491918,-1.37177 z"
+         style="fill:url(#radialGradient1691);fill-opacity:1;stroke:#0e45b6;stroke-width:0.35273671px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         style="fill:url(#radialGradient1693);fill-opacity:1;stroke:#0e45b6;stroke-width:0.35273671px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         d="m 21.525246,286.59132 c 1.110768,0.10266 1.947007,0.86386 2.494224,1.55889 0.547217,0.69501 1.088395,1.61356 0.748268,2.24481 -0.340128,0.63123 -1.466939,0.0465 -1.87067,0.49884 -0.40373,0.45238 0.195008,1.28707 -0.249422,1.6836 -0.44443,0.39654 -1.638816,-0.27196 -2.244803,-0.18717 -0.605987,0.0849 -0.786722,0.88508 -1.371824,0.68592 -0.585103,-0.19916 -0.904479,-0.61849 -1.184757,-1.49653 -0.280277,-0.87806 -0.531016,-2.6194 0.187066,-3.61663 0.718083,-0.99722 2.381149,-1.47441 3.491918,-1.37177 z"
+         id="path1833"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="czzzzzzzzzc" />
+      <g
+         id="g1839">
+        <path
+           style="fill:url(#radialGradient1695);fill-opacity:1;stroke:#0e45b6;stroke-width:0.32443559px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 12.152233,277.37124 c 2.338257,-1.12014 1.617851,-4.11255 0.211424,-6.61734 -1.406426,-2.5048 -5.8200091,-5.40573 -6.7496324,-4.47683 -0.7194956,0.71893 -0.3734186,4.85271 0.838504,7.35285 1.2119225,2.50015 3.361445,4.86146 5.6997044,3.74132 z"
+           id="path1835"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="zzszz" />
+        <path
+           sodipodi:nodetypes="zzszz"
+           inkscape:connector-curvature="0"
+           id="path1837"
+           d="m 11.623066,277.37124 c 1.78368,-0.87077 1.234135,-3.19698 0.161279,-5.14414 -1.072855,-1.94716 -4.439644,-4.20226 -5.1487833,-3.48015 -0.5488482,0.55887 -0.2848527,3.77236 0.6396321,5.71589 0.9244833,1.94355 2.5641925,3.77916 4.3478722,2.9084 z"
+           style="fill:#ffffff;fill-opacity:0.51063831;stroke:none;stroke-width:0.24983607px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      </g>
+      <g
+         transform="matrix(-1,0,0,1,30.749885,0.33072917)"
+         id="g1845">
+        <path
+           sodipodi:nodetypes="zzszz"
+           inkscape:connector-curvature="0"
+           id="path1841"
+           d="m 12.152233,277.37124 c 2.338257,-1.12014 1.617851,-4.11255 0.211424,-6.61734 -1.406426,-2.5048 -5.8200091,-5.40573 -6.7496324,-4.47683 -0.7194956,0.71893 -0.3734186,4.85271 0.838504,7.35285 1.2119225,2.50015 3.361445,4.86146 5.6997044,3.74132 z"
+           style="fill:url(#radialGradient1697);fill-opacity:1;stroke:#0e45b6;stroke-width:0.32443559px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+        <path
+           style="fill:#ffffff;fill-opacity:0.51063831;stroke:none;stroke-width:0.24983607px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m 11.623066,277.37124 c 1.78368,-0.87077 1.234135,-3.19698 0.161279,-5.14414 -1.072855,-1.94716 -4.439644,-4.20226 -5.1487833,-3.48015 -0.5488482,0.55887 -0.2848527,3.77236 0.6396321,5.71589 0.9244833,1.94355 2.5641925,3.77916 4.3478722,2.9084 z"
+           id="path1843"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="zzszz" />
+      </g>
+      <path
+         sodipodi:nodetypes="zzzz"
+         inkscape:connector-curvature="0"
+         id="path1847"
+         d="m 15.575132,275.48479 c 4.685353,-0.056 10.581073,9.22814 8.091584,11.5995 -2.489489,2.37135 -12.84638,2.73234 -15.8089919,0.0468 -2.9626124,-2.68554 3.0320549,-11.59034 7.7174079,-11.6463 z"
+         style="fill:url(#radialGradient1699);fill-opacity:1;stroke:#0e45b6;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <g
+         transform="translate(0,1.0583333)"
+         id="g1853">
+        <ellipse
+           style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.73405898;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           id="ellipse1849"
+           cx="13.62896"
+           cy="280.76117"
+           rx="0.59823072"
+           ry="1.3559896" />
+        <ellipse
+           ry="0.67799479"
+           rx="0.29911536"
+           cy="281.4061"
+           cx="13.594424"
+           id="ellipse1851"
+           style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.86702949;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+      </g>
+      <g
+         transform="translate(3.7041667,1.0583333)"
+         id="g1859">
+        <ellipse
+           ry="1.3559896"
+           rx="0.59823072"
+           cy="280.76117"
+           cx="13.62896"
+           id="ellipse1855"
+           style="opacity:1;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1.73405898;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+        <ellipse
+           style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.86702949;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+           id="ellipse1857"
+           cx="13.594424"
+           cy="281.4061"
+           rx="0.29911536"
+           ry="0.67799479" />
+      </g>
+      <path
+         sodipodi:nodetypes="zzzz"
+         inkscape:connector-curvature="0"
+         id="path1861"
+         d="m 14.882813,283.37395 c -0.190022,0.3304 0.226616,0.96092 0.595312,0.95911 0.368696,-0.002 0.740775,-0.5979 0.56224,-0.92604 -0.178535,-0.32814 -0.96753,-0.36347 -1.157552,-0.0331 z"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+      <path
+         sodipodi:nodetypes="czczczczcc"
+         inkscape:connector-curvature="0"
+         id="path1863"
+         d="m 15.487867,284.14971 c 0,0 0.553232,0.80031 1.117759,0.79463 0.564528,-0.005 1.5968,-0.41624 1.5968,-0.41624 0,0 -0.947269,0.79494 -1.5968,0.79463 -0.64953,-3e-4 -1.117759,-0.75679 -1.117759,-0.75679 0,0 -0.406699,0.62696 -0.944774,0.74418 -0.538074,0.11721 -1.543573,-0.49191 -1.543573,-0.49191 0,0 0.93048,0.18585 1.410506,0.0631 0.480026,-0.12278 1.077841,-0.73156 1.077841,-0.73156 z"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.20728384px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
+    </g>
+    <rect
+       y="255.4962"
+       x="109.78395"
+       height="18.728729"
+       width="5.4239602"
+       id="rect1876"
+       style="fill:#535ebb;fill-opacity:1;stroke:none;stroke-width:0.28215539;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       y="274.22491"
+       x="109.78395"
+       height="15.497024"
+       width="5.4239602"
+       id="rect1878"
+       style="fill:#c7cae9;fill-opacity:1;stroke:none;stroke-width:0.28215539;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+    <rect
+       style="fill:#dbcfdb;fill-opacity:1;stroke:none;stroke-width:0.59935236;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1880"
+       width="24.473961"
+       height="18.728729"
+       x="115.20791"
+       y="255.4962" />
+    <rect
+       style="fill:#daa2d5;fill-opacity:1;stroke:none;stroke-width:0.59935236;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1882"
+       width="24.473961"
+       height="15.497024"
+       x="115.20791"
+       y="274.22491" />
+    <path
+       sodipodi:nodetypes="zzzz"
+       inkscape:connector-curvature="0"
+       id="path1900"
+       d="m -15.096324,290.69887 c 3.496339,-0.0418 7.8958871,6.88629 6.0381622,8.65586 -1.8577252,1.76957 -9.5863212,2.03895 -11.7971032,0.0349 -2.210782,-2.00403 2.262603,-8.64903 5.758941,-8.69079 z"
+       style="fill:url(#radialGradient1928);fill-opacity:1;stroke:#0e45b6;stroke-width:0.19743933px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:url(#radialGradient1926);fill-opacity:1;stroke:#0e45b6;stroke-width:0.24210273px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m -12.840836,292.35339 c -1.744872,-0.83588 -1.207285,-3.0689 -0.157771,-4.93804 1.049514,-1.86915 4.3430506,-4.03391 5.036761,-3.34074 0.5369073,0.53649 0.2786552,3.62123 -0.6257147,5.4869 -0.9043698,1.86568 -2.5084023,3.62776 -4.2532753,2.79188 z"
+       id="path1894"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="zzszz"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       sodipodi:nodetypes="zzszz"
+       inkscape:connector-curvature="0"
+       id="path1888"
+       d="m -17.650585,292.10659 c 1.744872,-0.83588 1.207285,-3.0689 0.157771,-4.93804 -1.049514,-1.86915 -4.343051,-4.03391 -5.036761,-3.34073 -0.536907,0.53648 -0.278655,3.62122 0.625715,5.48689 0.904369,1.86568 2.508402,3.62776 4.253275,2.79188 z"
+       style="fill:url(#radialGradient1924);fill-opacity:1;stroke:#0e45b6;stroke-width:0.24210273px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:url(#linearGradient1988);stroke:#c8c611;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="m -23.198995,297.09353 c 0,0 -1.590076,2.22449 -1.964431,3.83532 -0.374355,1.61083 -0.283261,4.31072 0.09355,5.61265 0.376811,1.30193 1.309621,2.15153 1.309621,2.15153 l 17.1186123,-0.18709 c 0,0 0.9957428,-0.43588 1.4967092,-1.77735 0.5009664,-1.34147 0.6018749,-4.57981 0.093545,-6.26746 -0.5083299,-1.68765 -2.4321526,-3.55469 -2.4321526,-3.55469 0,0 -0.9386151,2.11594 -2.1515199,2.99342 -1.212905,0.87748 -3.268797,1.40967 -5.051394,1.59025 -1.782597,0.18058 -3.906083,0.26506 -5.425571,-0.56126 -1.519488,-0.82632 -3.086969,-3.83532 -3.086969,-3.83532 z"
+       id="path1970"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="czzcczzczzzc"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:#ffffff;stroke:#d5d5d5;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="m -23.198995,297.09353 c 0.498057,-0.33994 1.263706,-0.15244 1.964431,0.28063 0.700725,0.43307 0.650253,1.78685 1.683798,2.43215 1.033545,0.6453 2.734257,0.69689 4.30304,0.65482 1.568783,-0.0421 3.847098,-0.30806 4.957849,-1.02899 1.110751,-0.72093 1.054569,-1.96521 1.6837983,-2.33861 0.6292293,-0.3734 1.0006147,-0.57294 1.4967093,-0.18709 0.4960946,0.38585 0.5300213,1.34679 0.2806329,2.24507 -0.2493884,0.89828 -0.6829536,1.80435 -2.0579751,2.61924 -1.3750214,0.81489 -4.2156924,1.01801 -6.1739264,1.02898 -1.958234,0.011 -4.326224,0.027 -5.799748,-0.74835 -1.473524,-0.77534 -2.260474,-2.2868 -2.525697,-3.27406 -0.265224,-0.98725 -0.310969,-1.34385 0.187088,-1.68379 z"
+       id="path1968"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="zzzzzzzzzzzzz"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="opacity:1;fill:url(#linearGradient2016);fill-opacity:1;stroke:#3a3a3a;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2008"
+       width="3.850359"
+       height="3.6527905"
+       x="-23.760254"
+       y="308.69302"
+       ry="0.84189886"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       ry="0.84189886"
+       y="308.70435"
+       x="-8.8383589"
+       height="3.6527905"
+       width="3.850359"
+       id="rect2018"
+       style="opacity:1;fill:url(#linearGradient2020);fill-opacity:1;stroke:#3a3a3a;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       style="fill:url(#linearGradient1980);stroke:#818181;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:1"
+       d="m -25.737411,305.33146 c -0.542956,0.43335 -0.907703,2.00429 -0.748355,2.80633 0.159347,0.80205 0.38797,1.045 1.216076,1.59025 0,0 18.4350826,0.36426 19.5100707,0.0912 0,0 1.5055672,-0.49425 1.8708867,-1.3564 0.3653194,-0.86215 0.1169546,-2.78564 -0.4677217,-3.27405 -0.5846764,-0.48841 -0.661843,-0.26775 -1.2628485,0.0468 -0.6010056,0.31455 -0.1648605,1.5525 -1.0223399,2.21201 -0.8574794,0.65951 -16.6275043,0.66078 -17.1186123,0.18709 -0.491108,-0.47369 -0.754431,-1.85289 -1.309621,-2.15153 -0.55519,-0.29864 -0.12458,-0.58504 -0.667535,-0.1517 z"
+       id="path1972"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="zzsszzzzzzz"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <rect
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#d5d5d5;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2002"
+       width="7.2496862"
+       height="2.9934187"
+       x="-18.80241"
+       y="307.2431"
+       ry="0.84189904"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:1.79354882px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.04483872"
+       x="-18.156178"
+       y="309.48819"
+       id="text2006"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"><tspan
+         sodipodi:role="line"
+         id="tspan2004"
+         x="-18.156178"
+         y="309.48819"
+         style="stroke-width:0.04483872">PINPIN</tspan></text>
+    <circle
+       style="opacity:1;fill:url(#radialGradient2030);fill-opacity:1.0;stroke:#a30000;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path2022"
+       cx="-22.820312"
+       cy="304.27603"
+       r="1.5875"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <circle
+       r="1.1163385"
+       cy="306.22736"
+       cx="-22.390364"
+       id="circle2036"
+       style="opacity:1;fill:url(#radialGradient2044);fill-opacity:1;stroke:#525252;stroke-width:0.11814582;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <circle
+       r="1.5875"
+       cy="304.27603"
+       cx="7.4744811"
+       id="circle2052"
+       style="opacity:1;fill:url(#radialGradient2056);fill-opacity:1;stroke:#a30000;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       transform="scale(-1,1)"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <circle
+       style="opacity:1;fill:url(#radialGradient2058);fill-opacity:1;stroke:#525252;stroke-width:0.11814582;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="circle2054"
+       cx="7.904428"
+       cy="306.22736"
+       r="1.1163385"
+       transform="scale(-1,1)"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
   </g>
 </svg>

@@ -22,7 +22,8 @@ enum class Level
 {
   Arizona,
   Suburb,
-  Skyway
+  Skyway,
+  Bonus
 };
 
 const uint16_t LIGHT_COLLISION_RIGHT[] {
