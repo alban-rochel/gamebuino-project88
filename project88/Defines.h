@@ -77,6 +77,19 @@ const uint16_t LIGHT_NONE[] {
   0x0000, 0x0000,
   0x0000, 0x0000
   };
+
+const uint16_t LIGHT_BONUS[] {
+  2,4,    // width, height
+  1,      // number of frames
+  0,      // frame looping speed
+  0,      // transparent color magenta
+  0,      // color mode RGB
+  //image data
+  COLOR_565(0xFF, 0x00, 0xFF), COLOR_565(0xFF, 0x00, 0xFF),
+  COLOR_565(0xFF, 0x00, 0xFF), COLOR_565(0xFF, 0x00, 0xFF),
+  COLOR_565(0xFF, 0x00, 0xFF), COLOR_565(0xFF, 0x00, 0xFF),
+  COLOR_565(0xFF, 0x00, 0xFF), COLOR_565(0xFF, 0x00, 0xFF)
+  };
   
 #define SCREEN_WIDTH 160
 #define SCREEN_HEIGHT 128
@@ -127,7 +140,9 @@ namespace roads
 #define COLOR_TRACK_LINE_INDEX (COLOR_TRACK_ROAD_INDEX+1)
 #define COLOR_TRACK_SIZE (COLOR_TRACK_LINE_INDEX + 1)
 
-#define MAX_SPRITES 10
+#define MAX_SPRITES 8
+#define JERRICAN_SPRITE_INDEX (MAX_SPRITES-2)
+#define BONUS_SPRITE_INDEX (MAX_SPRITES-1)
 #define MAX_SCENERY_OBJECTS 20
 #define MAX_STATIC_OBSTACLES 4
 #define MAX_MOVING_OBSTACLES 3
@@ -212,6 +227,14 @@ struct SceneryObject
   SpriteDefinition* sprite;
 };
 
+struct Jerrican
+{
+  int16_t posX; // 0 is the center of the road
+  Z_POSITION posZ;
+  SpriteDefinition* sprite;
+  bool visible;
+};
+
 struct StaticObstacle
 {
   int16_t posX; // 0 is the center of the road
@@ -256,6 +279,7 @@ struct LevelContext
   SceneryObject* sceneryObjects;
   StaticObstacle* staticObstacles;
   MovingObstacle* movingObstacles;
+  Jerrican* jerrican;
   Drawable* drawables;
   const uint8_t* background;
   const uint32_t* backgroundPalette;

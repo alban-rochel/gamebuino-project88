@@ -2,7 +2,15 @@ const Gamebuino_Meta::Sound_FX collisionSfx[] = {
   {Gamebuino_Meta::Sound_FX_Wave::NOISE,0,51,0,0,48,10},
 }; /* 200 ms = 8 frames */
 
-uint8_t collisionSfxDuration = 8; 
+uint8_t collisionSfxDuration = 8;
+
+const Gamebuino_Meta::Sound_FX bonusSfx[] = {
+   {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,63,3},
+  {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,255,0,0,35,6},
+   {Gamebuino_Meta::Sound_FX_Wave::SQUARE,0,255,0,0,28,6},
+ }; /* 300 ms = 12 frames */
+
+uint8_t bonusSfxDuration = 12; 
 
 const Gamebuino_Meta::Sound_FX engineLow[] = {
   {Gamebuino_Meta::Sound_FX_Wave::SQUARE,1,100,0,0,1000,10}

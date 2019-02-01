@@ -343,6 +343,23 @@ void updateSceneryObjects(LevelContext& context, const CarInfo& carInfo, const L
   }
 }
 
+void createJerrican(LevelContext& context, Jerrican& object, Z_POSITION zPos, const LevelConfig& config) noexcept
+{
+  object.posX = random(- config.roadWidth/2, config.roadWidth/2);
+  object.posZ = zPos + (1000 << Z_POSITION_SHIFT); // Every 1000m
+  object.sprite = context.sprites + JERRICAN_SPRITE_INDEX;
+  object.visible = true;
+}
+
+void updateJerrican(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
+{
+  Jerrican& object = *(context.jerrican);
+  if(unlikely(object.posZ < carInfo.posZ))
+  {
+    createJerrican(context, object, carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-5].z/2, config);
+  }
+}
+
 void createStaticObstacle(LevelContext& context, StaticObstacle& object, Z_POSITION zPos, const LevelConfig& config) noexcept
 {
   object.posX = random(- config.roadWidth/2, config.roadWidth/2);
@@ -553,6 +570,20 @@ force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carI
                                         nextDrawableIndex);
   }
 
+  {
+    Jerrican& object = *(context.jerrican);
+    if(object.visible)
+    {
+      nextDrawableIndex = computeDrawable(context,
+                                         object.posX,
+                                         object.posZ,
+                                         object.sprite,
+                                         carInfo,
+                                         drawableList,
+                                         nextDrawableIndex);
+    }
+  }
+
  return nextDrawableIndex;
 }
 
@@ -608,7 +639,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
         diffZ = -diffZ;
       }
     
-      if(unlikely(diffZ <= (1 << Z_POSITION_SHIFT)))
+      if(unlikely(diffZ <= (2 << Z_POSITION_SHIFT)))
       {
         collision = collision | computeCollision(carXMin, carXMax, object.posX, object.sprite);
       }
@@ -670,6 +701,31 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
         }
       }
 
+    // Bonus collisions
+    {
+      Jerrican& object = *(context.jerrican);
+      diffZ = object.posZ-carInfo.posZ;
+      if(diffZ < 0)
+      {
+        diffZ = -diffZ;
+      }
+    
+      if(diffZ <= (1 << Z_POSITION_SHIFT) && object.visible)
+      {
+        int8_t currentCollision = computeCollision(carXMin, carXMax, object.posX, object.sprite);
+        if(currentCollision)
+        {
+          object.visible = false;
+          remainingFuel += (5000 << Z_POSITION_SHIFT);
+          if(remainingFuel > MAX_FUEL)
+            remainingFuel = MAX_FUEL;
+          collisionFx = bonusSfx;
+          collisionFxDuration = bonusSfxDuration;
+          lightPattern = LIGHT_BONUS;
+        }
+      }
+    } // end bonus collisions
+    
   } // end compute collisions
 
 
@@ -823,7 +879,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
 
   carInfo.posX += carInfo.speedX;
   carInfo.posZ += carInfo.speedZ * 256;
-  remainingFuel -= carInfo.speedZ * 256;
+  remainingFuel -= carInfo.speedZ * 512;
 
   if(lightPattern)
   {
@@ -1358,7 +1414,7 @@ void soundPlaybackTask(void* carInfo)
 {
   if(collisionFx)
   {
-    gb.sound.fx(collisionSfx);
+    gb.sound.fx(collisionFx);
   }
   else
   {
@@ -1404,7 +1460,9 @@ int gameLoop(LevelConfig& config) noexcept
   context.sceneryObjects    = (SceneryObject*)    mphAlloc(MAX_SCENERY_OBJECTS * sizeof(SceneryObject));
   context.staticObstacles   = (StaticObstacle*)   mphAlloc(MAX_STATIC_OBSTACLES * sizeof(StaticObstacle));
   context.movingObstacles   = (MovingObstacle*)   mphAlloc(MAX_MOVING_OBSTACLES * sizeof(MovingObstacle));
+  context.jerrican          = (Jerrican*)         mphAlloc(sizeof(Jerrican));
   context.drawables         = (Drawable*)         mphAlloc(MAX_DRAWABLES * sizeof(Drawable));
+
 
   if(config.level == Level::Arizona)
   {
@@ -1502,6 +1560,15 @@ int gameLoop(LevelConfig& config) noexcept
     config.movingObstaclesIndexStart = 3;
     config.movingObstaclesIndexEnd = 4;
   }
+
+  context.sprites[JERRICAN_SPRITE_INDEX].width = JERRICAN_WIDTH;
+  context.sprites[JERRICAN_SPRITE_INDEX].height = JERRICAN_HEIGHT;
+  context.sprites[JERRICAN_SPRITE_INDEX].buffer = JERRICAN;
+
+  context.jerrican->posX = 0;
+  context.jerrican->posZ = 0;
+  context.jerrican->visible = false;
+  context.jerrican->sprite = &(context.sprites[JERRICAN_SPRITE_INDEX]);
 
   context.carSprites[0].width = CAR_WIDTH;
   context.carSprites[0].height = CAR_HEIGHT;
@@ -1664,6 +1731,7 @@ int gameLoop(LevelConfig& config) noexcept
     updateSceneryObjects(context, carInfo, config);
     updateStaticObstacles(context, carInfo, config);
     updateMovingObstacles(context, carInfo, config);
+    updateJerrican(context, carInfo, config);
 
 Drawable* drawableList = nullptr;
     uint8_t drawableCount = computeDrawables(context, carInfo, drawableList, config);

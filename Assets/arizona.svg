@@ -822,9 +822,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="182.43699"
-     inkscape:cy="-5.9417865"
+     inkscape:zoom="4.0000001"
+     inkscape:cx="168.05361"
+     inkscape:cy="300.8184"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -898,7 +898,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1935,5 +1935,50 @@
        inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\pinpin_car.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
+    <rect
+       style="opacity:1;fill:#566650;fill-opacity:1;stroke:#325723;stroke-width:0.668;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2271"
+       width="6.1739254"
+       height="7.2764106"
+       x="19.083044"
+       y="210.37793"
+       ry="0.84189886" />
+    <rect
+       style="opacity:1;fill:#325723;fill-opacity:1;stroke:#325723;stroke-width:0.56935447;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2273"
+       width="1.5434813"
+       height="0.98536706"
+       x="19.995102"
+       y="209.34581"
+       ry="0.49268353" />
+    <rect
+       style="opacity:1;fill:none;fill-opacity:1;stroke:#325723;stroke-width:0.66799998;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect2275"
+       width="2.3853805"
+       height="2.2450638"
+       x="21.000702"
+       y="213.11411"
+       ry="0.67819589" />
+    <path
+       style="fill:none;stroke:#325723;stroke-width:0.565;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 21.000702,213.11411 -1.157548,-1.15754"
+       id="path2279"
+       inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path2281"
+       d="m 23.386082,213.11411 1.157548,-1.15754"
+       style="fill:none;stroke:#325723;stroke-width:0.565;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:transform-center-y="-0.070158251" />
+    <path
+       style="fill:none;stroke:#325723;stroke-width:0.565;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 24.54363,216.5167 -1.157548,-1.15754"
+       id="path2283"
+       inkscape:connector-curvature="0" />
+    <path
+       inkscape:connector-curvature="0"
+       id="path2285"
+       d="m 19.843154,216.5167 1.157548,-1.15754"
+       style="fill:none;stroke:#325723;stroke-width:0.565;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>
