@@ -253,6 +253,15 @@ struct MovingObstacle
   SpriteDefinition* sprite;  
 };
 
+struct BonusStar
+{
+  int16_t posX; // 0 is the center of the road
+  Z_POSITION posZ;
+  float speedZ; // meters / frame. Max 1
+  SpriteDefinition* sprite;
+  bool visible;
+};
+
 struct Drawable
 {
   int16_t xStart;
@@ -280,6 +289,7 @@ struct LevelContext
   StaticObstacle* staticObstacles;
   MovingObstacle* movingObstacles;
   Jerrican* jerrican;
+  BonusStar* bonusStar;
   Drawable* drawables;
   const uint8_t* background;
   const uint32_t* backgroundPalette;

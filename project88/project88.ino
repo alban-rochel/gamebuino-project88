@@ -23,7 +23,7 @@ uint8_t collisionFxDuration;
 const Gamebuino_Meta::Sound_FX* swooshFx;
 uint8_t swooshFxDuration;
 
-bool bonusLevelAvailable;
+int bonusCount;
 
 force_inline float accelFromSpeed(float speed) noexcept
 {
@@ -360,6 +360,28 @@ void updateJerrican(LevelContext& context, const CarInfo& carInfo, const LevelCo
   }
 }
 
+void createBonusStar(LevelContext& context, BonusStar& object, const LevelConfig& config) noexcept
+{
+  object.posX = random(- config.roadWidth/2, config.roadWidth/2);
+  object.posZ = (200 << Z_POSITION_SHIFT);
+  object.sprite = context.sprites + BONUS_SPRITE_INDEX;
+  object.speedZ = 1.f;
+  object.visible = true;
+}
+
+void updateBonusStar(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
+{
+  BonusStar& object = *(context.bonusStar);
+  if(!object.visible)
+    return;
+    
+  if(unlikely(object.posZ > carInfo.posZ + (1000 << Z_POSITION_SHIFT)))
+  {
+    object.visible = false;
+  }
+  object.posZ += object.speedZ * 256;
+}
+
 void createStaticObstacle(LevelContext& context, StaticObstacle& object, Z_POSITION zPos, const LevelConfig& config) noexcept
 {
   object.posX = random(- config.roadWidth/2, config.roadWidth/2);
@@ -584,6 +606,20 @@ force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carI
     }
   }
 
+    {
+    BonusStar& object = *(context.bonusStar);
+    if(object.visible)
+    {
+      nextDrawableIndex = computeDrawable(context,
+                                         object.posX,
+                                         object.posZ,
+                                         object.sprite,
+                                         carInfo,
+                                         drawableList,
+                                         nextDrawableIndex);
+    }
+  }
+
  return nextDrawableIndex;
 }
 
@@ -639,7 +675,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
         diffZ = -diffZ;
       }
     
-      if(unlikely(diffZ <= (2 << Z_POSITION_SHIFT)))
+      if(unlikely(diffZ <= (1 << Z_POSITION_SHIFT)))
       {
         collision = collision | computeCollision(carXMin, carXMax, object.posX, object.sprite);
       }
@@ -710,7 +746,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
         diffZ = -diffZ;
       }
     
-      if(diffZ <= (1 << Z_POSITION_SHIFT) && object.visible)
+      if(diffZ <= (4 << Z_POSITION_SHIFT) && object.visible)
       {
         int8_t currentCollision = computeCollision(carXMin, carXMax, object.posX, object.sprite);
         if(currentCollision)
@@ -723,7 +759,29 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
           collisionFxDuration = bonusSfxDuration;
           lightPattern = LIGHT_BONUS;
         }
-      }
+      } // end jerrican
+
+      {
+        BonusStar& object = *(context.bonusStar);
+        diffZ = object.posZ-carInfo.posZ;
+        if(diffZ < 0)
+        {
+          diffZ = -diffZ;
+        }
+      
+        if(diffZ <= (4 << Z_POSITION_SHIFT) && object.visible)
+        {
+          int8_t currentCollision = computeCollision(carXMin, carXMax, object.posX, object.sprite);
+          if(currentCollision)
+          {
+            object.visible = false;
+            ++ bonusCount;
+            collisionFx = bonusSfx;
+            collisionFxDuration = bonusSfxDuration;
+            lightPattern = LIGHT_BONUS;
+          }
+        }
+      } // end bonus star
     } // end bonus collisions
     
   } // end compute collisions
@@ -832,7 +890,6 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
   {
     collisionFx = collisionSfx;
     collisionFxDuration = collisionSfxDuration;
-    bonusLevelAvailable = false;
   }
 
 
@@ -1461,6 +1518,7 @@ int gameLoop(LevelConfig& config) noexcept
   context.staticObstacles   = (StaticObstacle*)   mphAlloc(MAX_STATIC_OBSTACLES * sizeof(StaticObstacle));
   context.movingObstacles   = (MovingObstacle*)   mphAlloc(MAX_MOVING_OBSTACLES * sizeof(MovingObstacle));
   context.jerrican          = (Jerrican*)         mphAlloc(sizeof(Jerrican));
+  context.bonusStar         = (BonusStar*)        mphAlloc(sizeof(BonusStar));
   context.drawables         = (Drawable*)         mphAlloc(MAX_DRAWABLES * sizeof(Drawable));
 
 
@@ -1565,10 +1623,19 @@ int gameLoop(LevelConfig& config) noexcept
   context.sprites[JERRICAN_SPRITE_INDEX].height = JERRICAN_HEIGHT;
   context.sprites[JERRICAN_SPRITE_INDEX].buffer = JERRICAN;
 
-  context.jerrican->posX = 0;
+  /*context.jerrican->posX = 0;
   context.jerrican->posZ = 0;
   context.jerrican->visible = false;
-  context.jerrican->sprite = &(context.sprites[JERRICAN_SPRITE_INDEX]);
+  context.jerrican->sprite = &(context.sprites[JERRICAN_SPRITE_INDEX]);*/
+
+  context.sprites[BONUS_SPRITE_INDEX].width = BONUS_WIDTH;
+  context.sprites[BONUS_SPRITE_INDEX].height = BONUS_HEIGHT;
+  context.sprites[BONUS_SPRITE_INDEX].buffer = BONUS;
+
+  /*context.bonusStar->posX = 0;
+  context.bonusStar->posZ = 0;
+  context.bonusStar->visible = false;
+  context.bonusStar->sprite = &(context.sprites[BONUS_SPRITE_INDEX]);*/
 
   context.carSprites[0].width = CAR_WIDTH;
   context.carSprites[0].height = CAR_HEIGHT;
@@ -1687,7 +1754,9 @@ int gameLoop(LevelConfig& config) noexcept
   createSceneryObjects(context, config);
   createStaticObstacles(context, config);
   createMovingObstacles(context, config);
-
+  createJerrican(context, *(context.jerrican), 0, config);
+  createBonusStar(context, *(context.bonusStar), config);
+  
   int16_t backgroundShift = 0; /* sign.11.4 */
 
   capacitorCharge = 0;
@@ -1732,6 +1801,7 @@ int gameLoop(LevelConfig& config) noexcept
     updateStaticObstacles(context, carInfo, config);
     updateMovingObstacles(context, carInfo, config);
     updateJerrican(context, carInfo, config);
+    updateBonusStar(context, carInfo, config);
 
 Drawable* drawableList = nullptr;
     uint8_t drawableCount = computeDrawables(context, carInfo, drawableList, config);
@@ -1943,7 +2013,7 @@ void loop()
     titleLoop(TITLE, TITLE_PALETTE, TITLE_WIDTH, TITLE_HEIGHT, titleMusic);
 
     remainingFuel = MAX_FUEL;
-    bonusLevelAvailable = true;
+    bonusCount = 0;
     
     LevelConfig config;
     if(gb.buttons.repeat(BUTTON_UP, 0) && gb.buttons.repeat(BUTTON_B,0))
@@ -1972,7 +2042,7 @@ void loop()
         if(runLevel(config) == 0) // level successful
         {
           titleLoop(SUCCESS, SUCCESS_PALETTE, SUCCESS_WIDTH, SUCCESS_HEIGHT, successMusic);
-          if(bonusLevelAvailable)
+          if(bonusCount == 3)
           {
             config = levelSelectionMenu(Level::Bonus);
             runLevel(config);

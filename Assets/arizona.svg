@@ -24,6 +24,18 @@
      id="defs2">
     <linearGradient
        inkscape:collect="always"
+       id="linearGradient2319">
+      <stop
+         style="stop-color:#f4a400;stop-opacity:1"
+         offset="0"
+         id="stop2315" />
+      <stop
+         style="stop-color:#fff685;stop-opacity:1"
+         offset="1"
+         id="stop2317" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
        id="linearGradient2050">
       <stop
          style="stop-color:#fdff90;stop-opacity:1"
@@ -814,6 +826,17 @@
        fx="-22.820312"
        fy="304.27603"
        r="1.6715052" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient2319"
+       id="radialGradient2321"
+       cx="36.338417"
+       cy="213.12526"
+       fx="36.338417"
+       fy="213.12526"
+       r="2.2246005"
+       gradientTransform="matrix(1,0,0,0.97497557,-2.4143229,4.3886218)"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -822,9 +845,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.0000001"
-     inkscape:cx="168.05361"
-     inkscape:cy="300.8184"
+     inkscape:zoom="8.0000002"
+     inkscape:cx="138.85469"
+     inkscape:cy="319.20792"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -1942,7 +1965,9 @@
        height="7.2764106"
        x="19.083044"
        y="210.37793"
-       ry="0.84189886" />
+       ry="0.84189886"
+       inkscape:export-xdpi="964.53528"
+       inkscape:export-ydpi="964.53528" />
     <rect
        style="opacity:1;fill:#325723;fill-opacity:1;stroke:#325723;stroke-width:0.56935447;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect2273"
@@ -1950,7 +1975,9 @@
        height="0.98536706"
        x="19.995102"
        y="209.34581"
-       ry="0.49268353" />
+       ry="0.49268353"
+       inkscape:export-xdpi="964.53528"
+       inkscape:export-ydpi="964.53528" />
     <rect
        style="opacity:1;fill:none;fill-opacity:1;stroke:#325723;stroke-width:0.66799998;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
        id="rect2275"
@@ -1958,27 +1985,58 @@
        height="2.2450638"
        x="21.000702"
        y="213.11411"
-       ry="0.67819589" />
+       ry="0.67819589"
+       inkscape:export-xdpi="964.53528"
+       inkscape:export-ydpi="964.53528" />
     <path
        style="fill:none;stroke:#325723;stroke-width:0.565;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 21.000702,213.11411 -1.157548,-1.15754"
        id="path2279"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="964.53528"
+       inkscape:export-ydpi="964.53528" />
     <path
        inkscape:connector-curvature="0"
        id="path2281"
        d="m 23.386082,213.11411 1.157548,-1.15754"
        style="fill:none;stroke:#325723;stroke-width:0.565;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       inkscape:transform-center-y="-0.070158251" />
+       inkscape:transform-center-y="-0.070158251"
+       inkscape:export-xdpi="964.53528"
+       inkscape:export-ydpi="964.53528" />
     <path
        style="fill:none;stroke:#325723;stroke-width:0.565;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 24.54363,216.5167 -1.157548,-1.15754"
        id="path2283"
-       inkscape:connector-curvature="0" />
+       inkscape:connector-curvature="0"
+       inkscape:export-xdpi="964.53528"
+       inkscape:export-ydpi="964.53528" />
     <path
        inkscape:connector-curvature="0"
        id="path2285"
        d="m 19.843154,216.5167 1.157548,-1.15754"
-       style="fill:none;stroke:#325723;stroke-width:0.565;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+       style="fill:none;stroke:#325723;stroke-width:0.565;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:export-xdpi="964.53528"
+       inkscape:export-ydpi="964.53528" />
+    <path
+       sodipodi:type="star"
+       style="opacity:1;fill:url(#radialGradient2321);fill-opacity:1;stroke:none;stroke-width:0.16801041;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="path1808-2"
+       sodipodi:sides="5"
+       sodipodi:cx="33.483952"
+       sodipodi:cy="211.62309"
+       sodipodi:r1="2.3460801"
+       sodipodi:r2="1.17304"
+       sodipodi:arg1="0.86522815"
+       sodipodi:arg2="1.4935467"
+       inkscape:flatsided="false"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 35.005306,213.40903 -1.430828,-0.6164 -1.31893,0.82924 0.144078,-1.55127 -1.196224,-0.99813 1.519872,-0.34235 0.579624,-1.44611 0.795255,1.33969 1.55445,0.10438 -1.028377,1.17032 z"
+       inkscape:transform-center-x="0.090902224"
+       inkscape:transform-center-y="0.10670901"
+       inkscape:export-filename="C:\Users\Famille\Documents\Arduino\Gamebuino\project88\Assets\decor_pinpin_1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       transform="rotate(-9.4669043,33.428004,211.45294)" />
   </g>
 </svg>
