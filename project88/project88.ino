@@ -331,7 +331,7 @@ void createSceneryObjects(LevelContext& context, const LevelConfig& config) noex
   }
 }
 
-void updateSceneryObjects(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
+force_inline void updateSceneryObjects(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
 {
   for(uint8_t index = 0; index < config.sceneryObjectsCount; ++index)
   {
@@ -351,7 +351,7 @@ void createJerrican(LevelContext& context, Jerrican& object, Z_POSITION zPos, co
   object.visible = true;
 }
 
-void updateJerrican(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
+force_inline void updateJerrican(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
 {
   Jerrican& object = *(context.jerrican);
   if(unlikely(object.posZ < carInfo.posZ))
@@ -369,7 +369,7 @@ void createBonusStar(LevelContext& context, BonusStar& object, const LevelConfig
   object.visible = true;
 }
 
-void updateBonusStar(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
+force_inline void updateBonusStar(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
 {
   BonusStar& object = *(context.bonusStar);
   if(!object.visible)
@@ -399,7 +399,7 @@ void createStaticObstacles(LevelContext& context, const LevelConfig& config) noe
   }
 }
 
-void updateStaticObstacles(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
+force_inline void updateStaticObstacles(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
 {
   for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
   {
@@ -430,7 +430,7 @@ void createMovingObstacles(LevelContext& context, const LevelConfig& config) noe
   }
 }
 
-void updateMovingObstacles( LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
+force_inline void updateMovingObstacles( LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
 {
   Z_POSITION threshold;
   for(uint8_t index = 0; index < config.movingObstaclesCount; ++index)
@@ -1510,7 +1510,7 @@ int gameLoop(LevelConfig& config) noexcept
   context.depthLevelToX     = (int16_t*)          mphAlloc(DEPTH_LEVEL_COUNT * sizeof(int16_t));
   context.trackPalette      = (uint16_t*)         mphAlloc(2 * COLOR_TRACK_SIZE * sizeof(uint16_t));
   context.segments          = (RoadSegment*)      mphAlloc(3 * sizeof(RoadSegment));
-  context.carSprites        = (SpriteDefinition*) mphAlloc(3 * sizeof(SpriteDefinition));
+  context.carSprites        = (SpriteDefinition*) mphAlloc(5 * sizeof(SpriteDefinition));
   context.fuelSprites       = (SpriteDefinition*) mphAlloc(2 * sizeof(SpriteDefinition));
   context.speedSprites      = (SpriteDefinition*) mphAlloc(5 * sizeof(SpriteDefinition));
   context.sprites           = (SpriteDefinition*) mphAlloc(MAX_SPRITES * sizeof(SpriteDefinition));
@@ -1648,6 +1648,14 @@ int gameLoop(LevelConfig& config) noexcept
   context.carSprites[2].width = CAR_RIGHT_WIDTH;
   context.carSprites[2].height = CAR_RIGHT_HEIGHT;
   context.carSprites[2].buffer = CAR_RIGHT;
+
+  context.carSprites[3].width = SMOKE_SMALL_1_WIDTH;
+  context.carSprites[3].height = SMOKE_SMALL_1_HEIGHT;
+  context.carSprites[3].buffer = SMOKE_SMALL_1;
+
+  context.carSprites[4].width = SMOKE_SMALL_2_WIDTH;
+  context.carSprites[4].height = SMOKE_SMALL_2_HEIGHT;
+  context.carSprites[4].buffer = SMOKE_SMALL_2;
 
   context.fuelSprites[0].width = FUELF_WIDTH;
   context.fuelSprites[0].height = FUELF_HEIGHT;
@@ -1830,6 +1838,68 @@ Drawable* drawableList = nullptr;
     insertDrawableIntoSortedList(drawable, drawableList);
   }
   ++drawableCount;
+
+  if(carInfo.speedZ > 0) // dust
+  {
+    uint32_t spriteVersion = ((gb.frameCount & 0x2) >> 1);
+    uint16_t xZoomPattern = 1;
+    uint16_t yZoomPattern = 3;
+    if(carInfo.speedZ > 0.6)
+    {
+      if(carInfo.speedZ > 1.)
+      {
+        xZoomPattern = 8;
+        yZoomPattern = 0;
+      }
+      else
+      {
+        xZoomPattern = 4;
+        yZoomPattern = 1;
+      }
+    }
+    else if(carInfo.speedZ > 0.3)
+    {
+      xZoomPattern = 2;
+      yZoomPattern = 2;
+    }
+
+    
+    {    
+      Drawable& drawable = context.drawables[drawableCount];
+      drawable.sprite = &context.carSprites[3 + spriteVersion];
+    
+      drawable.xStart = SCREEN_WIDTH/2 + 15 - ((drawable.sprite->width * xZoomPattern ) >> 4);
+      drawable.yStart = 122 - (drawable.sprite->height >> yZoomPattern);
+      if(carInfo.sprite == CarSprite::Left)
+      {
+        drawable.xStart += 1;
+        drawable.yStart -= 2;
+      }
+      drawable.yEnd = drawable.yStart + (drawable.sprite->height >> yZoomPattern) - 1;
+      drawable.zoomPattern = xZoomPattern;
+      drawable.yZoomPattern = (1 << yZoomPattern);
+      insertDrawableIntoSortedList(drawable, drawableList);
+      ++drawableCount;
+    }
+
+    {
+      Drawable& drawable = context.drawables[drawableCount];
+      drawable.sprite = &context.carSprites[4 - spriteVersion];
+      
+      drawable.xStart = SCREEN_WIDTH/2 - 17 - ((drawable.sprite->width * xZoomPattern ) >> 4);
+      drawable.yStart = 122 - (drawable.sprite->height >> yZoomPattern);
+      if(carInfo.sprite == CarSprite::Right)
+      {
+        drawable.xStart += 1;
+        drawable.yStart -= 2;
+      }
+      drawable.yEnd = drawable.yStart + (drawable.sprite->height >> yZoomPattern) - 1;
+      drawable.zoomPattern = xZoomPattern;
+      drawable.yZoomPattern = (1 << yZoomPattern);
+      insertDrawableIntoSortedList(drawable, drawableList);
+      ++drawableCount;
+    }
+  } // end dust
 
   {
     Drawable& drawable = context.drawables[drawableCount];
