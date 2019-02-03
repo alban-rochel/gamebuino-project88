@@ -264,8 +264,8 @@ struct BonusStar
 
 struct Drawable
 {
-  int16_t xStart;
-  int16_t yStart;
+  int32_t xStart;
+  int32_t yStart;
   uint16_t yEnd;
   uint16_t zoomPattern;
   uint8_t yZoomPattern;

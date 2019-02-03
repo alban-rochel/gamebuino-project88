@@ -11,7 +11,7 @@
 
 using namespace roads;
 
-#define HORIZON_OFFSET (100 << Z_POSITION_SHIFT)
+#define HORIZON_OFFSET (200 << Z_POSITION_SHIFT)
 
 #define MEMORY_SEGMENT_SIZE 10000
 uint8_t memory[MEMORY_SEGMENT_SIZE];
@@ -766,7 +766,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
         if(currentCollision)
         {
           object.visible = false;
-          remainingFuel += (1000 << Z_POSITION_SHIFT);
+          remainingFuel += (2000 << Z_POSITION_SHIFT);
           if(remainingFuel > MAX_FUEL)
             remainingFuel = MAX_FUEL;
           collisionFx = bonusSfx;
@@ -1911,7 +1911,7 @@ Drawable* drawableList = nullptr;
       drawable.yStart = 122 - (drawable.sprite->height >> yZoomPattern);
       if(carInfo.sprite == CarSprite::Left)
       {
-        drawable.xStart += 1;
+        drawable.xStart += 2;
         drawable.yStart -= 2;
       }
       drawable.yEnd = drawable.yStart + (drawable.sprite->height >> yZoomPattern) - 1;
@@ -1929,7 +1929,7 @@ Drawable* drawableList = nullptr;
       drawable.yStart = 122 - (drawable.sprite->height >> yZoomPattern);
       if(carInfo.sprite == CarSprite::Right)
       {
-        drawable.xStart += 1;
+        drawable.xStart += 2;
         drawable.yStart -= 2;
       }
       drawable.yEnd = drawable.yStart + (drawable.sprite->height >> yZoomPattern) - 1;
