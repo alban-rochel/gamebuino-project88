@@ -13,7 +13,7 @@ using namespace roads;
 
 #define HORIZON_OFFSET (100 << Z_POSITION_SHIFT)
 
-#define MEMORY_SEGMENT_SIZE 8192
+#define MEMORY_SEGMENT_SIZE 10000
 uint8_t memory[MEMORY_SEGMENT_SIZE];
 void* nextAvailableSegment;
 
@@ -170,11 +170,11 @@ void initDepthInfo( const LevelConfig& config,
       scaleFactor = *(ScaleFactor + rowIndex);
 
       offset = config.lineWidth >> 1;
-      depthInfo.lineWidth = (int16_t)((scaleFactor*offset) >> SCALE_FACTOR_SHIFT);
+      depthInfo.lineWidth = (int32_t)((scaleFactor*offset) >> SCALE_FACTOR_SHIFT);
       offset += (config.roadWidth) >> 1;
-      depthInfo.lineRoadWidth = (int16_t)((scaleFactor*offset) >> SCALE_FACTOR_SHIFT);
+      depthInfo.lineRoadWidth = (int32_t)((scaleFactor*offset) >> SCALE_FACTOR_SHIFT);
       offset += config.bumperWidth;
-      depthInfo.lineRoadBumperWidth = (int16_t)((scaleFactor*offset) >> SCALE_FACTOR_SHIFT);
+      depthInfo.lineRoadBumperWidth = (int32_t)((scaleFactor*offset) >> SCALE_FACTOR_SHIFT);
 
       if(depthInfo.lineWidth == 0)
       {
@@ -1034,34 +1034,47 @@ force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  /*unsigned int d
       }
       else if(y >= current->yStart && y <= current->yEnd)
       {
-        //uint16_t offset = drawable.sprite->width * (y - drawable.yStart) * drawable.zoomPattern;
-        const uint16_t* spriteBufferWithOffset = current->sprite->buffer + (current->sprite->width * ((y - current->yStart) * 8 / current->zoomPattern));
-        int16_t xIndex = current->xStart;
-        uint16_t color;
-        /*for(int16_t x = 0; x < current->sprite->width && xIndex < SCREEN_WIDTH; x+=current->zoomPattern, ++xIndex)
+        if(current->zoomPattern == 8)
         {
-          if(xIndex >= 0)
+          // fast, no zoom
+          const uint16_t* spriteBufferWithOffset = current->sprite->buffer + (current->sprite->width * ((y - current->yStart)));
+          int32_t xIndex = current->xStart;
+          int32_t coordInSprite = 0;
+          if(xIndex < 0)
           {
-            color = (*spriteBufferWithOffset);
-            spriteBufferWithOffset += current->zoomPattern;
-            if(color != COLOR_565(0xFF, 0x00, 0xFF))
-            {
-              stripLine[xIndex] = color;
-            }
+            coordInSprite = -xIndex;
+            xIndex = 0;
           }
-        }*/
-        for(int16_t coordInSprite = 0; coordInSprite<current->sprite->width; ++coordInSprite)
-        {
-          xIndex = current->xStart + ((coordInSprite * current->zoomPattern) >> 3);
-          if(xIndex >= 0 && xIndex < SCREEN_WIDTH)
+          uint16_t color;
+  
+          for(; coordInSprite<current->sprite->width && xIndex < SCREEN_WIDTH; ++coordInSprite, ++xIndex)
           {
-            color = (spriteBufferWithOffset[coordInSprite]);
-            if(color != COLOR_565(0xFF, 0x00, 0xFF))
-            {
-              stripLine[xIndex] = color;
-            }
+              color = (*spriteBufferWithOffset++);
+              if(color != COLOR_565(0xFF, 0x00, 0xFF))
+              {
+                stripLine[xIndex] = color;
+              }
           }
         }
+        else
+        { // with zoom
+          const uint16_t* spriteBufferWithOffset = current->sprite->buffer + (current->sprite->width * ((y - current->yStart) * 8 / current->zoomPattern));
+          int32_t xIndex = current->xStart;
+          uint16_t color;
+  
+          for(int32_t coordInSprite = 0; coordInSprite<current->sprite->width; ++coordInSprite)
+          {
+            xIndex = current->xStart + ((coordInSprite * current->zoomPattern) >> 3);
+            if(xIndex >= 0 && xIndex < SCREEN_WIDTH)
+            {
+              color = (spriteBufferWithOffset[coordInSprite]);
+              if(color != COLOR_565(0xFF, 0x00, 0xFF))
+              {
+                stripLine[xIndex] = color;
+              }
+            }
+          }
+        } // end with zoom
       }
       current = current->next;
     }
@@ -1260,7 +1273,7 @@ force_inline void drawFrameSkyway(GraphicsManager& gm,
       int16_t col = 0;
       const uint16_t& bumperColor = COLOR_565(pulse, pulse, pulse);
       const uint16_t& lineColor = COLOR_565(pulse, 0, 0);
-      int16_t target = x - di.lineRoadBumperWidth;
+      int32_t target = x - di.lineRoadBumperWidth;
       
       if(target >= SCREEN_WIDTH)
       {
@@ -1931,7 +1944,7 @@ Drawable* drawableList = nullptr;
     Drawable& drawable = context.drawables[drawableCount];
     drawable.sprite = carInfo.fluxSprite;
     drawable.xStart = SCREEN_WIDTH - drawable.sprite->width;
-    drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
+    drawable.yStart = 0;//SCREEN_HEIGHT - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 8;
     drawable.yZoomPattern = 1;
@@ -1958,7 +1971,7 @@ Drawable* drawableList = nullptr;
     Drawable& drawable = context.drawables[drawableCount];
     drawable.sprite = &dotSprite;
     drawable.xStart = SPEEDOMETER_X[actualSpeedStep-1] - drawable.sprite->width;
-    drawable.yStart = SPEEDOMETER_Y[actualSpeedStep-1] - drawable.sprite->height;
+    drawable.yStart = 0;//SPEEDOMETER_Y[actualSpeedStep-1] - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 8;
     drawable.yZoomPattern = 1;
@@ -1970,7 +1983,7 @@ Drawable* drawableList = nullptr;
     Drawable& drawable = context.drawables[drawableCount];
     drawable.sprite = &context.fuelSprites[0];
     drawable.xStart = 0;
-    drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height;
+    drawable.yStart = 0;//SCREEN_HEIGHT - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 8;
     drawable.yZoomPattern = 1;
@@ -1985,7 +1998,7 @@ Drawable* drawableList = nullptr;
         Drawable& drawable = context.drawables[drawableCount];
         drawable.sprite = &context.fuelSprites[1];
         drawable.xStart = 0;
-        drawable.yStart = SCREEN_HEIGHT - drawable.sprite->height - 4;
+        drawable.yStart = 0;//SCREEN_HEIGHT - drawable.sprite->height - 4;
         drawable.yEnd = drawable.yStart + fuelOffset - 1;
         drawable.zoomPattern = 8;
         drawable.yZoomPattern = 1;
