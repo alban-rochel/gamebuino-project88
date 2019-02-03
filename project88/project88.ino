@@ -272,7 +272,7 @@ force_inline void computeHills(CarInfo& carInfo, LevelContext& context) noexcept
     float currZIndex = 0.f;
     //float totalCurvature = 0.f;
 
-    int16_t zIndex = 0;
+    int32_t zIndex = 0;
     int16_t y=0;
 
     while(zIndex < DEPTH_LEVEL_COUNT && y < SCREEN_HEIGHT && zIndex >= 0)
@@ -543,7 +543,7 @@ force_inline uint8_t computeDrawable(LevelContext& context, int16_t posX, Z_POSI
 
     drawable.xStart = context.depthLevelToX[context.lineToDepthLevel[drawableLine]] - ((scale * posX) >> SCALE_FACTOR_SHIFT);
     
-    uint16_t actualHeight = ((drawable.sprite->height * drawable.zoomPattern) >> 3);
+    uint32_t actualHeight = ((drawable.sprite->height * drawable.zoomPattern) >> 3);
     drawable.yStart = (drawableLine >= actualHeight) ? drawableLine - actualHeight : 0;
     drawable.yEnd = drawable.yStart + actualHeight - 1;
 
@@ -766,7 +766,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
         if(currentCollision)
         {
           object.visible = false;
-          remainingFuel += (2000 << Z_POSITION_SHIFT);
+          remainingFuel += (3000 << Z_POSITION_SHIFT);
           if(remainingFuel > MAX_FUEL)
             remainingFuel = MAX_FUEL;
           collisionFx = bonusSfx;
@@ -1022,7 +1022,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
   }
 }
 
-force_inline void drawSprites(uint16_t y, uint16_t* stripLine,  /*unsigned int drawableCount*/Drawable*& drawableList, LevelContext& context) noexcept
+force_inline void drawSprites(uint32_t y, uint16_t* stripLine,  /*unsigned int drawableCount*/Drawable*& drawableList, LevelContext& context) noexcept
 {
 
   Drawable* current = drawableList;
@@ -1103,7 +1103,7 @@ force_inline void drawFrame(GraphicsManager& gm,
   for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip)
   {
     stripLine = stripCursor;
-    uint8_t depthLevel = context.lineToDepthLevel[y];
+    uint32_t depthLevel = context.lineToDepthLevel[y];
 
     backgroundY = y;
     
@@ -1237,7 +1237,7 @@ force_inline void drawFrameSkyway(GraphicsManager& gm,
   for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip)
   {
     stripLine = stripCursor;
-    uint8_t depthLevel = context.lineToDepthLevel[y];
+    uint32_t depthLevel = context.lineToDepthLevel[y];
 
     backgroundY = y;
     {
@@ -1533,7 +1533,7 @@ int gameLoop(LevelConfig& config) noexcept
 
   LevelContext context;
   context.depthLevels       = (DepthInfo*)        mphAlloc(DEPTH_LEVEL_COUNT * sizeof(DepthInfo));
-  context.lineToDepthLevel  = (uint8_t*)          mphAlloc(SCREEN_HEIGHT);
+  context.lineToDepthLevel  = (uint32_t*)         mphAlloc(SCREEN_HEIGHT * sizeof(uint32_t));
   context.depthLevelToX     = (int16_t*)          mphAlloc(DEPTH_LEVEL_COUNT * sizeof(int16_t));
   context.trackPalette      = (uint16_t*)         mphAlloc(2 * COLOR_TRACK_SIZE * sizeof(uint16_t));
   context.segments          = (RoadSegment*)      mphAlloc(3 * sizeof(RoadSegment));
@@ -1971,7 +1971,7 @@ Drawable* drawableList = nullptr;
     Drawable& drawable = context.drawables[drawableCount];
     drawable.sprite = &dotSprite;
     drawable.xStart = SPEEDOMETER_X[actualSpeedStep-1] - drawable.sprite->width;
-    drawable.yStart = 0;//SPEEDOMETER_Y[actualSpeedStep-1] - drawable.sprite->height;
+    drawable.yStart = SPEEDOMETER_Y[actualSpeedStep-1] - drawable.sprite->height;
     drawable.yEnd = drawable.yStart + drawable.sprite->height - 1;
     drawable.zoomPattern = 8;
     drawable.yZoomPattern = 1;
@@ -1998,7 +1998,7 @@ Drawable* drawableList = nullptr;
         Drawable& drawable = context.drawables[drawableCount];
         drawable.sprite = &context.fuelSprites[1];
         drawable.xStart = 0;
-        drawable.yStart = 0;//SCREEN_HEIGHT - drawable.sprite->height - 4;
+        drawable.yStart = 3;//SCREEN_HEIGHT - drawable.sprite->height - 4;
         drawable.yEnd = drawable.yStart + fuelOffset - 1;
         drawable.zoomPattern = 8;
         drawable.yZoomPattern = 1;
@@ -2065,7 +2065,7 @@ void setup()
   {
     float angle = MIN_SPEED_ANGLE + (MAX_SPEED_ANGLE - MIN_SPEED_ANGLE) * (index) / float(SPEED_STEP_COUNT);
     SPEEDOMETER_X[index] = (SCREEN_WIDTH - SPEED_HAND_CENTER_X + DOT_WIDTH/2 + SPEED_HAND_LENGTH * cos(angle) + 0.5);
-    SPEEDOMETER_Y[index] = (SCREEN_HEIGHT - SPEED_HAND_CENTER_Y + DOT_HEIGHT/2 - SPEED_HAND_LENGTH * sin(angle) + 0.5);
+    SPEEDOMETER_Y[index] = (28- SPEED_HAND_CENTER_Y + DOT_HEIGHT/2 - SPEED_HAND_LENGTH * sin(angle) + 0.5);
   }
 
   SerialUSB.begin(9600);

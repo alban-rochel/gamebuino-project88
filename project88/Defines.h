@@ -266,9 +266,9 @@ struct Drawable
 {
   int32_t xStart;
   int32_t yStart;
-  uint16_t yEnd;
-  uint16_t zoomPattern;
-  uint8_t yZoomPattern;
+  uint32_t yEnd;
+  uint32_t zoomPattern;
+  uint32_t yZoomPattern;
   SpriteDefinition* sprite; 
   Drawable* next; // for Drawable sorting
   bool removable;
@@ -277,7 +277,7 @@ struct Drawable
 struct LevelContext
 {
   DepthInfo* depthLevels;
-  uint8_t* lineToDepthLevel;
+  uint32_t* lineToDepthLevel;
   int16_t* depthLevelToX;
   uint16_t* trackPalette;
   RoadSegment* segments;
