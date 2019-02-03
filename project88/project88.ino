@@ -11,6 +11,8 @@
 
 using namespace roads;
 
+#define HORIZON_OFFSET (100 << Z_POSITION_SHIFT)
+
 #define MEMORY_SEGMENT_SIZE 8192
 uint8_t memory[MEMORY_SEGMENT_SIZE];
 void* nextAvailableSegment;
@@ -346,7 +348,7 @@ force_inline void updateSceneryObjects(LevelContext& context, const CarInfo& car
 void createJerrican(LevelContext& context, Jerrican& object, Z_POSITION zPos, const LevelConfig& config) noexcept
 {
   object.posX = random(- config.roadWidth/2, config.roadWidth/2);
-  object.posZ = zPos + (1000 << Z_POSITION_SHIFT); // Every 1000m
+  object.posZ = zPos + (1500 << Z_POSITION_SHIFT); // Every 1500m
   object.sprite = context.sprites + JERRICAN_SPRITE_INDEX;
   object.visible = true;
 }
@@ -556,45 +558,57 @@ force_inline uint8_t computeDrawable(LevelContext& context, int16_t posX, Z_POSI
 force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carInfo, Drawable*& drawableList, const LevelConfig& config) noexcept
 {
   uint8_t nextDrawableIndex = 0;
+
+  Z_POSITION maxPos = carInfo.posZ + HORIZON_OFFSET;
+  
   for(uint8_t index = 0; index < config.sceneryObjectsCount; ++index)
   {
     SceneryObject& object = context.sceneryObjects[index];
-    nextDrawableIndex = computeDrawable(context,
-                                        object.posX,
-                                        object.posZ,
-                                        object.sprite,
-                                        carInfo,
-                                        drawableList,
-                                        nextDrawableIndex);
+    if(object.posZ < maxPos)
+    {
+      nextDrawableIndex = computeDrawable(context,
+                                          object.posX,
+                                          object.posZ,
+                                          object.sprite,
+                                          carInfo,
+                                          drawableList,
+                                          nextDrawableIndex);
+    }
   }
 
   for(uint8_t index = 0; index < config.staticObstaclesCount; ++index)
   {
     StaticObstacle& object = context.staticObstacles[index];
-    nextDrawableIndex = computeDrawable(context,
-                                        object.posX,
-                                        object.posZ,
-                                        object.sprite,
-                                        carInfo,
-                                        drawableList,
-                                        nextDrawableIndex);
+    if(object.posZ < maxPos)
+    {
+      nextDrawableIndex = computeDrawable(context,
+                                          object.posX,
+                                          object.posZ,
+                                          object.sprite,
+                                          carInfo,
+                                          drawableList,
+                                          nextDrawableIndex);
+    }
   }
 
   for(uint8_t index = 0; index < config.movingObstaclesCount; ++index)
   {
     MovingObstacle& object = context.movingObstacles[index];
-    nextDrawableIndex = computeDrawable(context,
-                                        object.posX,
-                                        object.posZ,
-                                        object.sprite,
-                                        carInfo,
-                                        drawableList,
-                                        nextDrawableIndex);
+    if(object.posZ < maxPos)
+    {
+      nextDrawableIndex = computeDrawable(context,
+                                          object.posX,
+                                          object.posZ,
+                                          object.sprite,
+                                          carInfo,
+                                          drawableList,
+                                          nextDrawableIndex);
+    }
   }
 
   {
     Jerrican& object = *(context.jerrican);
-    if(object.visible)
+    if(object.visible && object.posZ < maxPos)
     {
       nextDrawableIndex = computeDrawable(context,
                                          object.posX,
@@ -608,7 +622,7 @@ force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carI
 
     {
     BonusStar& object = *(context.bonusStar);
-    if(object.visible)
+    if(object.visible && object.posZ < maxPos )
     {
       nextDrawableIndex = computeDrawable(context,
                                          object.posX,
@@ -752,7 +766,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
         if(currentCollision)
         {
           object.visible = false;
-          remainingFuel += (5000 << Z_POSITION_SHIFT);
+          remainingFuel += (1000 << Z_POSITION_SHIFT);
           if(remainingFuel > MAX_FUEL)
             remainingFuel = MAX_FUEL;
           collisionFx = bonusSfx;
@@ -1551,24 +1565,32 @@ int gameLoop(LevelConfig& config) noexcept
     context.sprites[0].width = TREE_WIDTH;
     context.sprites[0].height = TREE_HEIGHT;
     context.sprites[0].buffer = TREE;
+
+    context.sprites[1].width = TREE2_WIDTH;
+    context.sprites[1].height = TREE2_HEIGHT;
+    context.sprites[1].buffer = TREE2;
   
-    context.sprites[1].width = BUSH_WIDTH;
-    context.sprites[1].height = BUSH_HEIGHT;
-    context.sprites[1].buffer = BUSH;
+    context.sprites[2].width = BUSH_WIDTH;
+    context.sprites[2].height = BUSH_HEIGHT;
+    context.sprites[2].buffer = BUSH;
   
-    context.sprites[2].width = CAR_SUBURB_WIDTH;
-    context.sprites[2].height = CAR_SUBURB_HEIGHT;
-    context.sprites[2].buffer = CAR_SUBURB;
+    context.sprites[3].width = CAR_SUBURB_WIDTH;
+    context.sprites[3].height = CAR_SUBURB_HEIGHT;
+    context.sprites[3].buffer = CAR_SUBURB;
+    
+    context.sprites[4].width = CAR_SUBURB2_WIDTH;
+    context.sprites[4].height = CAR_SUBURB2_HEIGHT;
+    context.sprites[4].buffer = CAR_SUBURB2;
     
     config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
     config.sceneryObjectsIndexStart = 0;
-    config.sceneryObjectsIndexEnd = 2;
+    config.sceneryObjectsIndexEnd = 3;
     config.staticObstaclesCount = 0;
     config.staticObstaclesIndexStart = 0;
     config.staticObstaclesIndexEnd = 2;
     config.movingObstaclesCount = 2;
-    config.movingObstaclesIndexStart = 2;
-    config.movingObstaclesIndexEnd = 3;
+    config.movingObstaclesIndexStart = 3;
+    config.movingObstaclesIndexEnd = 5;
   }
   else if(config.level == Level::Skyway)
   {
@@ -1579,6 +1601,10 @@ int gameLoop(LevelConfig& config) noexcept
     context.sprites[1].width = POLICE_WIDTH;
     context.sprites[1].height = POLICE_HEIGHT;
     context.sprites[1].buffer = POLICE;
+
+    context.sprites[2].width = CAR_SKYWAY_WIDTH;
+    context.sprites[2].height = CAR_SKYWAY_HEIGHT;
+    context.sprites[2].buffer = CAR_SKYWAY;
     
     config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
     config.sceneryObjectsIndexStart = 0;
@@ -1586,9 +1612,9 @@ int gameLoop(LevelConfig& config) noexcept
     config.staticObstaclesCount = 0;
     config.staticObstaclesIndexStart = 0;
     config.staticObstaclesIndexEnd = 2;
-    config.movingObstaclesCount = 2;
+    config.movingObstaclesCount = 3;
     config.movingObstaclesIndexStart = 1;
-    config.movingObstaclesIndexEnd = 1;
+    config.movingObstaclesIndexEnd = 3;
   }
   else // Bonus
   {
