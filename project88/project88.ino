@@ -347,10 +347,15 @@ force_inline void updateSceneryObjects(LevelContext& context, const CarInfo& car
 
 void createJerrican(LevelContext& context, Jerrican& object, Z_POSITION zPos, const LevelConfig& config) noexcept
 {
-  object.posX = random(- config.roadWidth/2, config.roadWidth/2);
-  object.posZ = zPos + (1500 << Z_POSITION_SHIFT); // Every 1500m
-  object.sprite = context.sprites + JERRICAN_SPRITE_INDEX;
-  object.visible = true;
+  if(context.remainingJerricans)
+  {
+    object.posX = random(- config.roadWidth/2, config.roadWidth/2);
+    object.posZ = zPos + (1500 << Z_POSITION_SHIFT); // Every 1500m
+    object.sprite = context.sprites + JERRICAN_SPRITE_INDEX;
+    object.visible = true;
+    --context.remainingJerricans;
+  }
+  
 }
 
 force_inline void updateJerrican(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
@@ -373,6 +378,9 @@ void createBonusStar(LevelContext& context, BonusStar& object, const LevelConfig
 
 force_inline void updateBonusStar(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
 {
+  if(!context.bonusStar)
+    return;
+    
   BonusStar& object = *(context.bonusStar);
   if(!object.visible)
     return;
@@ -620,6 +628,7 @@ force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carI
     }
   }
 
+    if(context.bonusStar)
     {
     BonusStar& object = *(context.bonusStar);
     if(object.visible && object.posZ < maxPos )
@@ -775,6 +784,7 @@ force_inline void updateCarInfo(const LevelContext& context, CarInfo& carInfo, c
         }
       } // end jerrican
 
+      if(context.bonusStar)
       {
         BonusStar& object = *(context.bonusStar);
         diffZ = object.posZ-carInfo.posZ;
@@ -1547,6 +1557,7 @@ int gameLoop(LevelConfig& config) noexcept
   context.jerrican          = (Jerrican*)         mphAlloc(sizeof(Jerrican));
   context.bonusStar         = (BonusStar*)        mphAlloc(sizeof(BonusStar));
   context.drawables         = (Drawable*)         mphAlloc(MAX_DRAWABLES * sizeof(Drawable));
+  context.remainingJerricans = 3;
 
 
   if(config.level == Level::Arizona)
@@ -1554,21 +1565,29 @@ int gameLoop(LevelConfig& config) noexcept
     context.sprites[0].width = CACTUS_WIDTH;
     context.sprites[0].height = CACTUS_HEIGHT;
     context.sprites[0].buffer = CACTUS;
+
+    context.sprites[1].width = CACTUS2_WIDTH;
+    context.sprites[1].height = CACTUS2_HEIGHT;
+    context.sprites[1].buffer = CACTUS2;
   
-    context.sprites[1].width = BUSH_WIDTH;
-    context.sprites[1].height = BUSH_HEIGHT;
-    context.sprites[1].buffer = BUSH;
+    context.sprites[2].width = BUSH_WIDTH;
+    context.sprites[2].height = BUSH_HEIGHT;
+    context.sprites[2].buffer = BUSH;
   
-    context.sprites[2].width = BOULDER_WIDTH;
-    context.sprites[2].height = BOULDER_HEIGHT;
-    context.sprites[2].buffer = BOULDER;
+    context.sprites[3].width = BOULDER_WIDTH;
+    context.sprites[3].height = BOULDER_HEIGHT;
+    context.sprites[3].buffer = BOULDER;
+
+    context.sprites[4].width = BOULDER2_WIDTH;
+    context.sprites[4].height = BOULDER2_HEIGHT;
+    context.sprites[4].buffer = BOULDER2;
     
     config.sceneryObjectsCount = MAX_SCENERY_OBJECTS;
     config.sceneryObjectsIndexStart = 0;
-    config.sceneryObjectsIndexEnd = 3;
+    config.sceneryObjectsIndexEnd = 5;
     config.staticObstaclesCount = MAX_STATIC_OBSTACLES;
-    config.staticObstaclesIndexStart = 2;
-    config.staticObstaclesIndexEnd = 3;
+    config.staticObstaclesIndexStart = 3;
+    config.staticObstaclesIndexEnd = 5;
     config.movingObstaclesCount = 0;
     config.movingObstaclesIndexStart = 0;
     config.movingObstaclesIndexEnd = 0;
@@ -1802,7 +1821,14 @@ int gameLoop(LevelConfig& config) noexcept
   createStaticObstacles(context, config);
   createMovingObstacles(context, config);
   createJerrican(context, *(context.jerrican), 0, config);
-  createBonusStar(context, *(context.bonusStar), config);
+  if(config.level == Level::Bonus)
+  {
+    context.bonusStar = nullptr;
+  }
+  else
+  {
+    createBonusStar(context, *(context.bonusStar), config);
+  }
   
   int16_t backgroundShift = 0; /* sign.11.4 */
 
@@ -1995,32 +2021,28 @@ Drawable* drawableList = nullptr;
 
       {
         uint16_t fuelOffset = ((MAX_FUEL - remainingFuel) >> 17);
-        Drawable& drawable = context.drawables[drawableCount];
-        drawable.sprite = &context.fuelSprites[1];
-        drawable.xStart = 0;
-        drawable.yStart = 3;//SCREEN_HEIGHT - drawable.sprite->height - 4;
-        drawable.yEnd = drawable.yStart + fuelOffset - 1;
-        drawable.zoomPattern = 8;
-        drawable.yZoomPattern = 1;
-        
-        if(fuelOffset >= drawable.sprite->height - 4) // blink
+        if(fuelOffset < context.fuelSprites[1].height - 4 || ((gb.frameCount >> 4) & 0x01)) // blink
         {
-          if((gb.frameCount >> 4) & 0x01)
-          {
-            ++drawableCount;
-          }
-        }
-        else
-        {
-          ++drawableCount;
-        }
+          Drawable& drawable = context.drawables[drawableCount];
+          drawable.sprite = &context.fuelSprites[1];
+          drawable.xStart = 0;
+          drawable.yStart = 3;
+          drawable.yEnd = drawable.yStart + fuelOffset - 1;
+          drawable.zoomPattern = 8;
+          drawable.yZoomPattern = 1;
 
-        if(fuelOffset >= drawable.sprite->height)
-        {
-          free(taskSet.tasks);
-          return 1; // game over
+          ++drawableCount;
+
+          if(fuelOffset >= drawable.sprite->height)
+          {
+            free(taskSet.tasks);
+            return 1; // game over
+          }
+          
+          insertDrawableAtEndOfList(drawable, drawableList);
         }
-        insertDrawableAtEndOfList(drawable, drawableList);
+      
+
     }
 
   if(config.level == Level::Skyway)
@@ -2039,12 +2061,12 @@ Drawable* drawableList = nullptr;
     return 0;
   }
   
-    if(gb.buttons.repeat(BUTTON_MENU, 0))
+    /*if(gb.buttons.repeat(BUTTON_MENU, 0))
     {
       SerialUSB.printf("CPU: %i\n", gb.getCpuLoad());
       SerialUSB.printf("MEM: %i\n", gb.getFreeRam());
       SerialUSB.printf("REMAIN: %i\n", allocFreeRam());
-    }
+    }*/
   }
 
   return 0;

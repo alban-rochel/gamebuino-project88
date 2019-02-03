@@ -294,4 +294,5 @@ struct LevelContext
   const uint8_t* background;
   const uint32_t* backgroundPalette;
   uint16_t backgroundHeight;
+  uint32_t remainingJerricans;
 };
