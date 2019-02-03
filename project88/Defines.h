@@ -207,10 +207,10 @@ struct CarInfo
 struct DepthInfo
 {
   Z_POSITION z;
-  float scaleFactor = 0;        // TODO 8.8
-  int16_t lineWidth = 0;  // TODO int8_t
-  int16_t lineRoadWidth = 0;    // TODO int8_t
-  int16_t lineRoadBumperWidth = 0;    // TODO int8_t
+  float scaleFactor = 0;
+  int32_t lineWidth = 0;
+  int32_t lineRoadWidth = 0;
+  int32_t lineRoadBumperWidth = 0;
 };
 
 struct RoadSegment

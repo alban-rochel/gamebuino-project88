@@ -1078,7 +1078,7 @@ force_inline void drawFrame(GraphicsManager& gm,
                             GraphicsManager::TaskSet* taskSet
                             ) noexcept
 {
-    uint16_t* strip = gm.StartFrame();
+  uint16_t* strip = gm.StartFrame();
   uint16_t* stripLine;
   uint16_t* stripCursor = strip;
 
@@ -1130,7 +1130,7 @@ force_inline void drawFrame(GraphicsManager& gm,
       uint32_t bumperColor32 = ((uint32_t)(bumperColor) << 16) | bumperColor;
       uint32_t lineColor32 = ((uint32_t)(lineColor) << 16) | lineColor;
       uint32_t roadColor32 = ((uint32_t)(roadColor) << 16) | roadColor;
-      int16_t target = x - di.lineRoadBumperWidth;
+      int32_t target = x - di.lineRoadBumperWidth;
       if(target >= SCREEN_WIDTH)
       {
         target = SCREEN_WIDTH - 1;
@@ -1220,7 +1220,7 @@ force_inline void drawFrameSkyway(GraphicsManager& gm,
   unsigned int yStrip = 1;
   int8_t actualShift(backgroundShift >> ROAD_CURVATURE_X_SHIFT);
   unsigned int backgroundY;
-uint8_t pulse = gb.frameCount << 3;
+  uint8_t pulse = gb.frameCount << 3;
   for(unsigned int y = 0; y < SCREEN_HEIGHT; ++y, ++yStrip)
   {
     stripLine = stripCursor;
