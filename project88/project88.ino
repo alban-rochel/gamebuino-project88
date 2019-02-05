@@ -384,6 +384,13 @@ force_inline void updateBonusStar(LevelContext& context, const CarInfo& carInfo,
   BonusStar& object = *(context.bonusStar);
   if(!object.visible)
     return;
+
+  if(unlikely(object.posZ < carInfo.posZ))
+  {
+    object.visible = false;
+    context.bonusStar = nullptr;
+    return;
+  }
     
   if(unlikely(object.posZ > carInfo.posZ + (1000 << Z_POSITION_SHIFT)))
   {
