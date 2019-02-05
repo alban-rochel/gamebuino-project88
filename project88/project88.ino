@@ -347,23 +347,29 @@ force_inline void updateSceneryObjects(LevelContext& context, const CarInfo& car
 
 void createJerrican(LevelContext& context, Jerrican& object, Z_POSITION zPos, const LevelConfig& config) noexcept
 {
-  if(context.remainingJerricans)
-  {
     object.posX = random(- config.roadWidth/2, config.roadWidth/2);
     object.posZ = zPos + (1500 << Z_POSITION_SHIFT); // Every 1500m
     object.sprite = context.sprites + JERRICAN_SPRITE_INDEX;
-    object.visible = true;
-    --context.remainingJerricans;
-  }
-  
+    object.visible = true; 
 }
 
 force_inline void updateJerrican(LevelContext& context, const CarInfo& carInfo, const LevelConfig& config) noexcept
 {
+  if(!context.jerrican)
+    return;
+  
   Jerrican& object = *(context.jerrican);
   if(unlikely(object.posZ < carInfo.posZ))
   {
-    createJerrican(context, object, carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-5].z/2, config);
+    if(context.remainingJerricans)
+    {
+      createJerrican(context, object, carInfo.posZ + context.depthLevels[DEPTH_LEVEL_COUNT-5].z/2, config);
+      --context.remainingJerricans;
+    }
+    else
+    {
+      context.jerrican = nullptr;
+    }
   }
 }
 
