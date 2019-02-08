@@ -627,6 +627,7 @@ force_inline uint8_t computeDrawables(LevelContext& context, const CarInfo& carI
     }
   }
 
+  if(context.jerrican)
   {
     Jerrican& object = *(context.jerrican);
     if(object.visible && object.posZ < maxPos)
